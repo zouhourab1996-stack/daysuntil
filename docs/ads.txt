@@ -1,1 +1,15 @@
+# daysuntil.bond — Authorized Digital Sellers
+# Updated: 2026-10-07
+
+# Google AdSense (account-level; AdSense loader currently OFF on daysuntil,
+# line kept valid for the account / future re-enable)
 google.com, pub-3898992716389443, DIRECT, f08c47fec0942fa0
+
+# Adsterra (native banners served from pl31663786.profitableratecpmnetwork.com)
+# NOTE: Adsterra ads serve WITHOUT an ads.txt line; the line below only
+# improves buyer trust/fill once uncommented with the EXACT values from
+# the Adsterra dashboard (account-level ID, not the website pl-ID).
+# Source of the exact line: Adsterra dashboard -> profile/account -> ads.txt.
+# Typical format (pick the one your dashboard shows):
+# adsterra.com, <YOUR_ADSTERRA_ACCOUNT_ID>, DIRECT, a670c89d4a324e47
+# profitableratecpmnetwork.com, <YOUR_ADSTERRA_ACCOUNT_ID>, DIRECT
