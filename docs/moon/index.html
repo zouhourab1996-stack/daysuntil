@@ -28,6 +28,7 @@
 <nav class="crumbs"><a href="../">Home</a> › <span>Moon Phases</span></nav>
 <h1>🌕 Moon Phases</h1>
 <p class="lead">Every full moon and new moon through 2028, with exact peak times computed from lunar theory — plus the rare blue moons and black moons.</p>
+<div class="ad-box ad-lb"><span class="ad-label">Advertisement</span><div class="ad-unit" data-ad="lb"></div></div>
 <section class="cards"><a class="card" href="../new-moon-october-2026/"><span class="card-cat">🌕 Moon Phases</span>
       <b>October 2026 New Moon</b><span class="card-date">Saturday, October 10, 2026</span><span class="card-days" data-ms="1791647460000.0"></span></a><a class="card" href="../full-moon-october-2026/"><span class="card-cat">🌕 Moon Phases</span>
       <b>October 2026 Full Moon</b><span class="card-date">Monday, October 26, 2026</span><span class="card-days" data-ms="1792987980000.0"></span></a><a class="card" href="../new-moon-november-2026/"><span class="card-cat">🌕 Moon Phases</span>
@@ -88,6 +89,29 @@
 <script async="async" data-cfasync="false" src="https://pl31663786.profitableratecpmnetwork.com/4368ef0e6a8ac87d62246c7d7b8c8767/invoke.js"></script>
 <div id="container-4368ef0e6a8ac87d62246c7d7b8c8767"></div>
 </div>
+<script>
+(function(){
+  var U = {
+    lb: window.innerWidth >= 768
+      ? {key: 'ce212b09ab71f3ac75e05e95afdd6fed', height: 90, width: 728}
+      : {key: '9e3263fcdf6651403423fb5dbf914311', height: 50, width: 320},
+    mrec: {key: '169bb7e38531898014c419fc7b6e9761', height: 250, width: 300}
+  };
+  var q = Array.prototype.slice.call(document.querySelectorAll('.ad-unit[data-ad]'));
+  function next(){
+    var el = q.shift(); if (!el) return;
+    var u = U[el.getAttribute('data-ad')]; if (!u) return next();
+    window.atOptions = {'key': u.key, 'format': 'iframe', 'height': u.height, 'width': u.width, 'params': {}};
+    var s = document.createElement('script');
+    s.src = 'https://www.highrevenueformat.com/' + u.key + '/invoke.js';
+    var done = false;
+    function go(){ if (done) return; done = true; setTimeout(next, 150); }
+    s.onload = go; s.onerror = go; setTimeout(go, 4000);
+    el.appendChild(s);
+  }
+  next();
+})();
+</script>
 </main>
 </main>
 <footer class="foot">
