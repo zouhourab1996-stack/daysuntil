@@ -73,3 +73,20 @@ h2{font-size:22px;margin:30px 0 12px}
 .ad-lb .ad-unit{min-height:90px;max-width:728px}
 @media(max-width:767.98px){.ad-lb .ad-unit{min-height:50px;max-width:320px}}
 .ad-mrec .ad-unit{min-height:250px;max-width:300px}
+
+/* mobile polish (2026-10-10): compact countdown row, one-row swipeable nav, readable small text, tap targets */
+img,video,iframe{max-width:100%;height:auto}
+.grid2>*,.foot-grid>*{min-width:0}
+@media(max-width:600px){
+ .nav{flex-wrap:nowrap;overflow-x:auto;width:100%;gap:18px;font-size:15px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+ .nav::-webkit-scrollbar{display:none}
+ .nav{-webkit-mask-image:linear-gradient(90deg,#000 82%,transparent);mask-image:linear-gradient(90deg,#000 82%,transparent);padding-right:28px}
+ .nav a{white-space:nowrap;padding:9px 0;flex:0 0 auto}
+ .cd-grid{gap:20px;flex-wrap:nowrap}
+ .cd-grid small{font-size:13px;letter-spacing:.06em}
+ .crumbs{font-size:14px}.crumbs a{display:inline-block;padding:5px 0}
+ .card-date,.cat-tile .count,.q-results .when{font-size:14.5px}
+ .tiny{font-size:13.5px}
+ .foot-grid a{display:inline-block;padding:7px 0}
+ .foot-grid,.foot-grid p{font-size:15.5px}
+}
