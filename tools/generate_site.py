@@ -29,6 +29,7 @@ NETWORK = [
     ('BMR Calc', 'https://www.bmrcalc.bond'),
     ('Pro Reviewer', 'https://pro-reviewer.cyou'),
     ('Prophetic Guidance', 'https://propheticguidance2026.blogspot.com'),
+    ('TrustScore', 'https://trustscore.bond'),
 ]
 
 # ---------------------------------------------------------------- load & merge
