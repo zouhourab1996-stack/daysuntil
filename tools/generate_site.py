@@ -109,46 +109,12 @@ GA_TAGS = ('<script async src="https://www.googletagmanager.com/gtag/js?id=' + G
            '<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}'
            "gtag('js',new Date());gtag('config','" + GA_ID + "');</script>")
 
-# ---------------------------------------------------------------- ads (Adsterra)
-# Native banner (existing, unchanged markup)
-NATIVE_AD = '''<div class="ad-slot" style="margin:16px auto;max-width:800px">
-<script async="async" data-cfasync="false" src="https://pl31663786.profitableratecpmnetwork.com/4368ef0e6a8ac87d62246c7d7b8c8767/invoke.js"></script>
-<div id="container-4368ef0e6a8ac87d62246c7d7b8c8767"></div>
-</div>
-'''
+# ---------------------------------------------------------------- ads (AdSense-only: daysuntil under Google review — no third-party ad code)
+NATIVE_AD = ''
+AD_LB = ''
+AD_MREC = ''
+AD_LOADER = ''
 
-# Display banners (iframe format). Only one leaderboard loads per page view:
-# 728x90 when window.innerWidth >= 768, otherwise 320x50. Each unit sets
-# window.atOptions immediately before appending its own invoke.js, and units
-# load strictly one after another (next starts after the previous script loads).
-AD_LB = '''<div class="ad-box ad-lb"><span class="ad-label">Advertisement</span><div class="ad-unit" data-ad="lb"></div></div>
-'''
-AD_MREC = '''<div class="ad-box ad-mrec"><span class="ad-label">Advertisement</span><div class="ad-unit" data-ad="mrec"></div></div>
-'''
-AD_LOADER = '''<script>
-(function(){
-  var U = {
-    lb: window.innerWidth >= 768
-      ? {key: 'ce212b09ab71f3ac75e05e95afdd6fed', height: 90, width: 728}
-      : {key: '9e3263fcdf6651403423fb5dbf914311', height: 50, width: 320},
-    mrec: {key: '169bb7e38531898014c419fc7b6e9761', height: 250, width: 300}
-  };
-  var q = Array.prototype.slice.call(document.querySelectorAll('.ad-unit[data-ad]'));
-  function next(){
-    var el = q.shift(); if (!el) return;
-    var u = U[el.getAttribute('data-ad')]; if (!u) return next();
-    window.atOptions = {'key': u.key, 'format': 'iframe', 'height': u.height, 'width': u.width, 'params': {}};
-    var s = document.createElement('script');
-    s.src = 'https://www.highrevenueformat.com/' + u.key + '/invoke.js';
-    var done = false;
-    function go(){ if (done) return; done = true; setTimeout(next, 150); }
-    s.onload = go; s.onerror = go; setTimeout(go, 4000);
-    el.appendChild(s);
-  }
-  next();
-})();
-</script>
-'''
 
 CSS = open(os.path.join(ROOT, 'tools', 'site.css')).read()
 JS = open(os.path.join(ROOT, 'tools', 'site.js')).read()
@@ -156,7 +122,7 @@ JS = open(os.path.join(ROOT, 'tools', 'site.js')).read()
 def head(title, desc, canonical, ogimg, ld_extra='', path_prefix='..'):
     return f'''<!doctype html>
 <html lang="en">
-<head>
+<head><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3898992716389443" crossorigin="anonymous"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(title)}</title>
@@ -208,7 +174,7 @@ def event_page(e):
     d = e['dt']
     title_tag = f'How Many Days Until {e["title"]}? Live Countdown & Exact Date'
     desc = f'{e["title"]} {"falls on" if True else ""} {date_nice(d)} — live countdown with days, hours, minutes and seconds remaining, plus weeks, weekdays and everything to know.'
-    faq = [
+    faq = e.get('faq') or [
         (f'How many days until {e["title"]}?', f'{e["title"]} falls on {date_nice(d)}. The live countdown at the top of this page shows the exact days, hours and minutes remaining from this very moment, in your time zone.'),
         (f'What date is {e["title"]}?', f'{e["title"]} is on {date_nice(d)} — a {d.strftime("%A")}.'),
         (f'How many weeks until {e["title"]}?', 'The counter on this page converts the remaining time to weeks, days, hours and seconds automatically, so the answer is always current no matter when you visit.'),
@@ -305,6 +271,9 @@ def category_page(cat):
 ''' + footer()
 
 def home_page():
+    TRENDING = ['avengers-doomsday', 'halloween-2026', 'new-year-2027', 'gta-6-release', 'black-friday-2026', '1111-portal-2026']
+    by_slug = {e['slug']: e for e in events}
+    trend = ''.join(card_html(by_slug[s]) for s in TRENDING if s in by_slug and by_slug[s]['ms'] > dt.datetime.now(dt.timezone.utc).timestamp() * 1000)
     upcoming = [e for e in events if e['ms'] > dt.datetime.now(dt.timezone.utc).timestamp() * 1000][:12]
     cards = ''.join(card_html(e) for e in upcoming)
     cats = ''.join(f'''<a class="cat-tile" href="{c}/" style="--c1:rgb{CATS[c]['c1']}"><span class="big">{CATS[c]['icon']}</span><b>{CATS[c]['name']}</b><span class="count">{sum(1 for e in events if e["category"]==c)} countdowns</span></a>''' for c in CATS)
@@ -323,7 +292,9 @@ def home_page():
   <p class="lead">{len(events)} live countdowns — every tick computed in your time zone, from Christmas and GTA 6 to the eclipse of the century.</p>
   <div class="searchbox"><input id="q" type="search" placeholder="Search an event — try “eclipse”, “Christmas”, “GTA”, “full moon”…" autocomplete="off"><div id="q-results" class="q-results" hidden></div></div>
 </section>
-{NATIVE_AD}<h2>⏳ Counting down right now</h2>
+<h2>🔥 Trending countdowns</h2>
+<section class="cards">{trend}</section>
+<h2>⏳ Counting down right now</h2>
 <section class="cards">{cards}</section>
 {AD_LB}<h2>🗂 Browse by category</h2>
 <section class="cat-grid">{cats}</section>
