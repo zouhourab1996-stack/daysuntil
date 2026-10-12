@@ -175,6 +175,17 @@ def event_page(e):
     d = e['dt']
     title_tag = f'How Many Days Until {e["title"]}? Live Countdown & Exact Date'
     desc = f'{e["title"]} {"falls on" if True else ""} {date_nice(d)} — live countdown with days, hours, minutes and seconds remaining, plus weeks, weekdays and everything to know.'
+    today = dt.date.today()
+    dd = (d.date() - today).days
+    if dd >= 0:
+        wk, rd = divmod(dd, 7)
+        wdays = sum(1 for i in range(1, dd + 1) if (today + dt.timedelta(days=i)).weekday() < 5)
+        glance = (f'As of {today.strftime("%B")} {today.day}, {today.year}: <b>{dd} days</b> to go — '
+                  f'{wk} weeks and {rd} days, {wdays} weekdays ({dd - wdays} weekend days), about {dd * 24:,} hours.')
+        desc += f' As of {today.strftime("%B")} {today.day}: {dd} days left.'
+        glance_html = f'<p class="cd-status">{glance}</p>'
+    else:
+        glance_html = ''
     faq = e.get('faq') or [
         (f'How many days until {e["title"]}?', f'{e["title"]} falls on {date_nice(d)}. The live countdown at the top of this page shows the exact days, hours and minutes remaining from this very moment, in your time zone.'),
         (f'What date is {e["title"]}?', f'{e["title"]} is on {date_nice(d)} — a {d.strftime("%A")}.'),
@@ -211,6 +222,7 @@ def event_page(e):
       <div><b id="cd-s">–</b><small>seconds</small></div>
     </div>
     <p class="cd-status" id="cd-status">{esc(e['title'])} falls on {date_nice(d)}.</p>
+    {glance_html}
   </div>
   <div class="chips">
     <span class="chip">📅 <b id="ch-weeks">–</b> weeks</span>
