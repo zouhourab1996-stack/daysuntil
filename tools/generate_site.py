@@ -173,10 +173,17 @@ def breadcrumb_ld(trail):
 def event_page(e):
     slug, cat = e['slug'], e['category']
     d = e['dt']
-    title_tag = f'How Many Days Until {e["title"]}? Live Countdown & Exact Date'
-    desc = f'{e["title"]} {"falls on" if True else ""} {date_nice(d)} — live countdown with days, hours, minutes and seconds remaining, plus weeks, weekdays and everything to know.'
     today = dt.date.today()
     dd = (d.date() - today).days
+    # Strike #2 (CTR): the live number goes IN THE TITLE for close events —
+    # the pattern every top-ranking countdown competitor uses.
+    if dd == 0:
+        title_tag = f"How Many Days Until {e['title']}? It's Today"
+    elif 0 < dd <= 180:
+        title_tag = f"How Many Days Until {e['title']}? {dd} Days Left"
+    else:
+        title_tag = f'How Many Days Until {e["title"]}? Live Countdown & Exact Date'
+    desc = f'{e["title"]} {"falls on" if True else ""} {date_nice(d)} — live countdown with days, hours, minutes and seconds remaining, plus weeks, weekdays and everything to know.'
     if dd >= 0:
         wk, rd = divmod(dd, 7)
         wdays = sum(1 for i in range(1, dd + 1) if (today + dt.timedelta(days=i)).weekday() < 5)
