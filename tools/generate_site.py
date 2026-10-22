@@ -53,6 +53,39 @@ events.sort(key=lambda e: e['ms'])
 assert len({e['slug'] for e in events}) == len(events), 'duplicate slugs!'
 print(f'{len(events)} events loaded')
 
+# ---------------------------------------------------------------- deep content
+# Thin-content fix: long-form, genuinely specific sections for the pages that
+# matter, kept in data/deep_content.json so hand-written copy survives a rebuild.
+_deep_path = os.path.join(DATA, 'deep_content.json')
+DEEP = json.load(open(_deep_path)) if os.path.exists(_deep_path) else {}
+if DEEP:
+    print(f'{len(DEEP)} deep-content page(s) loaded')
+
+# ------------------------------------------------- duplicate consolidation rule
+# Events that repeat by year (christmas-day-2026/2027/2028, full-moon-may-2027/2028…)
+# produce near-identical pages that compete with each other. Only the NEXT
+# occurrence is indexable; the rest stay live but carry noindex + canonical to
+# the next one, and are dropped from the sitemap.
+import re as _re
+PRIORITY_SLUGS = {
+    'avengers-doomsday', 'dune-part-three', 'black-friday-2026', 'halloween-2026',
+    'gta-6-release', '1111-portal-2026', 'christmas-day-2026', 'cyber-monday-2026',
+    'us-thanksgiving-2026', 'new-year-2027', 'ramadan-2027',
+}
+def _base(slug):
+    return _re.sub(r'-(\d{4})$', '', slug)
+
+_today = dt.datetime.now(dt.timezone.utc)
+_groups = {}
+for _e in events:
+    _groups.setdefault(_base(_e['slug']), []).append(_e)
+NEXT_OF = {}
+for _b, _items in _groups.items():
+    _future = sorted([x for x in _items if x['dt'] >= _today], key=lambda x: x['dt'])
+    _pick = _future[0] if _future else max(_items, key=lambda x: x['dt'])
+    NEXT_OF[_b] = _pick['slug']
+INDEXABLE = set(NEXT_OF.values()) | PRIORITY_SLUGS
+
 def date_nice(d, with_year=True):
     s = d.strftime('%A, %B ') + str(d.day)
     return s + f', {d.year}' if with_year else s
@@ -120,7 +153,8 @@ AD_LOADER = ''
 CSS = open(os.path.join(ROOT, 'tools', 'site.css')).read()
 JS = open(os.path.join(ROOT, 'tools', 'site.js')).read()
 
-def head(title, desc, canonical, ogimg, ld_extra='', path_prefix='..'):
+def head(title, desc, canonical, ogimg, ld_extra='', path_prefix='..', indexable=True):
+    robots = 'index,follow,max-snippet:-1,max-image-preview:large' if indexable else 'noindex,follow'
     return f'''<!doctype html>
 <html lang="en">
 <head><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3898992716389443" crossorigin="anonymous"></script>
@@ -129,7 +163,7 @@ def head(title, desc, canonical, ogimg, ld_extra='', path_prefix='..'):
 <title>{esc(title)}</title>
 <meta name="description" content="{esc(desc)}">
 <link rel="canonical" href="{canonical}">
-<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
+<meta name="robots" content="{robots}">
 <meta property="og:type" content="website"><meta property="og:site_name" content="{BRAND}">
 <meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(desc)}">
 <meta property="og:url" content="{canonical}"><meta property="og:image" content="{SITE}{ogimg}">
@@ -209,13 +243,28 @@ def event_page(e):
 
     facts = ''.join(f'<tr><th>{esc(k)}</th><td>{esc(v)}</td></tr>' for k, v in e['facts'])
     paras = ''.join(f'<p>{p}</p>' for p in e['desc'])
+    deep = DEEP.get(slug) or {}
+    deep_html = ''
+    for sec in deep.get('sections') or []:
+        deep_html += f'<h2>{esc(sec.get("h2", ""))}</h2>'
+        for para in sec.get('p') or []:
+            deep_html += f'<p>{para}</p>'
+        tbl = sec.get('table')
+        if tbl:
+            head_row = ''.join(f'<th>{esc(c)}</th>' for c in tbl['head'])
+            body_rows = ''.join('<tr>' + ''.join(f'<td>{esc(c)}</td>' for c in r) + '</tr>' for r in tbl['rows'])
+            deep_html += f'<div class="tablewrap"><table class="facts"><tr>{head_row}</tr>{body_rows}</table></div>'
+    if deep.get('faq'):
+        faq = faq + [(q, a) for q, a in deep['faq']]
     faq_html = ''.join(f'<details><summary>{esc(q)}</summary><p>{esc(a)}</p></details>' for q, a in faq)
 
     related = related_events(e)
     rel = ''.join(f'''<a class="card" href="../{r['slug']}/"><span class="card-cat">{CATS[r['category']]['icon']} {CATS[r['category']]['name']}</span>
       <b>{esc(r['title'])}</b><span class="card-date">{date_nice(r['dt'])}</span><span class="card-days" data-ms="{r['ms']}"></span></a>''' for r in related)
 
-    return head(title_tag, desc, f'{SITE}/{slug}/', f'/og/{slug}.png', ld_block) + nav_links('..') + f'''</nav>
+    indexable = slug in INDEXABLE
+    canonical = f'{SITE}/{slug}/' if indexable else f'{SITE}/{NEXT_OF.get(_base(slug), slug)}/'
+    return head(title_tag, desc, canonical, f'/og/{slug}.png', ld_block, '..', indexable) + nav_links('..') + f'''</nav>
 </header>
 <main id="main">
 <nav class="crumbs"><a href="../">Home</a> › <a href="../{cat}/">{CATS[cat]['name']}</a> › <span>{esc(e['title'])}</span></nav>
@@ -246,6 +295,7 @@ def event_page(e):
     <table class="facts">{facts}</table>
     <h2>About {esc(e["title"])}</h2>
     {paras}
+    {deep_html}
     {AD_MREC}  </div>
   <aside>
     <h2>Share this countdown</h2>
@@ -311,6 +361,21 @@ def home_page():
   <h1>How many days until…?</h1>
   <p class="lead">{len(events)} live countdowns — every tick computed in your time zone, from Christmas and GTA 6 to the eclipse of the century.</p>
   <div class="searchbox"><input id="q" type="search" placeholder="Search an event — try “eclipse”, “Christmas”, “GTA”, “full moon”…" autocomplete="off"><div id="q-results" class="q-results" hidden></div></div>
+</section>
+<section class="grid2">
+  <div>
+    <h2>How our countdowns work</h2>
+    <p>Every timer on this site runs <b>in your browser, on your device's clock</b>. That sounds like a technical detail, and it is the whole point: a countdown calculated on a server in one country is a day out for anyone whose calendar date differs at that instant, which is why so many countdown sites disagree with each other — and with your phone.</p>
+    <p>Each page shows the exact days, hours, minutes and seconds remaining, plus weeks, weekdays, weekend days and an approximate month count. For events with a precise moment — an eclipse, a solstice, a full moon — we also give the UTC time, because "June 21" is not an answer when the event happens at 08:25 UTC and your neighbour is eight hours behind.</p>
+    <h2>Why our number can differ from another site's</h2>
+    <p>Two reasons, and neither site is broken. The first is the <b>counting convention</b>: some tools count today as day one, so their answer is always one higher than ours. We count whole days remaining — <b>1 means tomorrow, 0 means today</b> — which is what most people mean when they ask. The second is the <b>time zone</b>, and ours always matches yours.</p>
+  </div>
+  <aside>
+    <h2>What's on the calendar</h2>
+    <p><b>267 dates</b> across nine categories. Holidays and observances through 2028; every full and new moon with its peak time; every solar and lunar eclipse from late 2026 through 2028 — including the eclipse of the century on August 2, 2027; every retrograde and direct station of all eight planets; the major annual meteor showers; solstices and equinoxes to the minute; and the big game launches, film releases and sporting dates.</p>
+    <p>The astronomy is computed with our own Keplerian ephemeris rather than copied from another site, which is why our times occasionally differ from theirs by a few minutes. Where a date depends on observation rather than calculation — a moon sighting, an announced release date — the page says so explicitly instead of presenting an estimate as fact.</p>
+    <p><a class="cta" href="about/">How we compute the dates →</a></p>
+  </aside>
 </section>
 <h2>🔥 Trending countdowns</h2>
 <section class="cards">{trend}</section>
@@ -394,15 +459,18 @@ for cat in CATS:
 for e in events:
     os.makedirs(os.path.join(OUT, e['slug']), exist_ok=True)
     open(os.path.join(OUT, e['slug'], 'index.html'), 'w').write(event_page(e))
+    if e['slug'] in INDEXABLE:
+        urls.append(f'{SITE}/{e["slug"]}/')
     og_image(os.path.join(OUT, 'og', e['slug'] + '.png'), e['title'],
              e['dt'].strftime('%b %-d, %Y') + (' · %d UTC' % e['dt'].hour if e['kind'] == 'datetime' else ''), e['category'])
-    urls.append(f"{SITE}/{e['slug']}/")
 
 open(os.path.join(OUT, 'index.html'), 'w').write(home_page())
 og_image(os.path.join(OUT, 'og', 'home.png'), 'How Many Days Until…?', f'{len(events)} live countdowns', 'planets', salt='home')
 
 today = BUILD_DATE.isoformat()
 sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+seen = set()
+urls = [u for u in urls if not (u in seen or seen.add(u))]
 for u in urls:
     sitemap += f'<url><loc>{u}</loc><lastmod>{today}</lastmod><changefreq>daily</changefreq><priority>{"1.0" if u.endswith("/") and u.count("/") < 4 else "0.8"}</priority></url>\n'
 sitemap += '</urlset>\n'

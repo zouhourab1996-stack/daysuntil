@@ -90,3 +90,8 @@ img,video,iframe{max-width:100%;height:auto}
  .foot-grid a{display:inline-block;padding:7px 0}
  .foot-grid,.foot-grid p{font-size:15.5px}
 }
+
+/* Deep-content tables: scroll on narrow screens instead of overflowing */
+.tablewrap { overflow-x: auto; margin: 1rem 0 1.5rem; }
+.tablewrap table { min-width: 100%; }
+.tablewrap th { text-align: left; white-space: nowrap; }
