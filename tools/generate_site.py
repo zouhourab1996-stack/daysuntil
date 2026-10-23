@@ -204,26 +204,81 @@ def breadcrumb_ld(trail):
     items = ','.join(f'{{"@type":"ListItem","position":{i+1},"name":"{esc(n)}","item":"{u}"}}' for i, (n, u) in enumerate(trail))
     return '{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[' + items + ']}'
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Title / description fitting (SEO hygiene).
+# Google truncates titles around 60 chars and descriptions around 155-160.
+# These helpers guarantee both stay in range no matter how long the event name is,
+# while keeping the money phrase ("How Many Days Until X?") whenever it fits.
+# ─────────────────────────────────────────────────────────────────────────────
+TITLE_MAX = 60
+DESC_MAX = 155
+
+def _trim_words(s, limit):
+    s = s.strip()
+    if len(s) <= limit: return s
+    cut = s[:limit].rstrip()
+    i = cut.rfind(' ')
+    if i >= int(limit * 0.55): cut = cut[:i]
+    return cut.rstrip(' ,;:—–-')
+
+def fit_title(ev, dd):
+    base = ev['title']
+    if dd == 0:
+        cands = [f"How Many Days Until {base}? It's Today",
+                 f"{base}: It's Today", f"Days Until {base}"]
+    elif dd > 0:
+        cands = [f"How Many Days Until {base}? {dd} Days Left",
+                 f"How Many Days Until {base}?",
+                 f"Days Until {base} — {dd} Days",
+                 f"Days Until {base}"]
+    else:
+        cands = [f"How Many Days Until {base}? Live Countdown",
+                 f"How Many Days Until {base}?",
+                 f"Days Until {base}"]
+    for c in cands:
+        if len(c) <= TITLE_MAX: return c
+    return _trim_words(cands[-1], TITLE_MAX)
+
+def fit_desc(ev, d, dd):
+    nice = date_nice(d)
+    if dd > 0:
+        cands = [
+            f"Live countdown to {ev['title']} on {nice} — {dd} days to go, with weeks, weekdays and hours remaining.",
+            f"{dd} days to {ev['title']}, on {nice}. Live countdown in days, hours, minutes and seconds.",
+            f"{dd} days until {ev['title']} ({nice}). Live countdown, updated every second.",
+            f"{dd} days until {ev['title']} on {nice}. Live countdown, updated every second.",
+        ]
+    elif dd == 0:
+        cands = [
+            f"{ev['title']} is today, {nice}. Live countdown with the hours, minutes and seconds remaining.",
+            f"{ev['title']} is today ({nice}). Live countdown in hours, minutes and seconds.",
+            f"{ev['title']} is today. Live countdown.",
+        ]
+    else:
+        cands = [
+            f"{ev['title']} fell on {nice}. See the exact date, the weekday, and how long ago it was.",
+            f"{ev['title']} was on {nice}. Exact date, weekday and time since.",
+            f"{ev['title']} was on {nice} — a {d.strftime('%A')}. Exact date and weekday.",
+        ]
+    for c in cands:
+        if len(c) <= DESC_MAX: return c
+    return _trim_words(cands[-1], DESC_MAX)
+
 def event_page(e):
     slug, cat = e['slug'], e['category']
     d = e['dt']
     today = dt.date.today()
     dd = (d.date() - today).days
-    # Strike #2 (CTR): the live number goes IN THE TITLE for close events —
-    # the pattern every top-ranking countdown competitor uses.
-    if dd == 0:
-        title_tag = f"How Many Days Until {e['title']}? It's Today"
-    elif 0 < dd <= 180:
-        title_tag = f"How Many Days Until {e['title']}? {dd} Days Left"
-    else:
-        title_tag = f'How Many Days Until {e["title"]}? Live Countdown & Exact Date'
-    desc = f'{e["title"]} {"falls on" if True else ""} {date_nice(d)} — live countdown with days, hours, minutes and seconds remaining, plus weeks, weekdays and everything to know.'
+    # Title/description are fitted to Google's display limits — the live number
+    # still goes in the title for close events (the pattern every top-ranking
+    # countdown competitor uses), but only when it fits inside 60 characters.
+    title_tag = fit_title(e, dd)
+    desc = fit_desc(e, d, dd)
     if dd >= 0:
         wk, rd = divmod(dd, 7)
         wdays = sum(1 for i in range(1, dd + 1) if (today + dt.timedelta(days=i)).weekday() < 5)
         glance = (f'As of {today.strftime("%B")} {today.day}, {today.year}: <b>{dd} days</b> to go — '
                   f'{wk} weeks and {rd} days, {wdays} weekdays ({dd - wdays} weekend days), about {dd * 24:,} hours.')
-        desc += f' As of {today.strftime("%B")} {today.day}: {dd} days left.'
         glance_html = f'<p class="cd-status">{glance}</p>'
     else:
         glance_html = ''
@@ -328,8 +383,8 @@ def category_page(cat):
     evs = [e for e in events if e['category'] == cat]
     cards = ''.join(card_html(e, '../') for e in evs)
     ld = breadcrumb_ld([('Home', SITE + '/'), (c['name'], f'{SITE}/{cat}/')])
-    t = f'{c["name"]} — Live Countdowns ({len(evs)} events)'
-    desc = f'{c["blurb"]} Live countdowns in days, hours, minutes and seconds.'
+    t = _trim_words(f'{c["name"]} — Live Countdowns ({len(evs)} events)', TITLE_MAX)
+    desc = _trim_words(f'Live countdowns to {len(evs)} {c["name"].lower()} — days, hours, minutes and seconds, updated every second in your time zone.', DESC_MAX)
     return head(t, desc, f'{SITE}/{cat}/', f'/og/cat-{cat}.png', '<script type="application/ld+json">' + ld + '</script>') + nav_links('..') + f'''</nav>
 </header>
 <main id="main">
@@ -351,8 +406,8 @@ def home_page():
     ld = json.dumps({'@context': 'https://schema.org', '@type': 'WebSite', 'name': BRAND, 'url': SITE,
                      'description': 'Live countdowns to holidays, eclipses, moon phases, planetary stations, game launches, movies and sporting events.',
                      'potentialAction': {'@type': 'SearchAction', 'target': {'@type': 'EntryPoint', 'urlTemplate': SITE + '/?q={search_term_string}'}, 'query-input': 'required name=search_term_string'}})
-    return head(f'{BRAND} — Live Countdowns to the Events the World Is Waiting For',
-                'How many days until Christmas, GTA 6, the 2027 total solar eclipse, the Super Bowl or the next full moon? Live countdowns — days, hours, minutes, seconds — to {n} verified dates.'.replace('{n}', str(len(events))),
+    return head(_trim_words(f'{BRAND} — Live Countdowns to Every Event', TITLE_MAX),
+                _trim_words('How many days until Christmas, GTA 6, the next solar eclipse or the next full moon? Live countdowns in days, hours, minutes and seconds to {n} verified dates.'.replace('{n}', str(len(events))), DESC_MAX),
                 SITE + '/', '/og/home.png', '<script type="application/ld+json">' + ld + '</script>', '') + f'''<a href="about/">About</a>
 </nav>
 </header>
