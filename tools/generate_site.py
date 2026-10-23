@@ -227,7 +227,7 @@ def fit_title(ev, dd):
         cands = [f"How Many Days Until {base}? It's Today",
                  f"{base}: It's Today", f"Days Until {base}"]
     elif dd > 0:
-        cands = [f"How Many Days Until {base}? {dd} Days Left",
+        cands = [f"How Many Days Until {base}? {dd} Day{'' if dd == 1 else 's'} Left",
                  f"How Many Days Until {base}?",
                  f"Days Until {base} — {dd} Days",
                  f"Days Until {base}"]
@@ -243,10 +243,10 @@ def fit_desc(ev, d, dd):
     nice = date_nice(d)
     if dd > 0:
         cands = [
-            f"Live countdown to {ev['title']} on {nice} — {dd} days to go, with weeks, weekdays and hours remaining.",
-            f"{dd} days to {ev['title']}, on {nice}. Live countdown in days, hours, minutes and seconds.",
-            f"{dd} days until {ev['title']} ({nice}). Live countdown, updated every second.",
-            f"{dd} days until {ev['title']} on {nice}. Live countdown, updated every second.",
+            f"Live countdown to {ev['title']} on {nice} — {_pl(dd, 'day')} to go, with weeks, weekdays and hours remaining.",
+            f"{_pl(dd, 'day')} to {ev['title']}, on {nice}. Live countdown in days, hours, minutes and seconds.",
+            f"{_pl(dd, 'day')} until {ev['title']} ({nice}). Live countdown, updated every second.",
+            f"{_pl(dd, 'day')} until {ev['title']} on {nice}. Live countdown, updated every second.",
         ]
     elif dd == 0:
         cands = [
@@ -361,6 +361,7 @@ def event_page(e):
     <div class="faq">{faq_html}</div>
   </aside>
 </section>
+{_variant_nav(e, '..') if indexable else ''}
 <h2>Related countdowns</h2>
 <section class="cards">{rel}</section>
 {AD_LOADER}</main>
@@ -377,6 +378,304 @@ def related_events(e, n=6):
 def card_html(e, pp=''):
     return f'''<a class="card" href="{pp}{e['slug']}/"><span class="card-cat">{CATS[e['category']]['icon']} {CATS[e['category']]['name']}</span>
       <b>{esc(e['title'])}</b><span class="card-date">{date_nice(e['dt'])}</span><span class="card-days" data-ms="{e['ms']}"></span></a>'''
+
+# ------------------------------------------------------------------ variants
+# days.to outranks every countdown site on identical dates because it publishes a
+# separate URL for each question modifier ("how many WEEKS", "how many WEEKDAYS",
+# "WHEN IS"). These variants mirror that coverage. Each one answers a DIFFERENT
+# question and ships its own computed table, so each page is an answer rather
+# than a doorway page.
+
+VARIANT_KINDS = ('weeks', 'weekdays', 'sleeps')
+
+
+def _pl(n, w):
+    return f"{n} {w}" + ("" if n == 1 else "s")
+
+
+def _wk_phrase(dd):
+    wk, rd = divmod(dd, 7)
+    if wk == 0: return _pl(rd, 'day')
+    if rd == 0: return _pl(wk, 'week')
+    return f'{_pl(wk, "week")} and {_pl(rd, "day")}'
+
+
+def _month_span(a, b):
+    out, y, m = [], a.year, a.month
+    while (y, m) <= (b.year, b.month):
+        out.append((y, m)); m += 1
+        if m > 12: m, y = 1, y + 1
+    return out
+
+
+def _month_stats(y, m, start, end):
+    import calendar as _c
+    last = _c.monthrange(y, m)[1]
+    lo = max(start, dt.date(y, m, 1)); hi = min(end, dt.date(y, m, last))
+    if lo > hi: return 0, 0
+    n = (hi - lo).days + 1
+    wd = sum(1 for i in range(n) if (lo + dt.timedelta(days=i)).weekday() < 5)
+    return wd, n - wd
+
+
+def _variant_nav(e, pp):
+    """cross-links between the four ways of asking the same question"""
+    s = e['slug']
+    items = [('weeks/', 'How many weeks?'), ('weekdays/', 'How many weekdays?'),
+             ('sleeps/', 'How many sleeps?')]
+    links = ''.join(f'<a href="{u}">{lbl}</a>' for u, lbl in items)
+    links += f'<a href="{pp}when-is/{s}/">When is it?</a>'
+    return (f'<nav class="varnav" style="display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0">'
+            f'<a href="{pp}{s}/" style="padding:.4rem .8rem;border:1px solid #ccc;border-radius:99px;'
+            f'text-decoration:none;font-size:.9rem">← Main countdown</a>'
+            + ''.join(f'<a href="{u}" style="padding:.4rem .8rem;border:1px solid #ccc;border-radius:99px;'
+                      f'text-decoration:none;font-size:.9rem">{lbl}</a>' for u, lbl in items)
+            + f'<a href="{pp}when-is/{s}/" style="padding:.4rem .8rem;border:1px solid #ccc;border-radius:99px;'
+              f'text-decoration:none;font-size:.9rem">When is it?</a></nav>')
+
+
+def _table(head_cells, rows, cap=''):
+    h = ''.join(f'<th>{esc(c)}</th>' for c in head_cells)
+    b = ''.join('<tr>' + ''.join(f'<td>{esc(str(c))}</td>' for c in r) + '</tr>' for r in rows)
+    return f'<div class="tablewrap"><table class="facts">{f"<caption>{esc(cap)}</caption>" if cap else ""}<tr>{h}</tr>{b}</table></div>'
+
+
+def _variant_title_desc(kind, e, d):
+    """Titles/descriptions fitted to Google's display limits, per variant."""
+    t = e['title']
+    today = dt.date.today()
+    dd = (d.date() - today).days
+    wk, rd = divmod(dd, 7)
+    nice = date_nice(d)
+    if kind == 'weeks':
+        cand = [f'How Many Weeks Until {t}?', f'Weeks Until {t}', f'Weeks Until {t} — Count']
+        body = (f'{t} falls on {nice}. That is {_wk_phrase(dd)} away. '
+                f'Week-by-week countdown showing exactly when each milestone lands, updated live.')
+    elif kind == 'weekdays':
+        cand = [f'How Many Weekdays Until {t}?', f'Weekdays Until {t}', f'Weekdays Until {t} — Count']
+        body = (f'{t} falls on {nice}. See how many of the days between now and then are working '
+                f'days and how many fall on a weekend, broken down month by month.')
+    elif kind == 'sleeps':
+        cand = [f'How Many Sleeps Until {t}?', f'Sleeps Until {t}', f'Sleeps Until {t} — Count']
+        body = (f'{t} falls on {nice}, which is {_pl(dd, 'sleep')} away. A sleep countdown is one more '
+                f'than the number of full nights left. Live count, updated every second.')
+    else:
+        cand = [f'When Is {t}?', f'When Is {t} — Date', f'When is {t}?']
+        body = (f'{t} falls on {nice} — a {d.strftime("%A")}. Exact date and time, plus the date '
+                f'for the next five years so you can plan ahead.')
+    title = next((c for c in cand if len(c) <= TITLE_MAX), _trim_words(cand[0], TITLE_MAX))
+    if len(body) > DESC_MAX:
+        cut = body[:DESC_MAX]
+        p = max(cut.rfind('. '), cut.rfind('! '))
+        body = (cut[:p + 1] if p > DESC_MAX * 0.6 else _trim_words(cut, DESC_MAX)).strip()
+    return title, body
+
+
+def _variant_faq(kind, e, d):
+    t = e['title']; nice = date_nice(d); dow = d.strftime('%A')
+    today = dt.date.today()
+    dd = (d.date() - today).days
+    wk, rd = divmod(dd, 7)
+    if kind == 'weeks':
+        return [(f'How many weeks until {t}?', f'{_wk_phrase(dd)}, as of today. {t} falls on {nice}.'),
+                (f'Is that full weeks or rounded?', f'Full weeks: {wk}. The remaining {_pl(rd, "day")} do not add up to a whole one, which is why the plain week count and the weeks-and-days count differ.'),
+                (f'When does the week count tick over?', 'Every seven days, counted to the second. The countdown runs in your own time zone rather than UTC, so it changes when your clock says it should.'),
+                (f'What date is {t}?', f'{nice} — a {dow}.')]
+    if kind == 'weekdays':
+        wdays = sum(1 for i in range(1, dd + 1) if (today + dt.timedelta(days=i)).weekday() < 5) if dd > 0 else 0
+        return [(f'How many weekdays until {t}?', f'{wdays} weekdays, with {dd - wdays} days falling on a weekend, out of {dd} days in total.'),
+                (f'Does that include public holidays?', 'No. The count is Monday to Friday only. Public holidays differ by country and employer, so subtract them from the month-by-month table below to get your own figure.'),
+                (f'Why count weekdays instead of days?', 'Because it is the number that maps onto real working time. A 60-day countdown sounds generous until you realise 16 of those days are a weekend.'),
+                (f'What date is {t}?', f'{nice} — a {dow}.')]
+    if kind == 'sleeps':
+        return [(f'How many sleeps until {t}?', f'{_pl(dd, 'sleep')}. {t} falls on {nice}.'),
+                (f'How is a sleep counted?', 'One sleep equals one night still to go. On the morning of the day before, the answer is one; on the morning of the day itself, it is zero.'),
+                (f'Is the number of sleeps the same as the number of days?', f'Almost. A sleep count is the number of nights remaining, which is one more than the number of whole days left when the event lands mid-morning.'),
+                (f'What date is {t}?', f'{nice} — a {dow}.')]
+    return [(f'When is {t}?', f'{t} falls on {nice} — a {dow}.'),
+            (f'What day of the week is {t}?', f'A {dow}. The day of the week shifts by one each year, and by two when a leap year intervenes.'),
+            (f'Has the date for {t} been confirmed?', f'Yes — this page uses the confirmed date for {t}. The table below carries the date forward for the next five years.'),
+            (f'How many days until {t}?', f'{dd} days. The live countdown on the main page gives it to the second.')]
+
+
+def _variant_body(kind, e, d, pp):
+    t = e['title']; nice = date_nice(d); dow = d.strftime('%A')
+    today = dt.date.today()
+    dd = (d.date() - today).days
+    wk, rd = divmod(dd, 7)
+    slug = e['slug']
+    about = ''.join(f'<p>{p}</p>' for p in (e.get('desc') or [])[:2])
+
+    if kind == 'weeks':
+        rows = [(k, (d.date() - dt.timedelta(days=k * 7)).strftime('%a %d %b %Y'))
+                for k in range(wk, 0, -1)]
+        if len(rows) > 26:
+            rows = rows[:12] + [('…', '…')] + rows[-12:]
+        tbl = _table(['Weeks to go', 'Starts on'], rows,
+                     f'Week-by-week countdown to {t}')
+        lead = (f'<p>{t} falls on <b>{nice}</b> — a {dow}. As of today that is <b>{dd} days</b>, '
+                f'or <b>{_wk_phrase(dd)}</b>. The table below lists every "weeks to go" '
+                f'milestone between now and the date, so you can work backwards from the day itself '
+                f'instead of counting forward from today.</p>')
+        note = ('<p>Weeks are the unit people actually plan in. Deadlines, notice periods and '
+                'rotas run in weeks, which is why a week count tends to be more useful than a raw '
+                'day count once you are more than a fortnight out. Note that the two figures answer '
+                'slightly different questions: "how many weeks" is full weeks only, while '
+                '"weeks and days" keeps the remainder.</p>')
+        h2b = 'Why the week count moves the way it does'
+    elif kind == 'weekdays':
+        wdays = sum(1 for i in range(1, dd + 1) if (today + dt.timedelta(days=i)).weekday() < 5) if dd > 0 else 0
+        rows, twd, twe = [], 0, 0
+        for (y, m) in _month_span(today, d.date())[:26]:
+            a, b = _month_stats(y, m, today + dt.timedelta(days=1), d.date())
+            twd += a; twe += b
+            rows.append((dt.date(y, m, 1).strftime('%B %Y'), a, b, a + b))
+        if len(rows) > 26: rows = rows[:26]
+        tbl = _table(['Month', 'Weekdays', 'Weekend days', 'Total'], rows,
+                     f'Working days between today and {t}')
+        lead = (f'<p>{t} falls on <b>{nice}</b> — a {dow}. Of the <b>{dd} days</b> between today and '
+                f'that date, <b>{wdays}</b> are weekdays (Monday to Friday) and <b>{dd - wdays}</b> '
+                f'fall on a weekend. The month-by-month split below is the practical version of that '
+                f'number: it tells you where your working time actually goes.</p>')
+        note = ('<p>This count is Monday to Friday only and does <b>not</b> strip out public '
+                'holidays. Those vary by country, state and employer, so subtract the ones you '
+                'actually get from the month that contains them. If you work a non-standard rota, '
+                'the weekend column is the figure to adjust rather than the weekday column.</p>')
+        h2b = 'What this count leaves out'
+    else:
+        rows = [(k, (d.date() - dt.timedelta(days=k)).strftime('%a %d %b'))
+                for k in range(min(dd, 10), 0, -1)]
+        tbl = _table(['Sleeps left', 'Morning of'], rows, f'Final nights before {t}')
+        lead = (f'<p>{t} falls on <b>{nice}</b>, which is <b>{dd} sleeps</b> away. A sleep count is '
+                f'the number of nights still to come rather than the number of days, which is why '
+                f'it is the version adults reach for when the person asking is a child — and why it '
+                f'stays intuitive long after the day count stops meaning much.</p>')
+        note = ('<p>The convention: one sleep means one night still to go. On the morning before, '
+                'the answer is one. On the morning of the day itself, it is zero — you have run out '
+                'of nights to sleep through. Because it tracks nights rather than 24-hour periods, '
+                'the figure can read one higher than the day count for an event that lands in the '
+                'morning.</p>')
+        h2b = 'How a sleep count works'
+
+    faq = _variant_faq(kind, e, d)
+    ld = json.dumps({'@context': 'https://schema.org', '@type': 'FAQPage',
+                     'mainEntity': [{'@type': 'Question', 'name': q,
+                                     'acceptedAnswer': {'@type': 'Answer', 'text': a}} for q, a in faq]})
+    crumb = breadcrumb_ld([('Home', SITE + '/'), (CATS[e['category']]['name'], f'{SITE}/{e["category"]}/'),
+                           (t, f'{SITE}/{slug}/'), (kind.capitalize(), f'{SITE}/{slug}/{kind}/')])
+    ldb = ('<script type="application/ld+json">' + ld + '</script>\n'
+           '<script type="application/ld+json">' + crumb + '</script>')
+    faq_html = ''.join(f'<details><summary>{esc(q)}</summary><p>{esc(a)}</p></details>' for q, a in faq)
+    title, desc = _variant_title_desc(kind, e, d)
+    cfg = json.dumps({'kind': e['kind'], 'y': d.year, 'm': d.month, 'd': d.day,
+                      'utc': e.get('utc'), 'title': t, 'dateNice': nice})
+    rel = related_events(e, 6)
+    cards = ''.join(f'''<a class="card" href="{pp}{r['slug']}/"><span class="card-cat">{CATS[r['category']]['icon']} {CATS[r['category']]['name']}</span>
+      <b>{esc(r['title'])}</b><span class="card-date">{date_nice(r['dt'])}</span></a>''' for r in rel)
+
+    return head(title, desc, f'{SITE}/{slug}/{kind}/', f'/og/{slug}.png', ldb, pp, True) + nav_links(pp) + f'''</nav>
+</header>
+<main id="main">
+<nav class="crumbs"><a href="{pp}">Home</a> › <a href="{pp}{e['category']}/">{CATS[e['category']]['name']}</a> › <a href="{pp}{slug}/">{esc(t)}</a> › <span>{kind.capitalize()}</span></nav>
+<h1>{esc(_variant_title_desc(kind, e, d)[0])}</h1>
+<section class="hero" data-cat="{e['category']}">
+  <div class="cd">
+    <div class="cd-days"><span id="cd-d">–</span><small>days</small></div>
+    <div class="cd-grid">
+      <div><b id="cd-h">–</b><small>hours</small></div>
+      <div><b id="cd-m">–</b><small>minutes</small></div>
+      <div><b id="cd-s">–</b><small>seconds</small></div>
+    </div>
+    <p class="cd-status" id="cd-status">{esc(t)} falls on {nice}.</p>
+  </div>
+  <div class="chips">
+    <span class="chip">📅 <b id="ch-weeks">–</b> weeks</span>
+    <span class="chip">💼 <b id="ch-wd">–</b> weekdays</span>
+    <span class="chip">🛌 <b id="ch-we">–</b> weekend days</span>
+    <span class="chip">🗓️ <b id="ch-months">–</b> months (approx)</span>
+  </div>
+</section>
+{_variant_nav(e, pp)}
+{lead}
+{tbl}
+<h2>{h2b}</h2>
+{note}
+<h2>About {esc(t)}</h2>
+{about}
+<section class="grid2">
+  <div><h2>Quick facts</h2><table class="facts">{''.join(f'<tr><th>{esc(k)}</th><td>{esc(v)}</td></tr>' for k, v in e['facts'])}</table></div>
+  <aside><h2>FAQ</h2><div class="faq">{faq_html}</div></aside>
+</section>
+<h2>Related countdowns</h2>
+<section class="cards">{cards}</section>
+</main>
+<script>window.EVENT={cfg};</script>
+<script src="{pp}assets/site.js" defer></script>
+''' + footer(pp)
+
+
+def when_is_page(e):
+    t = e['title']; d = e['dt']; nice = date_nice(d); dow = d.strftime('%A')
+    today = dt.date.today(); dd = (d.date() - today).days
+    years = []
+    for k in range(6):
+        try:
+            nd = d.replace(year=d.year + k)
+        except ValueError:
+            nd = d.replace(year=d.year + k, day=28)
+        years.append((nd.year, nd.strftime('%a %d %b %Y'), nd.strftime('%A')))
+    tbl = _table(['Year', 'Date', 'Day of week'], years, f'{t} — date by year')
+    about = ''.join(f'<p>{p}</p>' for p in (e.get('desc') or [])[:3])
+    faq = _variant_faq('when', e, d)
+    ld = json.dumps({'@context': 'https://schema.org', '@type': 'FAQPage',
+                     'mainEntity': [{'@type': 'Question', 'name': q,
+                                     'acceptedAnswer': {'@type': 'Answer', 'text': a}} for q, a in faq]})
+    crumb = breadcrumb_ld([('Home', SITE + '/'), (t, f'{SITE}/when-is/{e["slug"]}/')])
+    ldb = ('<script type="application/ld+json">' + ld + '</script>\n'
+           '<script type="application/ld+json">' + crumb + '</script>')
+    faq_html = ''.join(f'<details><summary>{esc(q)}</summary><p>{esc(a)}</p></details>' for q, a in faq)
+    title, desc = _variant_title_desc('when', e, d)
+    cfg = json.dumps({'kind': e['kind'], 'y': d.year, 'm': d.month, 'd': d.day,
+                      'utc': e.get('utc'), 'title': t, 'dateNice': nice})
+    pp = '..'
+    rel = related_events(e, 6)
+    cards = ''.join(f'''<a class="card" href="{pp}/{r['slug']}/"><span class="card-cat">{CATS[r['category']]['icon']} {CATS[r['category']]['name']}</span>
+      <b>{esc(r['title'])}</b><span class="card-date">{date_nice(r['dt'])}</span></a>''' for r in rel)
+    return head(title, desc, f'{SITE}/when-is/{e["slug"]}/', f'/og/{e["slug"]}.png', ldb, pp, True) + nav_links(pp) + f'''</nav>
+</header>
+<main id="main">
+<nav class="crumbs"><a href="{pp}/">Home</a> › <a href="{pp}/{e['category']}/">{CATS[e['category']]['name']}</a> › <span>When is {esc(t)}?</span></nav>
+<h1>When Is {esc(t)}?</h1>
+<section class="hero" data-cat="{e['category']}">
+  <div class="cd">
+    <div class="cd-days"><span id="cd-d">–</span><small>days</small></div>
+    <div class="cd-grid">
+      <div><b id="cd-h">–</b><small>hours</small></div>
+      <div><b id="cd-m">–</b><small>minutes</small></div>
+      <div><b id="cd-s">–</b><small>seconds</small></div>
+    </div>
+    <p class="cd-status" id="cd-status">{esc(t)} falls on {nice}.</p>
+  </div>
+</section>
+{_variant_nav(e, pp + '/')}
+<p><b>{esc(t)} falls on {nice} — a {dow}.</b> That is <b>{dd} days</b> from today. The date is confirmed, so the only thing that moves is the countdown itself.</p>
+{tbl}
+<h2>Why the day of the week moves</h2>
+<p>A date advances by one weekday each year, because 365 days is 52 weeks plus one day. In a leap year it advances by two, which is why the weekday occasionally jumps. Over the six years in the table above you can watch both patterns: the single-step years and the leap-year double step.</p>
+<p>This matters more than it sounds if you are planning around a weekend. An event that lands on a Saturday this year may fall midweek in two years' time, which changes everything from travel to time off.</p>
+<h2>About {esc(t)}</h2>
+{about}
+<section class="grid2">
+  <div><h2>Quick facts</h2><table class="facts">{''.join(f'<tr><th>{esc(k)}</th><td>{esc(v)}</td></tr>' for k, v in e['facts'])}</table></div>
+  <aside><h2>FAQ</h2><div class="faq">{faq_html}</div></aside>
+</section>
+<h2>Related countdowns</h2>
+<section class="cards">{cards}</section>
+</main>
+<script>window.EVENT={cfg};</script>
+<script src="{pp}/assets/site.js" defer></script>
+''' + footer(pp)
+
 
 def category_page(cat):
     c = CATS[cat]
@@ -516,6 +815,16 @@ for e in events:
     open(os.path.join(OUT, e['slug'], 'index.html'), 'w').write(event_page(e))
     if e['slug'] in INDEXABLE:
         urls.append(f'{SITE}/{e["slug"]}/')
+        if (e['dt'].date() - dt.date.today()).days > 0:
+            for _k in VARIANT_KINDS:
+                _vd = os.path.join(OUT, e['slug'], _k)
+                os.makedirs(_vd, exist_ok=True)
+                open(os.path.join(_vd, 'index.html'), 'w').write(_variant_body(_k, e, e['dt'], '../..'))
+                urls.append(f'{SITE}/{e["slug"]}/{_k}/')
+            _wd = os.path.join(OUT, 'when-is', e['slug'])
+            os.makedirs(_wd, exist_ok=True)
+            open(os.path.join(_wd, 'index.html'), 'w').write(when_is_page(e))
+            urls.append(f'{SITE}/when-is/{e["slug"]}/')
     og_image(os.path.join(OUT, 'og', e['slug'] + '.png'), e['title'],
              e['dt'].strftime('%b %-d, %Y') + (' · %d UTC' % e['dt'].hour if e['kind'] == 'datetime' else ''), e['category'])
 
