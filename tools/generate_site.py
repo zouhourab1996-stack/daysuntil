@@ -677,20 +677,228 @@ def when_is_page(e):
 ''' + footer(pp)
 
 
+# ------------------------------------------------------- category deep content
+# Category hubs were the thinnest pages on the site (144-301 words) despite
+# being the most heavily linked pages after the homepage. Each one now carries a
+# computed table of what is coming up, an honest note on how those dates are
+# actually arrived at, and four real questions.
+
+CAT_DEEP = {
+ 'holidays': dict(
+   how=("Some of these dates never move and some move every year, and the two need different kinds of "
+        "confidence. Christmas is 25 December by definition; the only question is which weekday it lands "
+        "on. Easter is the opposite: it falls on the first Sunday after the Paschal full moon, which is "
+        "why it can land anywhere between 22 March and 25 April. Thanksgiving in the United States is the "
+        "fourth Thursday of November, and in Canada the second Monday of October — so the same holiday "
+        "sits six weeks apart depending on which side of the border you are counting down to."),
+   faq=[('Why do some holiday dates change every year?',
+         'Because they are anchored to something other than the calendar. Easter follows the moon, '
+         'Thanksgiving follows a weekday count, and Ramadan follows a sighting. Fixed-date holidays '
+         'like Christmas only change their weekday.'),
+        ('Are these dates confirmed?',
+         'Fixed-date holidays are known years ahead. Moveable ones are computed from the rule that '
+         'defines them. Where a date depends on a religious authority or a sighting, we say so on the '
+         'page rather than presenting it as settled.'),
+        ('Do you count in my time zone?',
+         'Yes. Countdowns run in your local time zone, not UTC, so the number changes when your clock '
+         'says it should.'),
+        ('What about public holidays that differ by country?',
+         'We list the date as it is observed in the country the holiday belongs to. If a country moves '
+         'it to a Monday, that is noted on the event page.')]),
+ 'moon': dict(
+   how=("A full moon is the moment the Moon sits opposite the Sun in ecliptic longitude, not a whole "
+        "night. That is why the date can differ by a day depending on where you are, and why the Moon "
+        "can look full on two consecutive evenings. The gap between one full moon and the next is the "
+        "synodic month: 29 days, 12 hours and 44 minutes on average. Because that is not a whole number "
+        "of days, full moon dates drift about eleven days earlier each year until a thirteenth full moon "
+        "resets the sequence — the blue moon."),
+   faq=[('What exactly is a full moon?',
+         'The instant the Moon and Sun are opposite each other in ecliptic longitude. It lasts a moment, '
+         'though the Moon looks full for roughly a day either side.'),
+        ('Why does the date differ between sources?',
+         'Because the moment is converted into different time zones. A full moon at 23:40 UTC is already '
+         'the next day in Sydney and still the previous evening in Los Angeles.'),
+        ('What is a blue moon?',
+         'Two full moons in one calendar month. It happens roughly every two to three years because the '
+         'synodic month is shorter than most calendar months.'),
+        ('How accurate are these times?',
+         'They are computed from lunar theory and are accurate to within a minute or so, which is far '
+         'finer than anything you could observe by eye.')]),
+ 'eclipses': dict(
+   how=("Eclipses come in seasons. Roughly every six months the new or full moon passes close enough to "
+        "a lunar node for the three bodies to line up, and an eclipse happens somewhere on Earth. A "
+        "solar eclipse is the Moon's shadow touching the Earth's surface — which is why it is only "
+        "visible from a narrow track a couple of hundred kilometres wide, and why totality at any one "
+        "spot lasts minutes. A lunar eclipse is the Earth's shadow falling on the Moon, visible from "
+        "the whole night side at once and lasting over an hour. Eclipses repeat in families called saros "
+        "series, each one shifted a third of the way around the globe."),
+   faq=[('What is the difference between a total and an annular eclipse?',
+         'In a total eclipse the Moon covers the Sun completely. In an annular one the Moon is near its '
+         'farthest point and appears slightly too small, leaving a ring of Sun visible.'),
+        ('Can I see this one where I live?',
+         'Only if you are inside the visibility region, which for a solar eclipse is a narrow track. '
+         'Each event page states where it is visible.'),
+        ('Is it safe to look at a solar eclipse?',
+         'Not without proper solar filters. Looking at the partially covered Sun is as damaging as '
+         'looking at the full Sun, and the damage is painless, so you will not notice it happening.'),
+        ('Why are lunar eclipses more common to see?',
+         'A lunar eclipse is visible from anywhere on the night side of the Earth at once, so roughly '
+         'half the planet can watch it. A solar eclipse is visible only from a narrow track.')]),
+ 'planets': dict(
+   how=("Retrograde is not a planet moving backwards. It is an overtaking. Earth and the other planet "
+        "are both orbiting the Sun at different speeds, and when Earth catches up and passes, the other "
+        "planet appears to stall and reverse against the background stars for a few weeks before "
+        "resuming its normal direction. It is the same effect as being passed on a motorway: the car you "
+        "overtake seems to slide backwards even though it is still moving forward. These pages give the "
+        "station dates — the moments the apparent motion turns — computed from Keplerian orbital "
+        "elements rather than read off a table."),
+   faq=[('Does a planet actually move backwards?',
+         'No. The apparent reversal is a line-of-sight effect caused by the Earth overtaking a slower '
+         'orbiting planet.'),
+        ('How long does a retrograde last?',
+         'Mercury about three weeks, three or four times a year. The slower outer planets stay retrograde '
+         'for four to five months at a time.'),
+        ('What is a shadow period?',
+         'The stretch either side of the retrograde when the planet is retracing ground it will cover '
+         'again, or already did. Many astrologers treat it as part of the same window.'),
+        ('Are these dates computed or copied?',
+         'Computed from orbital elements, then checked against published ephemerides. They are the '
+         'astronomical station dates, not a symbolic one.')]),
+ 'meteor-showers': dict(
+   how=("A meteor shower happens when the Earth ploughs through a trail of debris left by a comet or, "
+        "occasionally, an asteroid. The bits burn up in the upper atmosphere, and because they are all "
+        "travelling in parallel they appear to radiate from a single point in the sky — which is why "
+        "each shower is named after the constellation it seems to come from. The peak is the night the "
+        "Earth passes through the densest part of the trail, and it can be sharp or broad depending on "
+        "how old and spread out that trail is. Moonlight is the other variable: a bright Moon washes out "
+        "everything except the brightest meteors."),
+   faq=[('What time of night is best?',
+         'After midnight, and best of all in the hour or two before dawn. Before midnight you are on the '
+         'trailing side of the Earth and see fewer meteors.'),
+        ('Do I need a telescope?',
+         'No, and it would get in the way. Meteors are best seen with the naked eye from a dark site '
+         'with as wide a view of the sky as you can find.'),
+        ('How many will I actually see?',
+         'The quoted zenithal hourly rate is a theoretical maximum under a perfectly dark sky with the '
+         'radiant overhead. Realistic counts are usually well below it.'),
+        ('Does the Moon ruin it?',
+         'It can. A full Moon near the radiant cuts the visible count substantially, which is why the '
+         'same shower is excellent one year and disappointing the next.')]),
+ 'seasons': dict(
+   how=("An equinox or solstice is a single moment, not a day. The March and September equinoxes are "
+        "when the Sun crosses the celestial equator and day and night come closest to equal; the June "
+        "and December solstices are when the Earth's axial tilt is at its most extreme toward or away "
+        "from the Sun, giving the longest and shortest days. Because the Earth's orbit is elliptical "
+        "and the calendar year is not a whole number of days, the exact minute shifts from year to "
+        "year, and the date can move by a day across a leap-year cycle."),
+   faq=[('Is the solstice a whole day?',
+         'No — it is the exact moment the tilt is at its maximum. We call the whole day the solstice '
+         'because that is how calendars work, but the astronomical event lasts an instant.'),
+        ('Why is the longest day not the hottest?',
+         'Because the oceans and land take weeks to warm up. The seasonal lag means peak temperatures '
+         'arrive a month or more after peak sunlight.'),
+        ('Why does the date move?',
+         'The tropical year is about 365.2422 days, not 365. The leap-year system absorbs the difference, '
+         'which makes the exact moment drift and then snap back.'),
+        ('Are the equinoxes really equal day and night?',
+         'Very nearly, but not exactly: refraction lifts the Sun slightly and the day is measured from '
+         'the edge of the disc rather than its centre.')]),
+ 'gaming': dict(
+   how=("Game release dates are announcements, not astronomical events, which makes them a different "
+        "kind of countdown. A date is real when the publisher has put it in a financial filing or a "
+        "dated trailer, and provisional until then. Slips are normal and usually land two to six months "
+        "after the original window, so treat any date more than a year out as a placeholder. Where a "
+        "title has a confirmed date and a previous slipped one, we count to the confirmed date."),
+   faq=[('Are these release dates confirmed?',
+         'Only where stated. A date quoted from a publisher announcement is firmer than one quoted from '
+         'a retailer listing, and we label which is which.'),
+        ('Do release dates slip often?',
+         'Frequently. Industry-wide, a majority of titles with dates more than a year out move at least '
+         'once.'),
+        ('Why is the countdown in my time zone?',
+         'Because unlocks are usually simultaneous worldwide at a stated UTC hour, so your local unlock '
+         'time depends on where you are.'),
+        ('What if the date changes after you publish?',
+         'We update the page. If you spot a slip before we do, the about page has a contact route.')]),
+ 'movies': dict(
+   how=("Theatrical dates work like game releases: they are commercial announcements and they move. A "
+        "date is firm once the studio has it on a dated trailer or in exhibition materials, and soft "
+        "before that. Studios also shift dates to avoid colliding with a competing tentpole, which is "
+        "why a release can move twice in a year without anything having gone wrong."),
+   faq=[('How reliable are these dates?',
+         'Reasonably firm inside six months, much less so beyond a year. We mark the source on each page.'),
+        ('Do release dates differ by country?',
+         'Often. A global release is the exception rather than the rule, and territories frequently open '
+         'a week or two apart.'),
+        ('Why do studios move dates?',
+         'Mostly to avoid competition, sometimes because post-production ran long. Neither is unusual.'),
+        ('Will you update if it slips?',
+         'Yes. The countdown updates to the corrected date when the studio confirms one.')]),
+ 'sports': dict(
+   how=("Sporting fixtures are scheduled years ahead and are the most reliable dates on this site — a "
+        "Super Bowl or an Olympic opening ceremony is fixed by contract and broadcast deal long in "
+        "advance. The one thing that does move is kickoff time, which is set for a television audience "
+        "and can shift by an hour or three depending on the territory. The date, unlike the start time, "
+        "essentially never changes."),
+   faq=[('Are these dates confirmed?',
+         'Yes. Major finals and opening ceremonies are contracted years ahead of time.'),
+        ('Do kickoff times change?',
+         'They can, and broadcasters adjust them for their audience. The date is stable; the hour is not.'),
+        ('Why is the countdown in my time zone?',
+         'So it matches your own clock. A fixture that starts Sunday evening in the United States starts '
+         'early Monday morning in Europe.'),
+        ('What about events that get postponed?',
+         'Rare, but it happens. If a fixture moves we update the countdown to the rescheduled date.')]),
+}
+
+
+def _cat_table(cat):
+    today = dt.date.today()
+    rows, shown = [], 0
+    for e in events:
+        if e['category'] != cat: continue
+        d = e['dt'].date()
+        if d < today: continue
+        if shown >= 18: break
+        rows.append((esc(e['title']), date_nice(e['dt']), d.strftime('%A'), (d - today).days))
+        shown += 1
+    if not rows: return ''
+    body = ''.join(f'<tr><td>{a}</td><td>{b}</td><td>{c}</td><td>{n}</td></tr>' for a, b, c, n in rows)
+    return ('<div class="tablewrap"><table class="facts"><tr><th>Event</th><th>Date</th>'
+            '<th>Day</th><th>Days away</th></tr>' + body + '</table></div>')
+
+
 def category_page(cat):
     c = CATS[cat]
     evs = [e for e in events if e['category'] == cat]
     cards = ''.join(card_html(e, '../') for e in evs)
     ld = breadcrumb_ld([('Home', SITE + '/'), (c['name'], f'{SITE}/{cat}/')])
+    _d = CAT_DEEP.get(cat, {})
+    cat_how = _d.get('how', '')
+    cat_tbl = _cat_table(cat)
+    _fq = _d.get('faq') or []
+    cat_faq = ld_faq = ''
+    if _fq:
+        cat_faq = '<h2>FAQ</h2><div class="faq">' + ''.join(
+            f'<details><summary>{esc(q)}</summary><p>{esc(a)}</p></details>' for q, a in _fq) + '</div>'
+        _ld2 = json.dumps({'@context': 'https://schema.org', '@type': 'FAQPage',
+                           'mainEntity': [{'@type': 'Question', 'name': q,
+                                           'acceptedAnswer': {'@type': 'Answer', 'text': a}} for q, a in _fq]})
+        ld_faq = '\n<script type="application/ld+json">' + _ld2 + '</script>'
     t = _trim_words(f'{c["name"]} — Live Countdowns ({len(evs)} events)', TITLE_MAX)
     desc = _trim_words(f'Live countdowns to {len(evs)} {c["name"].lower()} — days, hours, minutes and seconds, updated every second in your time zone.', DESC_MAX)
-    return head(t, desc, f'{SITE}/{cat}/', f'/og/cat-{cat}.png', '<script type="application/ld+json">' + ld + '</script>') + nav_links('..') + f'''</nav>
+    return head(t, desc, f'{SITE}/{cat}/', f'/og/cat-{cat}.png', '<script type="application/ld+json">' + ld + '</script>' + ld_faq) + nav_links('..') + f'''</nav>
 </header>
 <main id="main">
 <nav class="crumbs"><a href="../">Home</a> › <span>{c['name']}</span></nav>
 <h1>{c['icon']} {c['name']}</h1>
 <p class="lead">{c['blurb']}</p>
+<h2>Coming up next</h2>
+{cat_tbl}
+<h2>How these dates are worked out</h2>
+<p>{cat_how}</p>
 {AD_LB}<section class="cards">{cards}</section>
+{cat_faq}
 {NATIVE_AD}{AD_LOADER}</main>
 ''' + footer()
 
