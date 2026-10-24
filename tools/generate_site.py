@@ -317,6 +317,7 @@ def event_page(e):
     rel = ''.join(f'''<a class="card" href="../{r['slug']}/"><span class="card-cat">{CATS[r['category']]['icon']} {CATS[r['category']]['name']}</span>
       <b>{esc(r['title'])}</b><span class="card-date">{date_nice(r['dt'])}</span><span class="card-days" data-ms="{r['ms']}"></span></a>''' for r in related)
 
+    evdeep = event_deep_html(e, '..')
     indexable = slug in INDEXABLE
     canonical = f'{SITE}/{slug}/' if indexable else f'{SITE}/{NEXT_OF.get(_base(slug), slug)}/'
     return head(title_tag, desc, canonical, f'/og/{slug}.png', ld_block, '..', indexable) + nav_links('..') + f'''</nav>
@@ -351,6 +352,7 @@ def event_page(e):
     <h2>About {esc(e["title"])}</h2>
     {paras}
     {deep_html}
+    {evdeep}
     {AD_MREC}  </div>
   <aside>
     <h2>Share this countdown</h2>
@@ -866,6 +868,81 @@ def _cat_table(cat):
     body = ''.join(f'<tr><td>{a}</td><td>{b}</td><td>{c}</td><td>{n}</td></tr>' for a, b, c, n in rows)
     return ('<div class="tablewrap"><table class="facts"><tr><th>Event</th><th>Date</th>'
             '<th>Day</th><th>Days away</th></tr>' + body + '</table></div>')
+
+
+# ------------------------------------------------------- event deep content
+# The event pages themselves were the thinnest indexable pages left on the site
+# (~390-500 words). Two blocks are added, both computed from the event's own
+# date, so every page gets different content rather than a shared template.
+
+
+def _milestones(e, today):
+    """Dates on which the countdown passes each milestone — unique per event."""
+    d = e['dt'].date()
+    rows = []
+    for n in (365, 200, 100, 50, 30, 14, 7, 3, 1):
+        md = d - dt.timedelta(days=n)
+        if md >= today:
+            rows.append((n, md))
+    return rows
+
+
+def _breakdown(e, today):
+    d = e['dt'].date()
+    dd = (d - today).days
+    if dd <= 0:
+        return None, dd
+    wk, rd = divmod(dd, 7)
+    wdays = sum(1 for i in range(1, dd + 1) if (today + dt.timedelta(days=i)).weekday() < 5)
+    months = round(dd / 30.4375, 1)
+    return dict(days=dd, weeks=f'{wk} weeks and {rd} days', months=months,
+                weekdays=wdays, weekends=dd - wdays, hours=dd * 24,
+                sleeps=dd, seconds=dd * 86400), dd
+
+
+def event_deep_html(e, pp):
+    today = dt.date.today()
+    br, dd = _breakdown(e, today)
+    if br is None:
+        return ''
+    t = esc(e['title'])
+
+    ms = _milestones(e, today)
+    out = ''
+    if len(ms) >= 2:
+        rows = ''.join(
+            f'<tr><td><b>{n} days</b></td><td>{md.strftime("%A")}</td>'
+            f'<td>{md.strftime("%d %B %Y")}</td><td>{_pl(n, "day")} to go</td></tr>'
+            for n, md in ms)
+        first = ms[-1]
+        out += (f'<h2>Your {t} countdown milestones</h2>'
+                f'<p>It is easier to plan against fixed points than against a number that moves. These '
+                f'are the dates on which the countdown to {t} passes each marker between now and the '
+                f'day itself — the last one falls on <b>{first[1].strftime("%A %d %B")}</b>, when there '
+                f'will be {_pl(first[0], "day")} left.</p>'
+                f'<div class="tablewrap"><table class="facts">'
+                f'<tr><th>Milestone</th><th>Day</th><th>Date</th><th>Remaining</th></tr>'
+                f'{rows}</table></div>')
+
+    out += (f'<h2>How the remaining time breaks down</h2>'
+            f'<p>{_pl(br["days"], "day")} is the headline, but it is rarely the number that helps. '
+            f'<b>{br["weekdays"]}</b> of those are weekdays and <b>{br["weekends"]}</b> fall on a '
+            f'weekend, which is the split that matters if you are planning around work. It is '
+            f'{br["weeks"]}, or roughly {br["months"]} months, or about {br["hours"]:,} hours.</p>'
+            f'<div class="tablewrap"><table class="facts">'
+            f'<tr><th>Unit</th><th>Until {t}</th></tr>'
+            f'<tr><td>Days</td><td>{br["days"]}</td></tr>'
+            f'<tr><td>Weeks</td><td>{br["weeks"]}</td></tr>'
+            f'<tr><td>Months (approx)</td><td>{br["months"]}</td></tr>'
+            f'<tr><td>Weekdays</td><td>{br["weekdays"]}</td></tr>'
+            f'<tr><td>Weekend days</td><td>{br["weekends"]}</td></tr>'
+            f'<tr><td>Hours</td><td>{br["hours"]:,}</td></tr>'
+            f'<tr><td>Sleeps</td><td>{br["sleeps"]}</td></tr>'
+            f'</table></div>'
+            f'<p>Working days are Monday to Friday and do not subtract public holidays, which vary by '
+            f'country and employer — <a href="weekdays/">the full month-by-month split</a> is on our '
+            f'weekday page for {t}.</p>')
+    return out
 
 
 def category_page(cat):
