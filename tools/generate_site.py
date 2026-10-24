@@ -821,7 +821,9 @@ CAT_DEEP = {
          'Because unlocks are usually simultaneous worldwide at a stated UTC hour, so your local unlock '
          'time depends on where you are.'),
         ('What if the date changes after you publish?',
-         'We update the page. If you spot a slip before we do, the about page has a contact route.')]),
+         'We update the page. If you spot a slip before we do, the about page has a contact route.'), ('Why do game release dates slip so often?',
+           'Because a date is a marketing commitment made before the work is finished. A slip is usually a sign the studio wants the game to work rather than a sign of trouble, and it is common enough that we treat any date more than a year out as provisional.'), ('Do release times differ by platform?',
+           'Often. Console and PC unlocks are frequently staggered, and a simultaneous global unlock is the exception. Check the platform-specific time before planning around it.')]),
  'movies': dict(
    how=("Theatrical dates work like game releases: they are commercial announcements and they move. A "
         "date is firm once the studio has it on a dated trailer or in exhibition materials, and soft "
@@ -835,7 +837,9 @@ CAT_DEEP = {
         ('Why do studios move dates?',
          'Mostly to avoid competition, sometimes because post-production ran long. Neither is unusual.'),
         ('Will you update if it slips?',
-         'Yes. The countdown updates to the corrected date when the studio confirms one.')]),
+         'Yes. The countdown updates to the corrected date when the studio confirms one.'), ('Do release dates differ by country?',
+           'Frequently. A simultaneous global release is the exception rather than the rule, and territories often open a week or two apart.'), ('How far ahead are film dates settled?',
+           'Studios announce dates years out and then move them to avoid competition. A date inside six months is reasonably firm; anything beyond a year is a placeholder.')]),
  'sports': dict(
    how=("Sporting fixtures are scheduled years ahead and are the most reliable dates on this site — a "
         "Super Bowl or an Olympic opening ceremony is fixed by contract and broadcast deal long in "
@@ -850,7 +854,9 @@ CAT_DEEP = {
          'So it matches your own clock. A fixture that starts Sunday evening in the United States starts '
          'early Monday morning in Europe.'),
         ('What about events that get postponed?',
-         'Rare, but it happens. If a fixture moves we update the countdown to the rescheduled date.')]),
+         'Rare, but it happens. If a fixture moves we update the countdown to the rescheduled date.'), ('How far ahead are sporting fixtures set?',
+           'Major finals and opening ceremonies are contracted years in advance, which makes them among the most reliable dates on this site. Kickoff times are set much later, for television.'), ('What happens if a fixture is postponed?',
+           'It is rare for a final. Where it happens we update the countdown to the rescheduled date rather than leaving the old one running.')]),
 }
 
 
@@ -900,11 +906,43 @@ def _breakdown(e, today):
                 sleeps=dd, seconds=dd * 86400), dd
 
 
+def _past_html(e, today):
+    """For events that have already happened: what it was, when, and what is next."""
+    d = e['dt'].date()
+    ago = (today - d).days
+    t = esc(e['title'])
+    base = _base(e['slug'])
+    nxt = None
+    for x in events:
+        if x['slug'] == e['slug']:
+            continue
+        if _base(x['slug']) == base and x['dt'].date() >= today:
+            nxt = x
+            break
+    if nxt is None:
+        for x in events:
+            if x['category'] == e['category'] and x['dt'].date() >= today:
+                nxt = x
+                break
+    nxt_html = ''
+    if nxt:
+        nd = nxt['dt'].date()
+        nxt_html = (f'<h2>What comes next</h2><p>The next one on our calendar is '
+                    f'<a href="../{nxt["slug"]}/">{esc(nxt["title"])}</a>, on '
+                    f'<b>{date_nice(nxt["dt"])}</b> — a {nd.strftime("%A")}, '
+                    f'{_pl((nd - today).days, "day")} from today.</p>')
+    return (f'<h2>This one has already passed</h2>'
+            f'<p>{t} fell on <b>{date_nice(e["dt"])}</b> — a {d.strftime("%A")} — which is '
+            f'<b>{_pl(ago, "day")}</b> ago. The countdown on this page now counts up rather than down, '
+            f'and the date is kept because people look it up after the fact as often as before it.</p>'
+            + nxt_html)
+
+
 def event_deep_html(e, pp):
     today = dt.date.today()
     br, dd = _breakdown(e, today)
     if br is None:
-        return ''
+        return _past_html(e, today)
     t = esc(e['title'])
 
     ms = _milestones(e, today)
@@ -945,6 +983,9 @@ def event_deep_html(e, pp):
     return out
 
 
+CAT_EXTRA = {'gaming': '<h2>How we decide a release date is real</h2>\n<p>A date earns a place on this site when it comes from the publisher directly — a dated trailer, a\nfinancial filing, or a store listing the publisher controls. A date found only on a retailer page or\nin a rumour round-up does not, because those are wrong often enough to be worse than useless. Where a\ntitle has both a confirmed date and an earlier one it has since missed, we count to the confirmed one\nand say which is which.</p>\n<p>Unlock times are the other half of the question and work differently. Most launches unlock at a\nstated global moment, which lands at a different local hour depending on where you are counting from,\nso two people can be counting to the same instant and see it fall on different days.</p>', 'movies': '<h2>How we decide a theatrical date is real</h2>\n<p>We take a date from the studio or the distributor, not from a listing aggregator. A dated trailer,\na press release or exhibition material counts; a cinema chain page does not, because those are\nprovisional until the studio confirms. Studios also move dates to avoid colliding with a competing\nrelease, which is why a film can shift twice in a year without anything having gone wrong in\nproduction.</p>\n<p>Territory is the part people miss. A "global release" is the exception rather than the rule, and\nmost films open in some markets a week or two before or after the domestic date. If you are counting\ndown outside the film\'s home market, check the local date before trusting the countdown.</p>', 'sports': '<h2>Why these are the most reliable dates here</h2>\n<p>A major final or an opening ceremony is fixed by contract and broadcast deal years ahead — a host\ncity is awarded, a venue is booked, and television rights are sold against specific dates. That makes\nsporting fixtures considerably firmer than anything else on this site, including astronomical events,\nwhich shift by minutes as the calculations are refined.</p>\n<p>The one thing that does move is the start time, and it moves for television rather than for sport:\nbroadcasters shift kickoff to suit their audience, sometimes by several hours. So the date you are\ncounting down to is stable, and the hour you need to be free is not. If the fixture matters, confirm\nthe local start time closer to the day.</p>'}
+
+
 def category_page(cat):
     c = CATS[cat]
     evs = [e for e in events if e['category'] == cat]
@@ -952,6 +993,7 @@ def category_page(cat):
     ld = breadcrumb_ld([('Home', SITE + '/'), (c['name'], f'{SITE}/{cat}/')])
     _d = CAT_DEEP.get(cat, {})
     cat_how = _d.get('how', '')
+    cat_extra = CAT_EXTRA.get(cat, '')
     cat_tbl = _cat_table(cat)
     _fq = _d.get('faq') or []
     cat_faq = ld_faq = ''
@@ -974,6 +1016,7 @@ def category_page(cat):
 {cat_tbl}
 <h2>How these dates are worked out</h2>
 <p>{cat_how}</p>
+{cat_extra}
 {AD_LB}<section class="cards">{cards}</section>
 {cat_faq}
 {NATIVE_AD}{AD_LOADER}</main>
@@ -1033,7 +1076,13 @@ INFO = {
 <h2>How the dates are computed</h2>
 <p>Astronomical events — moon phases, solstices, equinoxes and every planetary station — are computed to the minute with our own Keplerian ephemeris (JPL/Standish approximate elements, 1800–2050, tropical zodiac), cross-validated against published ephemerides. Holiday dates that move (Easter, Mother's Day, Thanksgiving and friends) are computed algorithmically. Entertainment and sports dates are verified against official announcements.</p>
 <h2>Accuracy notes</h2>
-<p>Lunar-calendar observances (Ramadan, Eid, Diwali, Chinese New Year) are marked "expected" where moon sighting can shift the date by a day. Countdowns to date-only events run to midnight in <em>your</em> local time zone; timed astronomical events count to the exact UTC moment.</p>'''),
+<p>Lunar-calendar observances (Ramadan, Eid, Diwali, Chinese New Year) are marked "expected" where moon sighting can shift the date by a day. Countdowns to date-only events run to midnight in <em>your</em> local time zone; timed astronomical events count to the exact UTC moment.</p>
+<h2>Why the countdowns are per-event rather than one big clock</h2>
+<p>Search behaviour decides this. Someone wanting to know how long until Halloween does not want a widget they have to configure — they want the number, and they want it to be right for where they are. So every event gets its own page, its own date table and its own set of ways to count it: days, weeks, weekdays, sleeps and the exact date. The number is computed in your browser against your own clock, which is why it changes when your day does rather than when ours does.</p>
+<h2>What we get wrong, and how it gets fixed</h2>
+<p>Dates slip. A game moves six months, a studio shifts a release, a lunar observance lands a day either side of a prediction. Where a date depends on a sighting or an announcement we mark it rather than presenting it as settled, and when something moves we correct the page. If you spot a date that is wrong, the footer links to other sites in our network and any of them reaches us — corrections are the one kind of email we answer fastest.</p>
+<h2>What this site is not</h2>
+<p>It is not an astrology service, and the planetary station dates here are astronomical rather than interpretive: they say when Mercury's apparent motion turns, not what that means for your week. There is no horoscope, no reading and nothing to sign up for. The countdowns are the product.</p>'''),
  'privacy': ('Privacy Policy', '''<h1>Privacy Policy</h1>
 <p>daysuntil.bond is a static website. We do not require accounts, we do not collect personal information, and the countdowns you view are not tied to you.</p>
 <h2>Cookies &amp; analytics</h2>
@@ -1041,10 +1090,31 @@ INFO = {
 <h2>Third-party links</h2>
 <p>Our pages link to third-party sites (including sites in our network). We are not responsible for their privacy practices.</p>
 <h2>Contact</h2>
-<p>Questions? Reach us via any site in our network footer.</p>'''),
+<p>Questions? Reach us via any site in our network footer.</p>
+<h2>Advertising in more detail</h2>
+<p>We serve advertising through Google AdSense. Google and its partners use cookies to build a profile of interests across the sites you visit, which is how interest-based advertising works generally on the web. None of it sees anything you do on a countdown page, because there is nothing to see: the countdowns are calculated on your device and no input is ever sent anywhere.</p>
+<p>You can opt out of personalised advertising through Google's ad settings, or industry-wide through the Network Advertising Initiative and the Digital Advertising Alliance. Blocking third-party cookies in your browser achieves much the same, and every page here works without them.</p>
+<h2>Your rights</h2>
+<p>Because we hold no accounts and collect no personal information, there is normally nothing for us to produce, correct or delete — and we will tell you that plainly rather than going quiet. If you are in a jurisdiction with access or erasure rights and you want them exercised, reach us through any site in the network footer. If our answer does not satisfy you, your local data protection authority is the escalation route.</p>
+<h2>What the countdowns do with your device</h2>
+<p>Nothing beyond arithmetic. When a page loads, your browser works out the remaining time from the event date and the clock on your own machine. That is why the countdown stays accurate offline once the page has loaded, and why two people in different time zones see different numbers for the same event. No input is uploaded, no preference is stored beyond what your browser keeps for any web page, and closing the tab discards everything.</p>
+<h2>Changes to this policy</h2>
+<p>If the way the site handles data changes materially, this page changes with it. We are not going to start collecting personal information quietly — the whole point of a static site is that it does not need to.</p>
+<h2>Children</h2>
+<p>The site is general-audience and not directed at children. Since nothing is collected in the first place, there is nothing to collect from a child either.</p>'''),
  'disclosure': ('Advertising & Affiliate Disclosure', '''<h1>Advertising & Affiliate Disclosure</h1>
 <p>daysuntil.bond is reader-supported. The site may display advertising (including Google AdSense) and may contain affiliate links — links to products or services from which we may earn a commission if you make a purchase, at no additional cost to you.</p>
-<p>Astronomical data and countdown dates are never influenced by advertisers. Sponsored or affiliate content, where it appears, will be identifiable.</p>'''),
+<p>Astronomical data and countdown dates are never influenced by advertisers. Sponsored or affiliate content, where it appears, will be identifiable.</p>
+<h2>How the commission actually works</h2>
+<p>When you follow one of our links and then buy something, the seller's network records that the visit came from us and pays us a share. That share comes out of the seller's margin, not out of your price — you pay the same using our link as going directly, and occasionally less, because some links carry a discount the public listing does not.</p>
+<p>If you would rather we earned nothing, type the seller's address in directly. The price is identical and we lose the commission, which is a perfectly reasonable preference.</p>
+<h2>What commission cannot buy here</h2>
+<p>Three things, stated plainly because they are the ones that matter. It cannot move a date: every countdown on this site is computed from the event's own data, and an advertiser has no mechanism and no route to change it. It cannot add or remove an event: the calendar is built from what we can verify. And it cannot change which countdown appears where — ordering follows the date.</p>
+<p>Advertising pays for the site to exist. It does not get a vote on what it says.</p>
+<h2>Who pays, and where</h2>
+<p>Advertising on the site is served by Google AdSense, which fills the ad slots and pays us for the impressions. Separately, some pages carry affiliate links — mostly to products reviewed by sites in our network. Both are the same arrangement any ad-supported publisher has, and neither is hidden: the ad slots are labelled, and affiliate links on review pages carry a disclosure above them rather than in the footer where nobody reads it.</p>
+<h2>Editorial independence, stated plainly</h2>
+<p>No advertiser has reviewed or approved anything on this site, and none has been shown it in advance. Dates come from the event data, text is written by us, and the two do not meet. If a page ever carries sponsored placement, it will say so on the page itself rather than relying on you to infer it.</p>'''),
 }
 
 def info_page(key):
