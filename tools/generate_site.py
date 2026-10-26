@@ -373,7 +373,7 @@ def event_page(e):
 
 _related_cache = {}
 def related_events(e, n=6):
-    scored = sorted((x for x in events if x['slug'] != e['slug']),
+    scored = sorted((x for x in events if x['slug'] != e['slug'] and x['slug'] in INDEXABLE),
                     key=lambda x: (0 if x['category'] == e['category'] else 1, abs(x['ms'] - e['ms'])))
     return scored[:n]
 
@@ -865,6 +865,7 @@ def _cat_table(cat):
     rows, shown = [], 0
     for e in events:
         if e['category'] != cat: continue
+        if e['slug'] not in INDEXABLE: continue
         d = e['dt'].date()
         if d < today: continue
         if shown >= 18: break
@@ -916,11 +917,15 @@ def _past_html(e, today):
     for x in events:
         if x['slug'] == e['slug']:
             continue
+        if x['slug'] not in INDEXABLE:
+            continue
         if _base(x['slug']) == base and x['dt'].date() >= today:
             nxt = x
             break
     if nxt is None:
         for x in events:
+            if x['slug'] not in INDEXABLE:
+                continue
             if x['category'] == e['category'] and x['dt'].date() >= today:
                 nxt = x
                 break
@@ -988,7 +993,7 @@ CAT_EXTRA = {'gaming': '<h2>How we decide a release date is real</h2>\n<p>A date
 
 def category_page(cat):
     c = CATS[cat]
-    evs = [e for e in events if e['category'] == cat]
+    evs = [e for e in events if e['category'] == cat and e['slug'] in INDEXABLE]
     cards = ''.join(card_html(e, '../') for e in evs)
     ld = breadcrumb_ld([('Home', SITE + '/'), (c['name'], f'{SITE}/{cat}/')])
     _d = CAT_DEEP.get(cat, {})
@@ -1026,7 +1031,7 @@ def home_page():
     TRENDING = ['avengers-doomsday', 'halloween-2026', 'new-year-2027', 'gta-6-release', 'black-friday-2026', '1111-portal-2026']
     by_slug = {e['slug']: e for e in events}
     trend = ''.join(card_html(by_slug[s]) for s in TRENDING if s in by_slug and by_slug[s]['ms'] > dt.datetime.now(dt.timezone.utc).timestamp() * 1000)
-    upcoming = [e for e in events if e['ms'] > dt.datetime.now(dt.timezone.utc).timestamp() * 1000][:12]
+    upcoming = [e for e in events if e['slug'] in INDEXABLE and e['ms'] > dt.datetime.now(dt.timezone.utc).timestamp() * 1000][:12]
     cards = ''.join(card_html(e) for e in upcoming)
     cats = ''.join(f'''<a class="cat-tile" href="{c}/" style="--c1:rgb{CATS[c]['c1']}"><span class="big">{CATS[c]['icon']}</span><b>{CATS[c]['name']}</b><span class="count">{sum(1 for e in events if e["category"]==c)} countdowns</span></a>''' for c in CATS)
     idx = json.dumps([{'s': e['slug'], 't': e['title'], 'c': e['category'], 'n': date_nice(e['dt']), 'm': e['ms']} for e in events])
