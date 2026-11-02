@@ -71,10 +71,6 @@ PRIORITY_SLUGS = {
     'avengers-doomsday', 'dune-part-three', 'black-friday-2026', 'halloween-2026',
     'gta-6-release', '1111-portal-2026', 'christmas-day-2026', 'cyber-monday-2026',
     'us-thanksgiving-2026', 'new-year-2027', 'ramadan-2027',
-    # 2027 cultural/high-search events that the duplicate-consolidation rule would
-    # otherwise bury under their 2026 counterparts — give each its own indexable URL.
-    'world-kindness-day-2027', 'diwali-2027', 'day-of-the-dead-2027',
-    'guy-fawkes-night-2027', 'veterans-day-2027',
 }
 def _base(slug):
     return _re.sub(r'-(\d{4})$', '', slug)
@@ -278,8 +274,8 @@ def event_page(e):
     # countdown competitor uses), but only when it fits inside 60 characters.
     title_tag = fit_title(e, dd)
     # Custom meta description for high-impression pages (GSC data-driven)
-    if e.get('meta_desc'):
-        desc = e['meta_desc']
+    if e.get("meta_desc"):
+        desc = e["meta_desc"]
     else:
         desc = fit_desc(e, d, dd)
     if dd >= 0:
@@ -1072,14 +1068,6 @@ def home_page():
     <p><a class="cta" href="about/">How we compute the dates →</a></p>
   </aside>
 </section>
-<h2>🧠 Why our countdowns beat every other site — in plain English</h2>
-<p>Two things make this site different, and both of them are the reason you should trust the number you see here over the number on any other countdown site.</p>
-<p><strong>1. We compute the astronomy ourselves.</strong> Moon phases, eclipses, solstices, equinoxes and every planetary station on this site are calculated from orbital elements — not copied from another site's table. That is why our times for the same event sometimes differ from theirs by a few minutes. They are not wrong and neither are we; the difference is real and it is about whose clock and whose orbital model was used. We publish the UTC time for every timed event so you can check it yourself against any ephemeris.</p>
-<p><strong>2. Every countdown runs on your clock, not ours.</strong> The number you see is computed in your browser, from the event date and your device's clock. That is why it changes when your day does rather than when ours does — if you are in a different time zone, you see a different number for the same event, and that is correct. A countdown computed on a server is a day out for anyone whose calendar date differs from the server's at that instant, which is why so many countdown sites disagree with each other — and with your phone.</p>
-<p>The practical consequence: when you search "how many days until X" and compare three sites, the one whose number matches your own calendar is the one running on your clock. That is this site.</p>
-<p style="margin-top:14px"><a class="cta" href="about/">How we compute the dates in detail →</a></p>
-<p style="margin-top:8px"><a class="cta" href="why-daysuntil-beats-every-other-site/">Read the full comparison with days.to →</a></p>
-</section>
 <h2>🔥 Trending countdowns</h2>
 <section class="cards">{trend}</section>
 <h2>⏳ Counting down right now</h2>
@@ -1151,7 +1139,7 @@ def info_page(key):
 
 def page404():
     cards = ''.join(card_html(e, '/') for e in events[:6])
-    return head(f'Page not found | {BRAND}', f'This countdown does not exist — browse {len(events)} live countdowns instead.', SITE + '/404.html', '/og/home.png', path_prefix='') + nav_links('') + f'''</nav>
+    return head(f'Page not found | {BRAND}', 'This countdown does not exist — browse {len(events)} live countdowns instead.', SITE + '/404.html', '/og/home.png', path_prefix='') + nav_links('') + f'''</nav>
 </header>
 <main id="main">
 <h1>404 — this countdown doesn't exist (yet)</h1>
@@ -1162,131 +1150,6 @@ def page404():
 ''' + footer('')
 
 FAVICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#101426"/><circle cx="32" cy="36" r="17" fill="none" stroke="#e8b64c" stroke-width="5"/><path d="M32 6l4 9h-8z" fill="#e8b64c"/><rect x="8" y="10" width="10" height="5" rx="2.5" fill="#5c6bc0"/><rect x="46" y="10" width="10" height="5" rx="2.5" fill="#5c6bc0"/></svg>'
-
-# ---------------------------------------------------------------- comparison article
-# Standalone page: daysuntil.bond vs days.to and other countdown sites.
-# Written to docs/why-daysuntil-beats-every-other-site/index.html.
-# Linked from home page "Why our countdowns beat every other site" section.
-
-def comparison_page():
-    """Standalone comparison article: daysuntil.bond vs days.to and other countdown sites."""
-    faq_ld = {
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        'mainEntity': [
-            {'@type': 'Question', 'name': 'Does days.to have more events than daysuntil.bond?',
-             'acceptedAnswer': {'@type': 'Answer',
-                 'text': 'days.to advertises 750+ tracked events, but many of those are yearly repetitions of the same holiday — Christmas 2026, Christmas 2027 and Christmas 2028 each count as a separate page. daysuntil.bond tracks fewer raw events but every one gets the full multi-variant treatment: days, sleeps, weekdays, weekend days, weeks and a month estimate, all in your time zone. The number of useful countdowns per event is higher here.'}},
-            {'@type': 'Question', 'name': 'Why does another site show a different number for the same event?',
-             'acceptedAnswer': {'@type': 'Answer',
-                 'text': 'Two reasons and neither site is broken. The first is the counting convention: some tools count today as day one, so their answer is always one higher than ours. We count whole days remaining — 1 means tomorrow, 0 means today. The second is the time zone: a countdown computed on a server in one country is a day out for readers in another. Every countdown on this site runs in your browser on your device\u2019s clock, so the number always matches your own calendar.'}},
-            {'@type': 'Question', 'name': 'What is the difference between days, sleeps, weekdays and weeks on this site?',
-             'acceptedAnswer': {'@type': 'Answer',
-                 'text': 'Days counts full days remaining. Sleeps is the number of nights you will sleep before the event — useful for children\u2019s events like Christmas or Halloween where "how many sleeps" is how people actually ask. Weekdays counts only Monday\u2013Friday days remaining, which matters for work and school planning. Weeks is days divided by seven. No other free countdown site offers all four for the same event on the same page.'}},
-            {'@type': 'Question', 'name': 'Is daysuntil.bond free?',
-             'acceptedAnswer': {'@type': 'Answer',
-                 'text': 'Yes — every countdown on this site is free, with no account, no signup and no paywall. The astronomy calculations happen in your browser, nothing is sent anywhere, and no personal data is collected. Advertising may appear; that is what keeps the site running without charging users.'}},
-        ]
-    }
-    ld_script = '<script type="application/ld+json">' + json.dumps(faq_ld) + '</script>'
-    return head(
-        _trim_words('Why daysuntil.bond beats every other countdown site', TITLE_MAX),
-        _trim_words('days.to has one page per event and no sleeps/weekdays/weeks variants; other sites run on a server clock. daysuntil.bond does all of that differently — and here is the honest comparison.', DESC_MAX),
-        SITE + '/why-daysuntil-beats-every-other-site/',
-        '/og/home.png',
-        ld_script,
-        ''
-    ) + f'''
-<a href="about/">About</a>
-</nav>
-</header>
-<main id="main">
-<section class="home-hero">
-  <h1>Why daysuntil.bond beats every other countdown site — honestly</h1>
-  <p class="lead">The short version: days.to — the biggest name in the "how many days until" space — gives you one page per event and counts on a server. This site gives you four ways to count the same event, runs on your clock, and computes the astronomy itself. Here is the full comparison, with the gaps called out fairly.</p>
-</section>
-
-<section class="grid2">
-  <div>
-    <h2>What the main competitor actually does</h2>
-    <p>days.to is the most visible countdown site on the web for a reason: it has been running since 2011, it tracks 750+ events across holidays, TV, movies, sport, astronomy and more, and it gives every event a live countdown with visual effects — snow, confetti, fireworks — that make the page feel alive.</p>
-    <p>It is a good site. The gap is structural, not quality:</p>
-    <ul>
-      <li><strong>One page per event, per year.</strong> Christmas 2026 and Christmas 2027 are two separate pages. Each page shows a single countdown — days remaining — with no alternative counting method on the same page. If you want to know how many <em>weekdays</em> until Christmas, or how many <em>sleeps</em>, you are out of luck.</li>
-      <li><strong>Server-computed.</strong> The countdown is calculated on days.to's servers, which means the number can be a day out for readers in a different time zone from the server — the exact problem the site's own methodology page acknowledges.</li>
-      <li><strong>No per-event variant pages.</strong> There is no "/christmas-2026/sleeps/" or "/christmas-2026/weekdays/" — no dedicated page for any counting method beyond days.</li>
-    </ul>
-    <p>Other competitors are narrower still: mobile apps (Tymo, Minimalist Countdown) that are good for personal reminders but do not rank for "how many days until X" queries, or SaaS widgets (TickCounter) that embed on other sites and are not a destination themselves.</p>
-
-    <h2>What daysuntil.bond does that those sites do not</h2>
-    <p>This site was built around two structural decisions that compound:</p>
-    <p><strong>1. Four ways to count every event, on the same page and on dedicated variant pages.</strong> Every indexable event on this site gets: the plain countdown (days, hours, minutes, seconds), a <em>sleeps</em> count, a <em>weekdays</em> count, a <em>weeks</em> estimate, and a month estimate. The same event also gets dedicated variant pages — <code>/sleeps/</code>, <code>/weekdays/</code>, <code>/weekend-days/</code>, <code>/weeks/</code> — so each counting method has its own URL, its own description, and its own place in search.</p>
-    <p>That matters because people ask the same question in different ways: "how many days until Christmas", "how many sleeps until Christmas", "how many weekdays until Christmas", "how many weeks until Christmas". A site with one page per event answers one of those. This site answers all of them.</p>
-    <p><strong>2. Every countdown runs on your clock, not ours.</strong> The number you see is computed in your browser from the event date and your device's clock. That is why it matches your own calendar when another site's number might not — and why it changes when your day does rather than when our server's day does. The practical consequence: when you search "how many days until X" and compare three sites, the one whose number matches your calendar is the one running on your clock.</p>
-    <p><strong>3. The astronomy is computed here, not copied.</strong> Moon phases, eclipses, solstices, equinoxes and planetary stations are calculated from orbital elements — our own Keplerian ephemeris — not copied from another site's table. That is why our times for the same event sometimes differ from another site's by a few minutes. Neither site is wrong; the difference is real and it is about whose clock and whose orbital model was used. We publish the UTC time for every timed event so you can check it yourself.</p>
-
-    <h2>By the numbers</h2>
-    <p>The honest comparison, written in plain English:</p>
-    <div class="tablewrap">
-    <table>
-    <thead><tr><th></th><th>daysuntil.bond</th><th>days.to</th><th>Mobile apps</th></tr></thead>
-    <tbody>
-    <tr><td><strong>Events tracked</strong></td><td>267 (all with full multi-variant treatment)</td><td>750+ (one page per event, one counting method per page)</td><td>Personal reminders only — not a destination for "how many days until" queries</td></tr>
-    <tr><td><strong>Counting methods per event</strong></td><td>Days, sleeps, weekdays, weekend days, weeks, month estimate — all on the same page, plus dedicated variant pages</td><td>Days only, one page per event</td><td>Usually days only, if that</td></tr>
-    <tr><td><strong>Variant pages per event</strong></td><td>Yes — /sleeps/, /weekdays/, /weekend-days/, /weeks/ each get their own URL</td><td>No</td><td>No</td></tr>
-    <tr><td><strong>Where the countdown is computed</strong></td><td>Your browser, on your device's clock — always matches your calendar</td><td>On the site's servers — can be a day out for some time zones</td><td>On the device — correct for the device, but limited to whatever the app tracks</td></tr>
-    <tr><td><strong>Astronomy computed here</strong></td><td>Yes — Keplerian ephemeris for moon phases, eclipses, solstices, equinoxes, planetary stations</td><td>Not disclosed; likely copied from a standard source</td><td>Not applicable (apps focus on personal dates)</td></tr>
-    <tr><td><strong>UTC time for timed events</strong></td><td>Published for every timed event — eclipse, solstice, full moon, planetary station</td><td>Not consistently published</td><td>Not applicable</td></tr>
-    <tr><td><strong>Categories</strong></td><td>Holidays · Eclipses · Moon phases · Planetary stations · Meteor showers · Seasons · Games · Movies · Sports</td><td>Holidays · TV · Movies · Sport · Astronomy · Music · Tech · Finance · Gaming · Awareness · Seasons · Space · Awards · Politics · Other</td><td>App-specific</td></tr>
-    <tr><td><strong>Free</strong></td><td>Yes — no account, no signup, no paywall</td><td>Yes — free with visual effects</td><td>Usually free to download; features may be paywalled</td></tr>
-    </tbody>
-    </table>
-    </div>
-
-    <h2>Why the multi-variant approach matters for search</h2>
-    <p>Search behaviour is the reason this site exists in the form it does. Someone typing "how many days until Christmas" has a different intent from someone typing "how many sleeps until Christmas" or "how many weekdays until Christmas" — but all three are real searches, and all three want the same event. A site that only answers "days" leaves the other two searches to someone else.</p>
-    <p>This site answers all of them, with dedicated pages for each variant. That is not SEO polish — it is a genuine reflection of how people actually ask the question. The variant pages exist because the different counting methods are genuinely different answers, not because they are thin content dressed up as separate pages.</p>
-  </div>
-  <aside>
-    <h2>What makes this site different — summary</h2>
-    <p><strong>Your clock, not ours.</strong> Every countdown on this site is computed in your browser on your device's clock. That is why the number matches your calendar when another site's number might not.</p>
-    <p><strong>Four ways to count, not one.</strong> Days, sleeps, weekdays, weekend days, weeks, and a month estimate — all for the same event, on the same page, with dedicated URLs for each variant.</p>
-    <p><strong>Astronomy we computed ourselves.</strong> Moon phases, eclipses, solstices, equinoxes and planetary stations are calculated from orbital elements — not copied from another site's table. UTC times are published so you can check.</p>
-    <p><a class="cta" href="/why-daysuntil-beats-every-other-site/">Read the full comparison →</a></p>
-    <p style="margin-top:12px"><a class="cta" href="/">Back to all countdowns →</a></p>
-  </aside>
-</section>
-
-<h2>Frequently Asked Questions</h2>
-
-<div class="faq">
-<details><summary>Does days.to have more events than daysuntil.bond?</summary>
-<p>days.to advertises 750+ tracked events, but many of those are yearly repetitions of the same holiday — Christmas 2026, Christmas 2027 and Christmas 2028 each count as a separate page. daysuntil.bond tracks fewer raw events at launch, but every one of them gets the full multi-variant treatment: days, sleeps, weekdays, weekend days, weeks and a month estimate, all in your time zone. The number of <em>useful</em> countdowns per event is higher here — 267 events × 6 counting methods is a lot more answers than 750 pages × 1 counting method.</p>
-</details>
-
-<details><summary>Why does another countdown site show a different number for the same event?</summary>
-<p>Two reasons, and neither site is broken. The first is the counting convention: some tools count today as day one, so their answer is always one higher than ours. We count whole days remaining — 1 means tomorrow, 0 means today — which is what most people mean when they ask. The second is the time zone: a countdown computed on a server in one country is a day out for readers in another. Every countdown on this site runs in your browser on your device's clock, so the number always matches your own calendar.</p>
-</details>
-
-<details><summary>What is the difference between days, sleeps, weekdays and weeks on this site?</summary>
-<p>Days counts full days remaining. Sleeps is the number of nights you will sleep before the event — useful for children's events like Christmas or Halloween where "how many sleeps" is how people actually ask. Weekdays counts only Monday–Friday days remaining, which matters for work and school planning. Weeks is days divided by seven. No other free countdown site offers all four for the same event on the same page.</p>
-</details>
-
-<details><summary>Is daysuntil.bond free to use?</summary>
-<p>Yes — every countdown on this site is free, with no account, no signup and no paywall. The astronomy calculations happen in your browser, nothing is sent anywhere, and no personal data is collected. Advertising may appear; that is what keeps the site running without charging users.</p>
-</details>
-
-<details><summary>How accurate are the astronomy dates on this site?</summary>
-<p>Moon phases, eclipses, solstices, equinoxes and planetary stations are computed with our own Keplerian ephemeris using JPL/Standish approximate orbital elements (1800–2050, tropical zodiac) and cross-validated against published ephemerides. UTC times are published for every timed event so you can check them against any ephemeris yourself. Holiday dates that move — Easter, Mother's Day, Thanksgiving — are computed algorithmically. Entertainment and sports dates are verified against official announcements. Lunar-calendar observances (Ramadan, Eid, Diwali, Chinese New Year) are marked "expected" where moon sighting can shift the date by a day.</p>
-</details>
-</div>
-
-<h2>More from daysuntil.bond</h2>
-<p><a href="/">All countdowns</a> · <a href="/holidays/">Holidays</a> · <a href="/eclipses/">Eclipses</a> · <a href="/moon/">Moon phases</a> · <a href="/planets/">Planetary stations</a> · <a href="/movies/">Movies</a> · <a href="/gaming/">Games</a> · <a href="/about/">About this site</a></p>
-
-<p class="note" style="margin-top:20px">This page was written to answer the question honestly, including the ways days.to does some things well (visual effects, a long track record, a large event list). If you found it useful, the best thing you can do is use the countdowns — the number of people actually counting down to something on this site is what keeps it alive.</p>
-''' + footer()
-
 
 # ---------------------------------------------------------------- write everything
 os.makedirs(os.path.join(OUT, 'assets'), exist_ok=True)
@@ -1331,11 +1194,6 @@ for e in events:
 
 open(os.path.join(OUT, 'index.html'), 'w').write(home_page())
 og_image(os.path.join(OUT, 'og', 'home.png'), 'How Many Days Until…?', f'{len(events)} live countdowns', 'planets', salt='home')
-
-# Standalone comparison article — generated, not hand-written, so it survives a rebuild.
-os.makedirs(os.path.join(OUT, 'why-daysuntil-beats-every-other-site'), exist_ok=True)
-open(os.path.join(OUT, 'why-daysuntil-beats-every-other-site', 'index.html'), 'w').write(comparison_page())
-urls.append(f'{SITE}/why-daysuntil-beats-every-other-site/')
 
 today = BUILD_DATE.isoformat()
 sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
