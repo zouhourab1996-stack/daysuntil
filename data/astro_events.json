@@ -2488,19 +2488,19 @@
   "title": "Jupiter Retrograde December 2026",
   "category": "planets",
   "kind": "datetime",
-  "utc": "2026-12-13T01:39:00Z",
+  "utc": "2026-12-13T00:56:00Z",
   "desc": [
-   "Jupiter stations retrograde on December 13, 2026 at 01:39 UTC, at 27\u00b003' Leo \u2014 computed to the minute with our own Keplerian ephemeris.",
+   "Jupiter stations retrograde on December 13, 2026 at 00:56 UTC, at 27\u00b001' Leo \u2014 checked against NASA's JPL Horizons system and a published ephemeris.",
    "Jupiter retrograde is the four-month review of growth, beliefs and plans \u2014 about a third of every year, every year. The station is the turning point itself: the day the planet's apparent motion reaches zero before reversing. In tradition, days around a station carry the event's themes most intensely \u2014 decisions made at a station are said to set the tone for the whole season that follows. Full guide with a free chart checker: <a href=\"https://prophetic.pw/blog/jupiter-retrograde-2026/\" target=\"_blank\" rel=\"noopener\">the Jupiter retrograde guide on Prophetic</a>."
   ],
   "facts": [
    [
     "Station moment (UTC)",
-    "December 13, 2026 \u00b7 01:39"
+    "December 13, 2026 \u00b7 00:56"
    ],
    [
     "Zodiac position",
-    "27\u00b003' Leo"
+    "27\u00b001' Leo"
    ],
    [
     "Direction",
@@ -2511,7 +2511,7 @@
     "~4 months"
    ]
   ],
-  "tagline": "27\u00b003' Leo \u00b7 01:39 UTC"
+  "tagline": "27\u00b001' Leo \u00b7 00:56 UTC"
  },
  {
   "slug": "jupiter-direct-april-2027",
@@ -2608,19 +2608,19 @@
   "title": "Saturn Direct December 2026",
   "category": "planets",
   "kind": "datetime",
-  "utc": "2026-12-11T00:36:00Z",
+  "utc": "2026-12-10T23:31:00Z",
   "desc": [
-   "Saturn stations direct on December 11, 2026 at 00:36 UTC, at 8\u00b000' Aries \u2014 computed to the minute with our own Keplerian ephemeris.",
+   "Saturn stations direct on December 10, 2026 at 23:31 UTC, at 7\u00b055' Aries \u2014 checked against NASA's JPL Horizons system and a published ephemeris.",
    "Saturn retrograde is the yearly four-and-a-half-month stress test of commitments, structures and responsibilities. The station is the turning point itself: the day the planet's apparent motion reaches zero before reversing. In tradition, days around a station carry the event's themes most intensely \u2014 decisions made at a station are said to set the tone for the whole season that follows."
   ],
   "facts": [
    [
     "Station moment (UTC)",
-    "December 11, 2026 \u00b7 00:36"
+    "December 10, 2026 \u00b7 23:31"
    ],
    [
     "Zodiac position",
-    "8\u00b000' Aries"
+    "7\u00b055' Aries"
    ],
    [
     "Direction",
@@ -2631,7 +2631,7 @@
     "~4.5 months"
    ]
   ],
-  "tagline": "8\u00b000' Aries \u00b7 00:36 UTC"
+  "tagline": "7\u00b055' Aries \u00b7 23:31 UTC"
  },
  {
   "slug": "saturn-retrograde-august-2027",
@@ -2848,15 +2848,15 @@
   "title": "Neptune Direct December 2026",
   "category": "planets",
   "kind": "datetime",
-  "utc": "2026-12-12T18:58:00Z",
+  "utc": "2026-12-12T22:17:00Z",
   "desc": [
-   "Neptune stations direct on December 12, 2026 at 18:58 UTC, at 1\u00b036' Aries \u2014 computed to the minute with our own Keplerian ephemeris.",
+   "Neptune stations direct on December 12, 2026 at 22:17 UTC, at 1\u00b036' Aries \u2014 checked against NASA's JPL Horizons system and a published ephemeris.",
    "Neptune retrograde is the annual five-month dissolve of illusions \u2014 dreams and deceptions both get a second look. The station is the turning point itself: the day the planet's apparent motion reaches zero before reversing. In tradition, days around a station carry the event's themes most intensely \u2014 decisions made at a station are said to set the tone for the whole season that follows."
   ],
   "facts": [
    [
     "Station moment (UTC)",
-    "December 12, 2026 \u00b7 18:58"
+    "December 12, 2026 \u00b7 22:17"
    ],
    [
     "Zodiac position",
@@ -2871,7 +2871,7 @@
     "~5 months"
    ]
   ],
-  "tagline": "1\u00b036' Aries \u00b7 18:58 UTC"
+  "tagline": "1\u00b036' Aries \u00b7 22:17 UTC"
  },
  {
   "slug": "neptune-retrograde-july-2027",

@@ -8,7 +8,7 @@ DATA = os.path.join(ROOT, 'data')
 OUT = os.path.join(ROOT, 'docs')
 SITE = 'https://daysuntil.bond'
 BRAND = 'daysuntil.bond'
-BUILD_DATE = dt.date(2026, 10, 2)
+BUILD_DATE = dt.date.today()   # sitemap <lastmod>: the day this build ran (was hard-coded to 2026-10-02)
 INDEXNOW_KEY = 'd91f4c7b2a8e6350f1c9d8a4b7e2f6c3'
 
 CATS = {
@@ -71,6 +71,10 @@ PRIORITY_SLUGS = {
     'avengers-doomsday', 'dune-part-three', 'black-friday-2026', 'halloween-2026',
     'gta-6-release', '1111-portal-2026', 'christmas-day-2026', 'cyber-monday-2026',
     'us-thanksgiving-2026', 'new-year-2027', 'ramadan-2027',
+    # 2027 cultural/high-search events that the duplicate-consolidation rule would
+    # otherwise bury under their 2026 counterparts - give each its own indexable URL.
+    'world-kindness-day-2027', 'diwali-2027', 'day-of-the-dead-2027',
+    'guy-fawkes-night-2027', 'veterans-day-2027',
 }
 def _base(slug):
     return _re.sub(r'-(\d{4})$', '', slug)
@@ -1037,6 +1041,8 @@ def home_page():
     trend = ''.join(card_html(by_slug[s]) for s in TRENDING if s in by_slug and by_slug[s]['ms'] > dt.datetime.now(dt.timezone.utc).timestamp() * 1000)
     upcoming = [e for e in events if e['slug'] in INDEXABLE and e['ms'] > dt.datetime.now(dt.timezone.utc).timestamp() * 1000][:12]
     cards = ''.join(card_html(e) for e in upcoming)
+    guides = ''.join(f'<a class="card" href="{sl}/"><span class="card-cat">📚 Guide</span><b>{esc(t)}</b><span class="card-date">{esc(d)}</span></a>'
+                     for sl, t, d in GENERATED_ARTICLES + STATIC_ARTICLES)
     cats = ''.join(f'''<a class="cat-tile" href="{c}/" style="--c1:rgb{CATS[c]['c1']}"><span class="big">{CATS[c]['icon']}</span><b>{CATS[c]['name']}</b><span class="count">{sum(1 for e in events if e["category"]==c)} countdowns</span></a>''' for c in CATS)
     idx = json.dumps([{'s': e['slug'], 't': e['title'], 'c': e['category'], 'n': date_nice(e['dt']), 'm': e['ms']} for e in events])
     ld = json.dumps({'@context': 'https://schema.org', '@type': 'WebSite', 'name': BRAND, 'url': SITE,
@@ -1072,6 +1078,8 @@ def home_page():
 <section class="cards">{trend}</section>
 <h2>⏳ Counting down right now</h2>
 <section class="cards">{cards}</section>
+<h2>📚 Guides &amp; explainers</h2>
+<section class="cards">{guides}</section>
 {AD_LB}<h2>🗂 Browse by category</h2>
 <section class="cat-grid">{cats}</section>
 {AD_LOADER}</main>
@@ -1151,6 +1159,18 @@ def page404():
 
 FAVICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#101426"/><circle cx="32" cy="36" r="17" fill="none" stroke="#e8b64c" stroke-width="5"/><path d="M32 6l4 9h-8z" fill="#e8b64c"/><rect x="8" y="10" width="10" height="5" rx="2.5" fill="#5c6bc0"/><rect x="46" y="10" width="10" height="5" rx="2.5" fill="#5c6bc0"/></svg>'
 
+# ---------------------------------------------------------------- stand-alone articles
+import articles as _articles
+# Written by hand, no generator code: only listed here so the sitemap and the home page reach them.
+STATIC_ARTICLES = [
+    ('days-in-2027', 'How many days are in 2027?', 'The full year breakdown: weekdays, weekends, every month'),
+    ('why-daysuntil-beats-every-other-site', 'Why our counts differ from other countdown sites', 'Days, sleeps, weekdays and weeks explained'),
+]
+GENERATED_ARTICLES = [
+    ('days-left-in-2026', 'How many days are left in 2026?', 'Workdays after federal holidays, plus every sky event still ahead'),
+]
+_ART_HELPERS = dict(head=head, nav_links=nav_links, footer=footer, esc=esc, SITE=SITE, BRAND=BRAND, breadcrumb_ld=breadcrumb_ld)
+
 # ---------------------------------------------------------------- write everything
 os.makedirs(os.path.join(OUT, 'assets'), exist_ok=True)
 os.makedirs(os.path.join(OUT, 'og'), exist_ok=True)
@@ -1194,6 +1214,14 @@ for e in events:
 
 open(os.path.join(OUT, 'index.html'), 'w').write(home_page())
 og_image(os.path.join(OUT, 'og', 'home.png'), 'How Many Days Until…?', f'{len(events)} live countdowns', 'planets', salt='home')
+
+# Generated article: days left in 2026 (see tools/articles.py)
+os.makedirs(os.path.join(OUT, 'days-left-in-2026'), exist_ok=True)
+open(os.path.join(OUT, 'days-left-in-2026', 'index.html'), 'w').write(_articles.days_left_in_2026(_ART_HELPERS, dt.date.today()))
+og_image(os.path.join(OUT, 'og', 'days-left-in-2026.png'), 'Days Left in 2026', 'Workdays · holidays · sky events', 'seasons', salt='dl2026')
+for _slug, _t, _d in GENERATED_ARTICLES + STATIC_ARTICLES:
+    if os.path.exists(os.path.join(OUT, _slug, 'index.html')):
+        urls.append(f'{SITE}/{_slug}/')
 
 today = BUILD_DATE.isoformat()
 sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
