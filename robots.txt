@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Sitemap: https://trustscore.bond/sitemap.xml
+Sitemap: https://trustscore.bond/sitemap-fiverr-batch.xml
+Sitemap: https://trustscore.bond/sitemap-priority.xml
