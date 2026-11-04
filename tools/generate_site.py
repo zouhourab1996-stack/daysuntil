@@ -1171,6 +1171,7 @@ import articles as _articles
 STATIC_ARTICLES = [
     ('days-in-2027', 'How many days are in 2027?', 'The full year breakdown: weekdays, weekends, every month'),
     ('why-daysuntil-beats-every-other-site', 'Why our counts differ from other countdown sites', 'Days, sleeps, weekdays and weeks explained'),
+    ('countdown-time-zone-guide', 'Why countdowns differ by one day', 'Time zones, counting conventions and the reliable way to check a date'),
 ]
 GENERATED_ARTICLES = [
     ('days-left-in-2026', 'How many days are left in 2026?', 'Workdays after federal holidays, plus every sky event still ahead'),
