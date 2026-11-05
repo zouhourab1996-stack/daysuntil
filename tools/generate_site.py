@@ -1173,6 +1173,7 @@ STATIC_ARTICLES = [
     ('why-daysuntil-beats-every-other-site', 'Why our counts differ from other countdown sites', 'Days, sleeps, weekdays and weeks explained'),
     ('countdown-time-zone-guide', 'Why countdowns differ by one day', 'Time zones, counting conventions and the reliable way to check a date'),
     ('how-many-days-until-2027', 'How many days until 2027?', 'Calendar days, weekdays and the counting rule explained'),
+    ('how-many-days-until-thanksgiving-2026', 'How many days until Thanksgiving 2026?', 'The date, counting rule and practical planning guide'),
 ]
 GENERATED_ARTICLES = [
     ('days-left-in-2026', 'How many days are left in 2026?', 'Workdays after federal holidays, plus every sky event still ahead'),
