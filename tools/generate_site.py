@@ -1176,6 +1176,7 @@ STATIC_ARTICLES = [
     ('how-many-days-until-thanksgiving-2026', 'How many days until Thanksgiving 2026?', 'The date, counting rule and practical planning guide'),
     ('how-many-days-until-christmas-2026', 'How many days until Christmas 2026?', 'The exact date, time-zone rule and planning checklist'),
     ('how-many-days-until-black-friday-2026', 'How many days until Black Friday 2026?', 'The date, time-zone rule and Cyber Monday planning guide'),
+    ('how-many-days-until-cyber-monday-2026', 'How many days until Cyber Monday 2026?', 'The exact date, time-zone rule and online shopping checklist'),
 ]
 GENERATED_ARTICLES = [
     ('days-left-in-2026', 'How many days are left in 2026?', 'Workdays after federal holidays, plus every sky event still ahead'),
