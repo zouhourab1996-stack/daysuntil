@@ -204,26 +204,85 @@ def breadcrumb_ld(trail):
     items = ','.join(f'{{"@type":"ListItem","position":{i+1},"name":"{esc(n)}","item":"{u}"}}' for i, (n, u) in enumerate(trail))
     return '{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[' + items + ']}'
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Title / description fitting (SEO hygiene).
+# Google truncates titles around 60 chars and descriptions around 155-160.
+# These helpers guarantee both stay in range no matter how long the event name is,
+# while keeping the money phrase ("How Many Days Until X?") whenever it fits.
+# ─────────────────────────────────────────────────────────────────────────────
+TITLE_MAX = 60
+DESC_MAX = 155
+
+def _trim_words(s, limit):
+    s = s.strip()
+    if len(s) <= limit: return s
+    cut = s[:limit].rstrip()
+    i = cut.rfind(' ')
+    if i >= int(limit * 0.55): cut = cut[:i]
+    return cut.rstrip(' ,;:—–-')
+
+def fit_title(ev, dd):
+    base = ev['title']
+    if dd == 0:
+        cands = [f"How Many Days Until {base}? It's Today",
+                 f"{base}: It's Today", f"Days Until {base}"]
+    elif dd > 0:
+        cands = [f"How Many Days Until {base}? {dd} Day{'' if dd == 1 else 's'} Left",
+                 f"How Many Days Until {base}?",
+                 f"Days Until {base} — {dd} Days",
+                 f"Days Until {base}"]
+    else:
+        cands = [f"How Many Days Until {base}? Live Countdown",
+                 f"How Many Days Until {base}?",
+                 f"Days Until {base}"]
+    for c in cands:
+        if len(c) <= TITLE_MAX: return c
+    return _trim_words(cands[-1], TITLE_MAX)
+
+def fit_desc(ev, d, dd):
+    nice = date_nice(d)
+    if dd > 0:
+        cands = [
+            f"Live countdown to {ev['title']} on {nice} — {_pl(dd, 'day')} to go, with weeks, weekdays and hours remaining.",
+            f"{_pl(dd, 'day')} to {ev['title']}, on {nice}. Live countdown in days, hours, minutes and seconds.",
+            f"{_pl(dd, 'day')} until {ev['title']} ({nice}). Live countdown, updated every second.",
+            f"{_pl(dd, 'day')} until {ev['title']} on {nice}. Live countdown, updated every second.",
+        ]
+    elif dd == 0:
+        cands = [
+            f"{ev['title']} is today, {nice}. Live countdown with the hours, minutes and seconds remaining.",
+            f"{ev['title']} is today ({nice}). Live countdown in hours, minutes and seconds.",
+            f"{ev['title']} is today. Live countdown.",
+        ]
+    else:
+        cands = [
+            f"{ev['title']} fell on {nice}. See the exact date, the weekday, and how long ago it was.",
+            f"{ev['title']} was on {nice}. Exact date, weekday and time since.",
+            f"{ev['title']} was on {nice} — a {d.strftime('%A')}. Exact date and weekday.",
+        ]
+    for c in cands:
+        if len(c) <= DESC_MAX: return c
+    return _trim_words(cands[-1], DESC_MAX)
+
 def event_page(e):
     slug, cat = e['slug'], e['category']
     d = e['dt']
     today = dt.date.today()
     dd = (d.date() - today).days
-    # Strike #2 (CTR): the live number goes IN THE TITLE for close events —
-    # the pattern every top-ranking countdown competitor uses.
-    if dd == 0:
-        title_tag = f"How Many Days Until {e['title']}? It's Today"
-    elif 0 < dd <= 180:
-        title_tag = f"How Many Days Until {e['title']}? {dd} Days Left"
+    # Title/description are fitted to Google's display limits — the live number
+    # still goes in the title for close events (the pattern every top-ranking
+    # countdown competitor uses), but only when it fits inside 60 characters.
+    title_tag = fit_title(e, dd)
+    # Custom meta description for high-impression pages (GSC data-driven)
+    if e.get("meta_desc"):
+        desc = e["meta_desc"]
     else:
-        title_tag = f'How Many Days Until {e["title"]}? Live Countdown & Exact Date'
-    desc = f'{e["title"]} {"falls on" if True else ""} {date_nice(d)} — live countdown with days, hours, minutes and seconds remaining, plus weeks, weekdays and everything to know.'
+        desc = fit_desc(e, d, dd)
     if dd >= 0:
         wk, rd = divmod(dd, 7)
         wdays = sum(1 for i in range(1, dd + 1) if (today + dt.timedelta(days=i)).weekday() < 5)
         glance = (f'As of {today.strftime("%B")} {today.day}, {today.year}: <b>{dd} days</b> to go — '
                   f'{wk} weeks and {rd} days, {wdays} weekdays ({dd - wdays} weekend days), about {dd * 24:,} hours.')
-        desc += f' As of {today.strftime("%B")} {today.day}: {dd} days left.'
         glance_html = f'<p class="cd-status">{glance}</p>'
     else:
         glance_html = ''
@@ -262,6 +321,7 @@ def event_page(e):
     rel = ''.join(f'''<a class="card" href="../{r['slug']}/"><span class="card-cat">{CATS[r['category']]['icon']} {CATS[r['category']]['name']}</span>
       <b>{esc(r['title'])}</b><span class="card-date">{date_nice(r['dt'])}</span><span class="card-days" data-ms="{r['ms']}"></span></a>''' for r in related)
 
+    evdeep = event_deep_html(e, '..')
     indexable = slug in INDEXABLE
     canonical = f'{SITE}/{slug}/' if indexable else f'{SITE}/{NEXT_OF.get(_base(slug), slug)}/'
     return head(title_tag, desc, canonical, f'/og/{slug}.png', ld_block, '..', indexable) + nav_links('..') + f'''</nav>
@@ -296,6 +356,7 @@ def event_page(e):
     <h2>About {esc(e["title"])}</h2>
     {paras}
     {deep_html}
+    {evdeep}
     {AD_MREC}  </div>
   <aside>
     <h2>Share this countdown</h2>
@@ -306,6 +367,7 @@ def event_page(e):
     <div class="faq">{faq_html}</div>
   </aside>
 </section>
+{_variant_nav(e, '..') if indexable else ''}
 <h2>Related countdowns</h2>
 <section class="cards">{rel}</section>
 {AD_LOADER}</main>
@@ -315,7 +377,7 @@ def event_page(e):
 
 _related_cache = {}
 def related_events(e, n=6):
-    scored = sorted((x for x in events if x['slug'] != e['slug']),
+    scored = sorted((x for x in events if x['slug'] != e['slug'] and x['slug'] in INDEXABLE),
                     key=lambda x: (0 if x['category'] == e['category'] else 1, abs(x['ms'] - e['ms'])))
     return scored[:n]
 
@@ -323,20 +385,649 @@ def card_html(e, pp=''):
     return f'''<a class="card" href="{pp}{e['slug']}/"><span class="card-cat">{CATS[e['category']]['icon']} {CATS[e['category']]['name']}</span>
       <b>{esc(e['title'])}</b><span class="card-date">{date_nice(e['dt'])}</span><span class="card-days" data-ms="{e['ms']}"></span></a>'''
 
+# ------------------------------------------------------------------ variants
+# days.to outranks every countdown site on identical dates because it publishes a
+# separate URL for each question modifier ("how many WEEKS", "how many WEEKDAYS",
+# "WHEN IS"). These variants mirror that coverage. Each one answers a DIFFERENT
+# question and ships its own computed table, so each page is an answer rather
+# than a doorway page.
+
+VARIANT_KINDS = ('weeks', 'weekdays', 'sleeps')
+
+
+def _pl(n, w):
+    return f"{n} {w}" + ("" if n == 1 else "s")
+
+
+def _wk_phrase(dd):
+    wk, rd = divmod(dd, 7)
+    if wk == 0: return _pl(rd, 'day')
+    if rd == 0: return _pl(wk, 'week')
+    return f'{_pl(wk, "week")} and {_pl(rd, "day")}'
+
+
+def _month_span(a, b):
+    out, y, m = [], a.year, a.month
+    while (y, m) <= (b.year, b.month):
+        out.append((y, m)); m += 1
+        if m > 12: m, y = 1, y + 1
+    return out
+
+
+def _month_stats(y, m, start, end):
+    import calendar as _c
+    last = _c.monthrange(y, m)[1]
+    lo = max(start, dt.date(y, m, 1)); hi = min(end, dt.date(y, m, last))
+    if lo > hi: return 0, 0
+    n = (hi - lo).days + 1
+    wd = sum(1 for i in range(n) if (lo + dt.timedelta(days=i)).weekday() < 5)
+    return wd, n - wd
+
+
+def _variant_nav(e, pp):
+    """cross-links between the four ways of asking the same question"""
+    s = e['slug']
+    items = [('weeks/', 'How many weeks?'), ('weekdays/', 'How many weekdays?'),
+             ('sleeps/', 'How many sleeps?')]
+    links = ''.join(f'<a href="{u}">{lbl}</a>' for u, lbl in items)
+    links += f'<a href="{pp}when-is/{s}/">When is it?</a>'
+    return (f'<nav class="varnav" style="display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0">'
+            f'<a href="{pp}{s}/" style="padding:.4rem .8rem;border:1px solid #ccc;border-radius:99px;'
+            f'text-decoration:none;font-size:.9rem">← Main countdown</a>'
+            + ''.join(f'<a href="{u}" style="padding:.4rem .8rem;border:1px solid #ccc;border-radius:99px;'
+                      f'text-decoration:none;font-size:.9rem">{lbl}</a>' for u, lbl in items)
+            + f'<a href="{pp}when-is/{s}/" style="padding:.4rem .8rem;border:1px solid #ccc;border-radius:99px;'
+              f'text-decoration:none;font-size:.9rem">When is it?</a></nav>')
+
+
+def _table(head_cells, rows, cap=''):
+    h = ''.join(f'<th>{esc(c)}</th>' for c in head_cells)
+    b = ''.join('<tr>' + ''.join(f'<td>{esc(str(c))}</td>' for c in r) + '</tr>' for r in rows)
+    return f'<div class="tablewrap"><table class="facts">{f"<caption>{esc(cap)}</caption>" if cap else ""}<tr>{h}</tr>{b}</table></div>'
+
+
+def _variant_title_desc(kind, e, d):
+    """Titles/descriptions fitted to Google's display limits, per variant."""
+    t = e['title']
+    today = dt.date.today()
+    dd = (d.date() - today).days
+    wk, rd = divmod(dd, 7)
+    nice = date_nice(d)
+    if kind == 'weeks':
+        cand = [f'How Many Weeks Until {t}?', f'Weeks Until {t}', f'Weeks Until {t} — Count']
+        body = (f'{t} falls on {nice}. That is {_wk_phrase(dd)} away. '
+                f'Week-by-week countdown showing exactly when each milestone lands, updated live.')
+    elif kind == 'weekdays':
+        cand = [f'How Many Weekdays Until {t}?', f'Weekdays Until {t}', f'Weekdays Until {t} — Count']
+        body = (f'{t} falls on {nice}. See how many of the days between now and then are working '
+                f'days and how many fall on a weekend, broken down month by month.')
+    elif kind == 'sleeps':
+        cand = [f'How Many Sleeps Until {t}?', f'Sleeps Until {t}', f'Sleeps Until {t} — Count']
+        body = (f'{t} falls on {nice}, which is {_pl(dd, 'sleep')} away. A sleep countdown is one more '
+                f'than the number of full nights left. Live count, updated every second.')
+    else:
+        cand = [f'When Is {t}?', f'When Is {t} — Date', f'When is {t}?']
+        body = (f'{t} falls on {nice} — a {d.strftime("%A")}. Exact date and time, plus the date '
+                f'for the next five years so you can plan ahead.')
+    title = next((c for c in cand if len(c) <= TITLE_MAX), _trim_words(cand[0], TITLE_MAX))
+    if len(body) > DESC_MAX:
+        cut = body[:DESC_MAX]
+        p = max(cut.rfind('. '), cut.rfind('! '))
+        body = (cut[:p + 1] if p > DESC_MAX * 0.6 else _trim_words(cut, DESC_MAX)).strip()
+    return title, body
+
+
+def _variant_faq(kind, e, d):
+    t = e['title']; nice = date_nice(d); dow = d.strftime('%A')
+    today = dt.date.today()
+    dd = (d.date() - today).days
+    wk, rd = divmod(dd, 7)
+    if kind == 'weeks':
+        return [(f'How many weeks until {t}?', f'{_wk_phrase(dd)}, as of today. {t} falls on {nice}.'),
+                (f'Is that full weeks or rounded?', f'Full weeks: {wk}. The remaining {_pl(rd, "day")} do not add up to a whole one, which is why the plain week count and the weeks-and-days count differ.'),
+                (f'When does the week count tick over?', 'Every seven days, counted to the second. The countdown runs in your own time zone rather than UTC, so it changes when your clock says it should.'),
+                (f'What date is {t}?', f'{nice} — a {dow}.')]
+    if kind == 'weekdays':
+        wdays = sum(1 for i in range(1, dd + 1) if (today + dt.timedelta(days=i)).weekday() < 5) if dd > 0 else 0
+        return [(f'How many weekdays until {t}?', f'{wdays} weekdays, with {dd - wdays} days falling on a weekend, out of {dd} days in total.'),
+                (f'Does that include public holidays?', 'No. The count is Monday to Friday only. Public holidays differ by country and employer, so subtract them from the month-by-month table below to get your own figure.'),
+                (f'Why count weekdays instead of days?', 'Because it is the number that maps onto real working time. A 60-day countdown sounds generous until you realise 16 of those days are a weekend.'),
+                (f'What date is {t}?', f'{nice} — a {dow}.')]
+    if kind == 'sleeps':
+        return [(f'How many sleeps until {t}?', f'{_pl(dd, 'sleep')}. {t} falls on {nice}.'),
+                (f'How is a sleep counted?', 'One sleep equals one night still to go. On the morning of the day before, the answer is one; on the morning of the day itself, it is zero.'),
+                (f'Is the number of sleeps the same as the number of days?', f'Almost. A sleep count is the number of nights remaining, which is one more than the number of whole days left when the event lands mid-morning.'),
+                (f'What date is {t}?', f'{nice} — a {dow}.')]
+    return [(f'When is {t}?', f'{t} falls on {nice} — a {dow}.'),
+            (f'What day of the week is {t}?', f'A {dow}. The day of the week shifts by one each year, and by two when a leap year intervenes.'),
+            (f'Has the date for {t} been confirmed?', f'Yes — this page uses the confirmed date for {t}. The table below carries the date forward for the next five years.'),
+            (f'How many days until {t}?', f'{dd} days. The live countdown on the main page gives it to the second.')]
+
+
+def _variant_body(kind, e, d, pp):
+    t = e['title']; nice = date_nice(d); dow = d.strftime('%A')
+    today = dt.date.today()
+    dd = (d.date() - today).days
+    wk, rd = divmod(dd, 7)
+    slug = e['slug']
+    about = ''.join(f'<p>{p}</p>' for p in (e.get('desc') or [])[:2])
+
+    if kind == 'weeks':
+        rows = [(k, (d.date() - dt.timedelta(days=k * 7)).strftime('%a %d %b %Y'))
+                for k in range(wk, 0, -1)]
+        if len(rows) > 26:
+            rows = rows[:12] + [('…', '…')] + rows[-12:]
+        tbl = _table(['Weeks to go', 'Starts on'], rows,
+                     f'Week-by-week countdown to {t}')
+        lead = (f'<p>{t} falls on <b>{nice}</b> — a {dow}. As of today that is <b>{dd} days</b>, '
+                f'or <b>{_wk_phrase(dd)}</b>. The table below lists every "weeks to go" '
+                f'milestone between now and the date, so you can work backwards from the day itself '
+                f'instead of counting forward from today.</p>')
+        note = ('<p>Weeks are the unit people actually plan in. Deadlines, notice periods and '
+                'rotas run in weeks, which is why a week count tends to be more useful than a raw '
+                'day count once you are more than a fortnight out. Note that the two figures answer '
+                'slightly different questions: "how many weeks" is full weeks only, while '
+                '"weeks and days" keeps the remainder.</p>')
+        h2b = 'Why the week count moves the way it does'
+    elif kind == 'weekdays':
+        wdays = sum(1 for i in range(1, dd + 1) if (today + dt.timedelta(days=i)).weekday() < 5) if dd > 0 else 0
+        rows, twd, twe = [], 0, 0
+        for (y, m) in _month_span(today, d.date())[:26]:
+            a, b = _month_stats(y, m, today + dt.timedelta(days=1), d.date())
+            twd += a; twe += b
+            rows.append((dt.date(y, m, 1).strftime('%B %Y'), a, b, a + b))
+        if len(rows) > 26: rows = rows[:26]
+        tbl = _table(['Month', 'Weekdays', 'Weekend days', 'Total'], rows,
+                     f'Working days between today and {t}')
+        lead = (f'<p>{t} falls on <b>{nice}</b> — a {dow}. Of the <b>{dd} days</b> between today and '
+                f'that date, <b>{wdays}</b> are weekdays (Monday to Friday) and <b>{dd - wdays}</b> '
+                f'fall on a weekend. The month-by-month split below is the practical version of that '
+                f'number: it tells you where your working time actually goes.</p>')
+        note = ('<p>This count is Monday to Friday only and does <b>not</b> strip out public '
+                'holidays. Those vary by country, state and employer, so subtract the ones you '
+                'actually get from the month that contains them. If you work a non-standard rota, '
+                'the weekend column is the figure to adjust rather than the weekday column.</p>')
+        h2b = 'What this count leaves out'
+    else:
+        rows = [(k, (d.date() - dt.timedelta(days=k)).strftime('%a %d %b'))
+                for k in range(min(dd, 10), 0, -1)]
+        tbl = _table(['Sleeps left', 'Morning of'], rows, f'Final nights before {t}')
+        lead = (f'<p>{t} falls on <b>{nice}</b>, which is <b>{dd} sleeps</b> away. A sleep count is '
+                f'the number of nights still to come rather than the number of days, which is why '
+                f'it is the version adults reach for when the person asking is a child — and why it '
+                f'stays intuitive long after the day count stops meaning much.</p>')
+        note = ('<p>The convention: one sleep means one night still to go. On the morning before, '
+                'the answer is one. On the morning of the day itself, it is zero — you have run out '
+                'of nights to sleep through. Because it tracks nights rather than 24-hour periods, '
+                'the figure can read one higher than the day count for an event that lands in the '
+                'morning.</p>')
+        h2b = 'How a sleep count works'
+
+    faq = _variant_faq(kind, e, d)
+    ld = json.dumps({'@context': 'https://schema.org', '@type': 'FAQPage',
+                     'mainEntity': [{'@type': 'Question', 'name': q,
+                                     'acceptedAnswer': {'@type': 'Answer', 'text': a}} for q, a in faq]})
+    crumb = breadcrumb_ld([('Home', SITE + '/'), (CATS[e['category']]['name'], f'{SITE}/{e["category"]}/'),
+                           (t, f'{SITE}/{slug}/'), (kind.capitalize(), f'{SITE}/{slug}/{kind}/')])
+    ldb = ('<script type="application/ld+json">' + ld + '</script>\n'
+           '<script type="application/ld+json">' + crumb + '</script>')
+    faq_html = ''.join(f'<details><summary>{esc(q)}</summary><p>{esc(a)}</p></details>' for q, a in faq)
+    title, desc = _variant_title_desc(kind, e, d)
+    cfg = json.dumps({'kind': e['kind'], 'y': d.year, 'm': d.month, 'd': d.day,
+                      'utc': e.get('utc'), 'title': t, 'dateNice': nice})
+    rel = related_events(e, 6)
+    cards = ''.join(f'''<a class="card" href="{pp}{r['slug']}/"><span class="card-cat">{CATS[r['category']]['icon']} {CATS[r['category']]['name']}</span>
+      <b>{esc(r['title'])}</b><span class="card-date">{date_nice(r['dt'])}</span></a>''' for r in rel)
+
+    return head(title, desc, f'{SITE}/{slug}/{kind}/', f'/og/{slug}.png', ldb, pp, True) + nav_links(pp) + f'''</nav>
+</header>
+<main id="main">
+<nav class="crumbs"><a href="{pp}">Home</a> › <a href="{pp}{e['category']}/">{CATS[e['category']]['name']}</a> › <a href="{pp}{slug}/">{esc(t)}</a> › <span>{kind.capitalize()}</span></nav>
+<h1>{esc(_variant_title_desc(kind, e, d)[0])}</h1>
+<section class="hero" data-cat="{e['category']}">
+  <div class="cd">
+    <div class="cd-days"><span id="cd-d">–</span><small>days</small></div>
+    <div class="cd-grid">
+      <div><b id="cd-h">–</b><small>hours</small></div>
+      <div><b id="cd-m">–</b><small>minutes</small></div>
+      <div><b id="cd-s">–</b><small>seconds</small></div>
+    </div>
+    <p class="cd-status" id="cd-status">{esc(t)} falls on {nice}.</p>
+  </div>
+  <div class="chips">
+    <span class="chip">📅 <b id="ch-weeks">–</b> weeks</span>
+    <span class="chip">💼 <b id="ch-wd">–</b> weekdays</span>
+    <span class="chip">🛌 <b id="ch-we">–</b> weekend days</span>
+    <span class="chip">🗓️ <b id="ch-months">–</b> months (approx)</span>
+  </div>
+</section>
+{_variant_nav(e, pp)}
+{lead}
+{tbl}
+<h2>{h2b}</h2>
+{note}
+<h2>About {esc(t)}</h2>
+{about}
+<section class="grid2">
+  <div><h2>Quick facts</h2><table class="facts">{''.join(f'<tr><th>{esc(k)}</th><td>{esc(v)}</td></tr>' for k, v in e['facts'])}</table></div>
+  <aside><h2>FAQ</h2><div class="faq">{faq_html}</div></aside>
+</section>
+<h2>Related countdowns</h2>
+<section class="cards">{cards}</section>
+</main>
+<script>window.EVENT={cfg};</script>
+<script src="{pp}assets/site.js" defer></script>
+''' + footer(pp)
+
+
+def when_is_page(e):
+    t = e['title']; d = e['dt']; nice = date_nice(d); dow = d.strftime('%A')
+    today = dt.date.today(); dd = (d.date() - today).days
+    years = []
+    for k in range(6):
+        try:
+            nd = d.replace(year=d.year + k)
+        except ValueError:
+            nd = d.replace(year=d.year + k, day=28)
+        years.append((nd.year, nd.strftime('%a %d %b %Y'), nd.strftime('%A')))
+    tbl = _table(['Year', 'Date', 'Day of week'], years, f'{t} — date by year')
+    about = ''.join(f'<p>{p}</p>' for p in (e.get('desc') or [])[:3])
+    faq = _variant_faq('when', e, d)
+    ld = json.dumps({'@context': 'https://schema.org', '@type': 'FAQPage',
+                     'mainEntity': [{'@type': 'Question', 'name': q,
+                                     'acceptedAnswer': {'@type': 'Answer', 'text': a}} for q, a in faq]})
+    crumb = breadcrumb_ld([('Home', SITE + '/'), (t, f'{SITE}/when-is/{e["slug"]}/')])
+    ldb = ('<script type="application/ld+json">' + ld + '</script>\n'
+           '<script type="application/ld+json">' + crumb + '</script>')
+    faq_html = ''.join(f'<details><summary>{esc(q)}</summary><p>{esc(a)}</p></details>' for q, a in faq)
+    title, desc = _variant_title_desc('when', e, d)
+    cfg = json.dumps({'kind': e['kind'], 'y': d.year, 'm': d.month, 'd': d.day,
+                      'utc': e.get('utc'), 'title': t, 'dateNice': nice})
+    pp = '..'
+    rel = related_events(e, 6)
+    cards = ''.join(f'''<a class="card" href="{pp}/{r['slug']}/"><span class="card-cat">{CATS[r['category']]['icon']} {CATS[r['category']]['name']}</span>
+      <b>{esc(r['title'])}</b><span class="card-date">{date_nice(r['dt'])}</span></a>''' for r in rel)
+    return head(title, desc, f'{SITE}/when-is/{e["slug"]}/', f'/og/{e["slug"]}.png', ldb, pp, True) + nav_links(pp) + f'''</nav>
+</header>
+<main id="main">
+<nav class="crumbs"><a href="{pp}/">Home</a> › <a href="{pp}/{e['category']}/">{CATS[e['category']]['name']}</a> › <span>When is {esc(t)}?</span></nav>
+<h1>When Is {esc(t)}?</h1>
+<section class="hero" data-cat="{e['category']}">
+  <div class="cd">
+    <div class="cd-days"><span id="cd-d">–</span><small>days</small></div>
+    <div class="cd-grid">
+      <div><b id="cd-h">–</b><small>hours</small></div>
+      <div><b id="cd-m">–</b><small>minutes</small></div>
+      <div><b id="cd-s">–</b><small>seconds</small></div>
+    </div>
+    <p class="cd-status" id="cd-status">{esc(t)} falls on {nice}.</p>
+  </div>
+</section>
+{_variant_nav(e, pp + '/')}
+<p><b>{esc(t)} falls on {nice} — a {dow}.</b> That is <b>{dd} days</b> from today. The date is confirmed, so the only thing that moves is the countdown itself.</p>
+{tbl}
+<h2>Why the day of the week moves</h2>
+<p>A date advances by one weekday each year, because 365 days is 52 weeks plus one day. In a leap year it advances by two, which is why the weekday occasionally jumps. Over the six years in the table above you can watch both patterns: the single-step years and the leap-year double step.</p>
+<p>This matters more than it sounds if you are planning around a weekend. An event that lands on a Saturday this year may fall midweek in two years' time, which changes everything from travel to time off.</p>
+<h2>About {esc(t)}</h2>
+{about}
+<section class="grid2">
+  <div><h2>Quick facts</h2><table class="facts">{''.join(f'<tr><th>{esc(k)}</th><td>{esc(v)}</td></tr>' for k, v in e['facts'])}</table></div>
+  <aside><h2>FAQ</h2><div class="faq">{faq_html}</div></aside>
+</section>
+<h2>Related countdowns</h2>
+<section class="cards">{cards}</section>
+</main>
+<script>window.EVENT={cfg};</script>
+<script src="{pp}/assets/site.js" defer></script>
+''' + footer(pp)
+
+
+# ------------------------------------------------------- category deep content
+# Category hubs were the thinnest pages on the site (144-301 words) despite
+# being the most heavily linked pages after the homepage. Each one now carries a
+# computed table of what is coming up, an honest note on how those dates are
+# actually arrived at, and four real questions.
+
+CAT_DEEP = {
+ 'holidays': dict(
+   how=("Some of these dates never move and some move every year, and the two need different kinds of "
+        "confidence. Christmas is 25 December by definition; the only question is which weekday it lands "
+        "on. Easter is the opposite: it falls on the first Sunday after the Paschal full moon, which is "
+        "why it can land anywhere between 22 March and 25 April. Thanksgiving in the United States is the "
+        "fourth Thursday of November, and in Canada the second Monday of October — so the same holiday "
+        "sits six weeks apart depending on which side of the border you are counting down to."),
+   faq=[('Why do some holiday dates change every year?',
+         'Because they are anchored to something other than the calendar. Easter follows the moon, '
+         'Thanksgiving follows a weekday count, and Ramadan follows a sighting. Fixed-date holidays '
+         'like Christmas only change their weekday.'),
+        ('Are these dates confirmed?',
+         'Fixed-date holidays are known years ahead. Moveable ones are computed from the rule that '
+         'defines them. Where a date depends on a religious authority or a sighting, we say so on the '
+         'page rather than presenting it as settled.'),
+        ('Do you count in my time zone?',
+         'Yes. Countdowns run in your local time zone, not UTC, so the number changes when your clock '
+         'says it should.'),
+        ('What about public holidays that differ by country?',
+         'We list the date as it is observed in the country the holiday belongs to. If a country moves '
+         'it to a Monday, that is noted on the event page.')]),
+ 'moon': dict(
+   how=("A full moon is the moment the Moon sits opposite the Sun in ecliptic longitude, not a whole "
+        "night. That is why the date can differ by a day depending on where you are, and why the Moon "
+        "can look full on two consecutive evenings. The gap between one full moon and the next is the "
+        "synodic month: 29 days, 12 hours and 44 minutes on average. Because that is not a whole number "
+        "of days, full moon dates drift about eleven days earlier each year until a thirteenth full moon "
+        "resets the sequence — the blue moon."),
+   faq=[('What exactly is a full moon?',
+         'The instant the Moon and Sun are opposite each other in ecliptic longitude. It lasts a moment, '
+         'though the Moon looks full for roughly a day either side.'),
+        ('Why does the date differ between sources?',
+         'Because the moment is converted into different time zones. A full moon at 23:40 UTC is already '
+         'the next day in Sydney and still the previous evening in Los Angeles.'),
+        ('What is a blue moon?',
+         'Two full moons in one calendar month. It happens roughly every two to three years because the '
+         'synodic month is shorter than most calendar months.'),
+        ('How accurate are these times?',
+         'They are computed from lunar theory and are accurate to within a minute or so, which is far '
+         'finer than anything you could observe by eye.')]),
+ 'eclipses': dict(
+   how=("Eclipses come in seasons. Roughly every six months the new or full moon passes close enough to "
+        "a lunar node for the three bodies to line up, and an eclipse happens somewhere on Earth. A "
+        "solar eclipse is the Moon's shadow touching the Earth's surface — which is why it is only "
+        "visible from a narrow track a couple of hundred kilometres wide, and why totality at any one "
+        "spot lasts minutes. A lunar eclipse is the Earth's shadow falling on the Moon, visible from "
+        "the whole night side at once and lasting over an hour. Eclipses repeat in families called saros "
+        "series, each one shifted a third of the way around the globe."),
+   faq=[('What is the difference between a total and an annular eclipse?',
+         'In a total eclipse the Moon covers the Sun completely. In an annular one the Moon is near its '
+         'farthest point and appears slightly too small, leaving a ring of Sun visible.'),
+        ('Can I see this one where I live?',
+         'Only if you are inside the visibility region, which for a solar eclipse is a narrow track. '
+         'Each event page states where it is visible.'),
+        ('Is it safe to look at a solar eclipse?',
+         'Not without proper solar filters. Looking at the partially covered Sun is as damaging as '
+         'looking at the full Sun, and the damage is painless, so you will not notice it happening.'),
+        ('Why are lunar eclipses more common to see?',
+         'A lunar eclipse is visible from anywhere on the night side of the Earth at once, so roughly '
+         'half the planet can watch it. A solar eclipse is visible only from a narrow track.')]),
+ 'planets': dict(
+   how=("Retrograde is not a planet moving backwards. It is an overtaking. Earth and the other planet "
+        "are both orbiting the Sun at different speeds, and when Earth catches up and passes, the other "
+        "planet appears to stall and reverse against the background stars for a few weeks before "
+        "resuming its normal direction. It is the same effect as being passed on a motorway: the car you "
+        "overtake seems to slide backwards even though it is still moving forward. These pages give the "
+        "station dates — the moments the apparent motion turns — computed from Keplerian orbital "
+        "elements rather than read off a table."),
+   faq=[('Does a planet actually move backwards?',
+         'No. The apparent reversal is a line-of-sight effect caused by the Earth overtaking a slower '
+         'orbiting planet.'),
+        ('How long does a retrograde last?',
+         'Mercury about three weeks, three or four times a year. The slower outer planets stay retrograde '
+         'for four to five months at a time.'),
+        ('What is a shadow period?',
+         'The stretch either side of the retrograde when the planet is retracing ground it will cover '
+         'again, or already did. Many astrologers treat it as part of the same window.'),
+        ('Are these dates computed or copied?',
+         'Computed from orbital elements, then checked against published ephemerides. They are the '
+         'astronomical station dates, not a symbolic one.')]),
+ 'meteor-showers': dict(
+   how=("A meteor shower happens when the Earth ploughs through a trail of debris left by a comet or, "
+        "occasionally, an asteroid. The bits burn up in the upper atmosphere, and because they are all "
+        "travelling in parallel they appear to radiate from a single point in the sky — which is why "
+        "each shower is named after the constellation it seems to come from. The peak is the night the "
+        "Earth passes through the densest part of the trail, and it can be sharp or broad depending on "
+        "how old and spread out that trail is. Moonlight is the other variable: a bright Moon washes out "
+        "everything except the brightest meteors."),
+   faq=[('What time of night is best?',
+         'After midnight, and best of all in the hour or two before dawn. Before midnight you are on the '
+         'trailing side of the Earth and see fewer meteors.'),
+        ('Do I need a telescope?',
+         'No, and it would get in the way. Meteors are best seen with the naked eye from a dark site '
+         'with as wide a view of the sky as you can find.'),
+        ('How many will I actually see?',
+         'The quoted zenithal hourly rate is a theoretical maximum under a perfectly dark sky with the '
+         'radiant overhead. Realistic counts are usually well below it.'),
+        ('Does the Moon ruin it?',
+         'It can. A full Moon near the radiant cuts the visible count substantially, which is why the '
+         'same shower is excellent one year and disappointing the next.')]),
+ 'seasons': dict(
+   how=("An equinox or solstice is a single moment, not a day. The March and September equinoxes are "
+        "when the Sun crosses the celestial equator and day and night come closest to equal; the June "
+        "and December solstices are when the Earth's axial tilt is at its most extreme toward or away "
+        "from the Sun, giving the longest and shortest days. Because the Earth's orbit is elliptical "
+        "and the calendar year is not a whole number of days, the exact minute shifts from year to "
+        "year, and the date can move by a day across a leap-year cycle."),
+   faq=[('Is the solstice a whole day?',
+         'No — it is the exact moment the tilt is at its maximum. We call the whole day the solstice '
+         'because that is how calendars work, but the astronomical event lasts an instant.'),
+        ('Why is the longest day not the hottest?',
+         'Because the oceans and land take weeks to warm up. The seasonal lag means peak temperatures '
+         'arrive a month or more after peak sunlight.'),
+        ('Why does the date move?',
+         'The tropical year is about 365.2422 days, not 365. The leap-year system absorbs the difference, '
+         'which makes the exact moment drift and then snap back.'),
+        ('Are the equinoxes really equal day and night?',
+         'Very nearly, but not exactly: refraction lifts the Sun slightly and the day is measured from '
+         'the edge of the disc rather than its centre.')]),
+ 'gaming': dict(
+   how=("Game release dates are announcements, not astronomical events, which makes them a different "
+        "kind of countdown. A date is real when the publisher has put it in a financial filing or a "
+        "dated trailer, and provisional until then. Slips are normal and usually land two to six months "
+        "after the original window, so treat any date more than a year out as a placeholder. Where a "
+        "title has a confirmed date and a previous slipped one, we count to the confirmed date."),
+   faq=[('Are these release dates confirmed?',
+         'Only where stated. A date quoted from a publisher announcement is firmer than one quoted from '
+         'a retailer listing, and we label which is which.'),
+        ('Do release dates slip often?',
+         'Frequently. Industry-wide, a majority of titles with dates more than a year out move at least '
+         'once.'),
+        ('Why is the countdown in my time zone?',
+         'Because unlocks are usually simultaneous worldwide at a stated UTC hour, so your local unlock '
+         'time depends on where you are.'),
+        ('What if the date changes after you publish?',
+         'We update the page. If you spot a slip before we do, the about page has a contact route.'), ('Why do game release dates slip so often?',
+           'Because a date is a marketing commitment made before the work is finished. A slip is usually a sign the studio wants the game to work rather than a sign of trouble, and it is common enough that we treat any date more than a year out as provisional.'), ('Do release times differ by platform?',
+           'Often. Console and PC unlocks are frequently staggered, and a simultaneous global unlock is the exception. Check the platform-specific time before planning around it.')]),
+ 'movies': dict(
+   how=("Theatrical dates work like game releases: they are commercial announcements and they move. A "
+        "date is firm once the studio has it on a dated trailer or in exhibition materials, and soft "
+        "before that. Studios also shift dates to avoid colliding with a competing tentpole, which is "
+        "why a release can move twice in a year without anything having gone wrong."),
+   faq=[('How reliable are these dates?',
+         'Reasonably firm inside six months, much less so beyond a year. We mark the source on each page.'),
+        ('Do release dates differ by country?',
+         'Often. A global release is the exception rather than the rule, and territories frequently open '
+         'a week or two apart.'),
+        ('Why do studios move dates?',
+         'Mostly to avoid competition, sometimes because post-production ran long. Neither is unusual.'),
+        ('Will you update if it slips?',
+         'Yes. The countdown updates to the corrected date when the studio confirms one.'), ('Do release dates differ by country?',
+           'Frequently. A simultaneous global release is the exception rather than the rule, and territories often open a week or two apart.'), ('How far ahead are film dates settled?',
+           'Studios announce dates years out and then move them to avoid competition. A date inside six months is reasonably firm; anything beyond a year is a placeholder.')]),
+ 'sports': dict(
+   how=("Sporting fixtures are scheduled years ahead and are the most reliable dates on this site — a "
+        "Super Bowl or an Olympic opening ceremony is fixed by contract and broadcast deal long in "
+        "advance. The one thing that does move is kickoff time, which is set for a television audience "
+        "and can shift by an hour or three depending on the territory. The date, unlike the start time, "
+        "essentially never changes."),
+   faq=[('Are these dates confirmed?',
+         'Yes. Major finals and opening ceremonies are contracted years ahead of time.'),
+        ('Do kickoff times change?',
+         'They can, and broadcasters adjust them for their audience. The date is stable; the hour is not.'),
+        ('Why is the countdown in my time zone?',
+         'So it matches your own clock. A fixture that starts Sunday evening in the United States starts '
+         'early Monday morning in Europe.'),
+        ('What about events that get postponed?',
+         'Rare, but it happens. If a fixture moves we update the countdown to the rescheduled date.'), ('How far ahead are sporting fixtures set?',
+           'Major finals and opening ceremonies are contracted years in advance, which makes them among the most reliable dates on this site. Kickoff times are set much later, for television.'), ('What happens if a fixture is postponed?',
+           'It is rare for a final. Where it happens we update the countdown to the rescheduled date rather than leaving the old one running.')]),
+}
+
+
+def _cat_table(cat):
+    today = dt.date.today()
+    rows, shown = [], 0
+    for e in events:
+        if e['category'] != cat: continue
+        if e['slug'] not in INDEXABLE: continue
+        d = e['dt'].date()
+        if d < today: continue
+        if shown >= 18: break
+        rows.append((esc(e['title']), date_nice(e['dt']), d.strftime('%A'), (d - today).days))
+        shown += 1
+    if not rows: return ''
+    body = ''.join(f'<tr><td>{a}</td><td>{b}</td><td>{c}</td><td>{n}</td></tr>' for a, b, c, n in rows)
+    return ('<div class="tablewrap"><table class="facts"><tr><th>Event</th><th>Date</th>'
+            '<th>Day</th><th>Days away</th></tr>' + body + '</table></div>')
+
+
+# ------------------------------------------------------- event deep content
+# The event pages themselves were the thinnest indexable pages left on the site
+# (~390-500 words). Two blocks are added, both computed from the event's own
+# date, so every page gets different content rather than a shared template.
+
+
+def _milestones(e, today):
+    """Dates on which the countdown passes each milestone — unique per event."""
+    d = e['dt'].date()
+    rows = []
+    for n in (365, 200, 100, 50, 30, 14, 7, 3, 1):
+        md = d - dt.timedelta(days=n)
+        if md >= today:
+            rows.append((n, md))
+    return rows
+
+
+def _breakdown(e, today):
+    d = e['dt'].date()
+    dd = (d - today).days
+    if dd <= 0:
+        return None, dd
+    wk, rd = divmod(dd, 7)
+    wdays = sum(1 for i in range(1, dd + 1) if (today + dt.timedelta(days=i)).weekday() < 5)
+    months = round(dd / 30.4375, 1)
+    return dict(days=dd, weeks=f'{wk} weeks and {rd} days', months=months,
+                weekdays=wdays, weekends=dd - wdays, hours=dd * 24,
+                sleeps=dd, seconds=dd * 86400), dd
+
+
+def _past_html(e, today):
+    """For events that have already happened: what it was, when, and what is next."""
+    d = e['dt'].date()
+    ago = (today - d).days
+    t = esc(e['title'])
+    base = _base(e['slug'])
+    nxt = None
+    for x in events:
+        if x['slug'] == e['slug']:
+            continue
+        if x['slug'] not in INDEXABLE:
+            continue
+        if _base(x['slug']) == base and x['dt'].date() >= today:
+            nxt = x
+            break
+    if nxt is None:
+        for x in events:
+            if x['slug'] not in INDEXABLE:
+                continue
+            if x['category'] == e['category'] and x['dt'].date() >= today:
+                nxt = x
+                break
+    nxt_html = ''
+    if nxt:
+        nd = nxt['dt'].date()
+        nxt_html = (f'<h2>What comes next</h2><p>The next one on our calendar is '
+                    f'<a href="../{nxt["slug"]}/">{esc(nxt["title"])}</a>, on '
+                    f'<b>{date_nice(nxt["dt"])}</b> — a {nd.strftime("%A")}, '
+                    f'{_pl((nd - today).days, "day")} from today.</p>')
+    return (f'<h2>This one has already passed</h2>'
+            f'<p>{t} fell on <b>{date_nice(e["dt"])}</b> — a {d.strftime("%A")} — which is '
+            f'<b>{_pl(ago, "day")}</b> ago. The countdown on this page now counts up rather than down, '
+            f'and the date is kept because people look it up after the fact as often as before it.</p>'
+            + nxt_html)
+
+
+def event_deep_html(e, pp):
+    today = dt.date.today()
+    br, dd = _breakdown(e, today)
+    if br is None:
+        return _past_html(e, today)
+    t = esc(e['title'])
+
+    ms = _milestones(e, today)
+    out = ''
+    if len(ms) >= 2:
+        rows = ''.join(
+            f'<tr><td><b>{n} days</b></td><td>{md.strftime("%A")}</td>'
+            f'<td>{md.strftime("%d %B %Y")}</td><td>{_pl(n, "day")} to go</td></tr>'
+            for n, md in ms)
+        first = ms[-1]
+        out += (f'<h2>Your {t} countdown milestones</h2>'
+                f'<p>It is easier to plan against fixed points than against a number that moves. These '
+                f'are the dates on which the countdown to {t} passes each marker between now and the '
+                f'day itself — the last one falls on <b>{first[1].strftime("%A %d %B")}</b>, when there '
+                f'will be {_pl(first[0], "day")} left.</p>'
+                f'<div class="tablewrap"><table class="facts">'
+                f'<tr><th>Milestone</th><th>Day</th><th>Date</th><th>Remaining</th></tr>'
+                f'{rows}</table></div>')
+
+    out += (f'<h2>How the remaining time breaks down</h2>'
+            f'<p>{_pl(br["days"], "day")} is the headline, but it is rarely the number that helps. '
+            f'<b>{br["weekdays"]}</b> of those are weekdays and <b>{br["weekends"]}</b> fall on a '
+            f'weekend, which is the split that matters if you are planning around work. It is '
+            f'{br["weeks"]}, or roughly {br["months"]} months, or about {br["hours"]:,} hours.</p>'
+            f'<div class="tablewrap"><table class="facts">'
+            f'<tr><th>Unit</th><th>Until {t}</th></tr>'
+            f'<tr><td>Days</td><td>{br["days"]}</td></tr>'
+            f'<tr><td>Weeks</td><td>{br["weeks"]}</td></tr>'
+            f'<tr><td>Months (approx)</td><td>{br["months"]}</td></tr>'
+            f'<tr><td>Weekdays</td><td>{br["weekdays"]}</td></tr>'
+            f'<tr><td>Weekend days</td><td>{br["weekends"]}</td></tr>'
+            f'<tr><td>Hours</td><td>{br["hours"]:,}</td></tr>'
+            f'<tr><td>Sleeps</td><td>{br["sleeps"]}</td></tr>'
+            f'</table></div>'
+            f'<p>Working days are Monday to Friday and do not subtract public holidays, which vary by '
+            f'country and employer — <a href="weekdays/">the full month-by-month split</a> is on our '
+            f'weekday page for {t}.</p>')
+    return out
+
+
+CAT_EXTRA = {'gaming': '<h2>How we decide a release date is real</h2>\n<p>A date earns a place on this site when it comes from the publisher directly — a dated trailer, a\nfinancial filing, or a store listing the publisher controls. A date found only on a retailer page or\nin a rumour round-up does not, because those are wrong often enough to be worse than useless. Where a\ntitle has both a confirmed date and an earlier one it has since missed, we count to the confirmed one\nand say which is which.</p>\n<p>Unlock times are the other half of the question and work differently. Most launches unlock at a\nstated global moment, which lands at a different local hour depending on where you are counting from,\nso two people can be counting to the same instant and see it fall on different days.</p>', 'movies': '<h2>How we decide a theatrical date is real</h2>\n<p>We take a date from the studio or the distributor, not from a listing aggregator. A dated trailer,\na press release or exhibition material counts; a cinema chain page does not, because those are\nprovisional until the studio confirms. Studios also move dates to avoid colliding with a competing\nrelease, which is why a film can shift twice in a year without anything having gone wrong in\nproduction.</p>\n<p>Territory is the part people miss. A "global release" is the exception rather than the rule, and\nmost films open in some markets a week or two before or after the domestic date. If you are counting\ndown outside the film\'s home market, check the local date before trusting the countdown.</p>', 'sports': '<h2>Why these are the most reliable dates here</h2>\n<p>A major final or an opening ceremony is fixed by contract and broadcast deal years ahead — a host\ncity is awarded, a venue is booked, and television rights are sold against specific dates. That makes\nsporting fixtures considerably firmer than anything else on this site, including astronomical events,\nwhich shift by minutes as the calculations are refined.</p>\n<p>The one thing that does move is the start time, and it moves for television rather than for sport:\nbroadcasters shift kickoff to suit their audience, sometimes by several hours. So the date you are\ncounting down to is stable, and the hour you need to be free is not. If the fixture matters, confirm\nthe local start time closer to the day.</p>'}
+
+
 def category_page(cat):
     c = CATS[cat]
-    evs = [e for e in events if e['category'] == cat]
+    evs = [e for e in events if e['category'] == cat and e['slug'] in INDEXABLE]
     cards = ''.join(card_html(e, '../') for e in evs)
     ld = breadcrumb_ld([('Home', SITE + '/'), (c['name'], f'{SITE}/{cat}/')])
-    t = f'{c["name"]} — Live Countdowns ({len(evs)} events)'
-    desc = f'{c["blurb"]} Live countdowns in days, hours, minutes and seconds.'
-    return head(t, desc, f'{SITE}/{cat}/', f'/og/cat-{cat}.png', '<script type="application/ld+json">' + ld + '</script>') + nav_links('..') + f'''</nav>
+    _d = CAT_DEEP.get(cat, {})
+    cat_how = _d.get('how', '')
+    cat_extra = CAT_EXTRA.get(cat, '')
+    cat_tbl = _cat_table(cat)
+    _fq = _d.get('faq') or []
+    cat_faq = ld_faq = ''
+    if _fq:
+        cat_faq = '<h2>FAQ</h2><div class="faq">' + ''.join(
+            f'<details><summary>{esc(q)}</summary><p>{esc(a)}</p></details>' for q, a in _fq) + '</div>'
+        _ld2 = json.dumps({'@context': 'https://schema.org', '@type': 'FAQPage',
+                           'mainEntity': [{'@type': 'Question', 'name': q,
+                                           'acceptedAnswer': {'@type': 'Answer', 'text': a}} for q, a in _fq]})
+        ld_faq = '\n<script type="application/ld+json">' + _ld2 + '</script>'
+    t = _trim_words(f'{c["name"]} — Live Countdowns ({len(evs)} events)', TITLE_MAX)
+    desc = _trim_words(f'Live countdowns to {len(evs)} {c["name"].lower()} — days, hours, minutes and seconds, updated every second in your time zone.', DESC_MAX)
+    return head(t, desc, f'{SITE}/{cat}/', f'/og/cat-{cat}.png', '<script type="application/ld+json">' + ld + '</script>' + ld_faq) + nav_links('..') + f'''</nav>
 </header>
 <main id="main">
 <nav class="crumbs"><a href="../">Home</a> › <span>{c['name']}</span></nav>
 <h1>{c['icon']} {c['name']}</h1>
 <p class="lead">{c['blurb']}</p>
+<h2>Coming up next</h2>
+{cat_tbl}
+<h2>How these dates are worked out</h2>
+<p>{cat_how}</p>
+{cat_extra}
 {AD_LB}<section class="cards">{cards}</section>
+{cat_faq}
 {NATIVE_AD}{AD_LOADER}</main>
 ''' + footer()
 
@@ -344,15 +1035,15 @@ def home_page():
     TRENDING = ['avengers-doomsday', 'halloween-2026', 'new-year-2027', 'gta-6-release', 'black-friday-2026', '1111-portal-2026']
     by_slug = {e['slug']: e for e in events}
     trend = ''.join(card_html(by_slug[s]) for s in TRENDING if s in by_slug and by_slug[s]['ms'] > dt.datetime.now(dt.timezone.utc).timestamp() * 1000)
-    upcoming = [e for e in events if e['ms'] > dt.datetime.now(dt.timezone.utc).timestamp() * 1000][:12]
+    upcoming = [e for e in events if e['slug'] in INDEXABLE and e['ms'] > dt.datetime.now(dt.timezone.utc).timestamp() * 1000][:12]
     cards = ''.join(card_html(e) for e in upcoming)
     cats = ''.join(f'''<a class="cat-tile" href="{c}/" style="--c1:rgb{CATS[c]['c1']}"><span class="big">{CATS[c]['icon']}</span><b>{CATS[c]['name']}</b><span class="count">{sum(1 for e in events if e["category"]==c)} countdowns</span></a>''' for c in CATS)
     idx = json.dumps([{'s': e['slug'], 't': e['title'], 'c': e['category'], 'n': date_nice(e['dt']), 'm': e['ms']} for e in events])
     ld = json.dumps({'@context': 'https://schema.org', '@type': 'WebSite', 'name': BRAND, 'url': SITE,
                      'description': 'Live countdowns to holidays, eclipses, moon phases, planetary stations, game launches, movies and sporting events.',
                      'potentialAction': {'@type': 'SearchAction', 'target': {'@type': 'EntryPoint', 'urlTemplate': SITE + '/?q={search_term_string}'}, 'query-input': 'required name=search_term_string'}})
-    return head(f'{BRAND} — Live Countdowns to the Events the World Is Waiting For',
-                'How many days until Christmas, GTA 6, the 2027 total solar eclipse, the Super Bowl or the next full moon? Live countdowns — days, hours, minutes, seconds — to {n} verified dates.'.replace('{n}', str(len(events))),
+    return head(_trim_words(f'{BRAND} — Live Countdowns to Every Event', TITLE_MAX),
+                _trim_words('How many days until Christmas, GTA 6, the next solar eclipse or the next full moon? Live countdowns in days, hours, minutes and seconds to {n} verified dates.'.replace('{n}', str(len(events))), DESC_MAX),
                 SITE + '/', '/og/home.png', '<script type="application/ld+json">' + ld + '</script>', '') + f'''<a href="about/">About</a>
 </nav>
 </header>
@@ -394,7 +1085,13 @@ INFO = {
 <h2>How the dates are computed</h2>
 <p>Astronomical events — moon phases, solstices, equinoxes and every planetary station — are computed to the minute with our own Keplerian ephemeris (JPL/Standish approximate elements, 1800–2050, tropical zodiac), cross-validated against published ephemerides. Holiday dates that move (Easter, Mother's Day, Thanksgiving and friends) are computed algorithmically. Entertainment and sports dates are verified against official announcements.</p>
 <h2>Accuracy notes</h2>
-<p>Lunar-calendar observances (Ramadan, Eid, Diwali, Chinese New Year) are marked "expected" where moon sighting can shift the date by a day. Countdowns to date-only events run to midnight in <em>your</em> local time zone; timed astronomical events count to the exact UTC moment.</p>'''),
+<p>Lunar-calendar observances (Ramadan, Eid, Diwali, Chinese New Year) are marked "expected" where moon sighting can shift the date by a day. Countdowns to date-only events run to midnight in <em>your</em> local time zone; timed astronomical events count to the exact UTC moment.</p>
+<h2>Why the countdowns are per-event rather than one big clock</h2>
+<p>Search behaviour decides this. Someone wanting to know how long until Halloween does not want a widget they have to configure — they want the number, and they want it to be right for where they are. So every event gets its own page, its own date table and its own set of ways to count it: days, weeks, weekdays, sleeps and the exact date. The number is computed in your browser against your own clock, which is why it changes when your day does rather than when ours does.</p>
+<h2>What we get wrong, and how it gets fixed</h2>
+<p>Dates slip. A game moves six months, a studio shifts a release, a lunar observance lands a day either side of a prediction. Where a date depends on a sighting or an announcement we mark it rather than presenting it as settled, and when something moves we correct the page. If you spot a date that is wrong, the footer links to other sites in our network and any of them reaches us — corrections are the one kind of email we answer fastest.</p>
+<h2>What this site is not</h2>
+<p>It is not an astrology service, and the planetary station dates here are astronomical rather than interpretive: they say when Mercury's apparent motion turns, not what that means for your week. There is no horoscope, no reading and nothing to sign up for. The countdowns are the product.</p>'''),
  'privacy': ('Privacy Policy', '''<h1>Privacy Policy</h1>
 <p>daysuntil.bond is a static website. We do not require accounts, we do not collect personal information, and the countdowns you view are not tied to you.</p>
 <h2>Cookies &amp; analytics</h2>
@@ -402,10 +1099,31 @@ INFO = {
 <h2>Third-party links</h2>
 <p>Our pages link to third-party sites (including sites in our network). We are not responsible for their privacy practices.</p>
 <h2>Contact</h2>
-<p>Questions? Reach us via any site in our network footer.</p>'''),
+<p>Questions? Reach us via any site in our network footer.</p>
+<h2>Advertising in more detail</h2>
+<p>We serve advertising through Google AdSense. Google and its partners use cookies to build a profile of interests across the sites you visit, which is how interest-based advertising works generally on the web. None of it sees anything you do on a countdown page, because there is nothing to see: the countdowns are calculated on your device and no input is ever sent anywhere.</p>
+<p>You can opt out of personalised advertising through Google's ad settings, or industry-wide through the Network Advertising Initiative and the Digital Advertising Alliance. Blocking third-party cookies in your browser achieves much the same, and every page here works without them.</p>
+<h2>Your rights</h2>
+<p>Because we hold no accounts and collect no personal information, there is normally nothing for us to produce, correct or delete — and we will tell you that plainly rather than going quiet. If you are in a jurisdiction with access or erasure rights and you want them exercised, reach us through any site in the network footer. If our answer does not satisfy you, your local data protection authority is the escalation route.</p>
+<h2>What the countdowns do with your device</h2>
+<p>Nothing beyond arithmetic. When a page loads, your browser works out the remaining time from the event date and the clock on your own machine. That is why the countdown stays accurate offline once the page has loaded, and why two people in different time zones see different numbers for the same event. No input is uploaded, no preference is stored beyond what your browser keeps for any web page, and closing the tab discards everything.</p>
+<h2>Changes to this policy</h2>
+<p>If the way the site handles data changes materially, this page changes with it. We are not going to start collecting personal information quietly — the whole point of a static site is that it does not need to.</p>
+<h2>Children</h2>
+<p>The site is general-audience and not directed at children. Since nothing is collected in the first place, there is nothing to collect from a child either.</p>'''),
  'disclosure': ('Advertising & Affiliate Disclosure', '''<h1>Advertising & Affiliate Disclosure</h1>
 <p>daysuntil.bond is reader-supported. The site may display advertising (including Google AdSense) and may contain affiliate links — links to products or services from which we may earn a commission if you make a purchase, at no additional cost to you.</p>
-<p>Astronomical data and countdown dates are never influenced by advertisers. Sponsored or affiliate content, where it appears, will be identifiable.</p>'''),
+<p>Astronomical data and countdown dates are never influenced by advertisers. Sponsored or affiliate content, where it appears, will be identifiable.</p>
+<h2>How the commission actually works</h2>
+<p>When you follow one of our links and then buy something, the seller's network records that the visit came from us and pays us a share. That share comes out of the seller's margin, not out of your price — you pay the same using our link as going directly, and occasionally less, because some links carry a discount the public listing does not.</p>
+<p>If you would rather we earned nothing, type the seller's address in directly. The price is identical and we lose the commission, which is a perfectly reasonable preference.</p>
+<h2>What commission cannot buy here</h2>
+<p>Three things, stated plainly because they are the ones that matter. It cannot move a date: every countdown on this site is computed from the event's own data, and an advertiser has no mechanism and no route to change it. It cannot add or remove an event: the calendar is built from what we can verify. And it cannot change which countdown appears where — ordering follows the date.</p>
+<p>Advertising pays for the site to exist. It does not get a vote on what it says.</p>
+<h2>Who pays, and where</h2>
+<p>Advertising on the site is served by Google AdSense, which fills the ad slots and pays us for the impressions. Separately, some pages carry affiliate links — mostly to products reviewed by sites in our network. Both are the same arrangement any ad-supported publisher has, and neither is hidden: the ad slots are labelled, and affiliate links on review pages carry a disclosure above them rather than in the footer where nobody reads it.</p>
+<h2>Editorial independence, stated plainly</h2>
+<p>No advertiser has reviewed or approved anything on this site, and none has been shown it in advance. Dates come from the event data, text is written by us, and the two do not meet. If a page ever carries sponsored placement, it will say so on the page itself rather than relying on you to infer it.</p>'''),
 }
 
 def info_page(key):
@@ -461,6 +1179,16 @@ for e in events:
     open(os.path.join(OUT, e['slug'], 'index.html'), 'w').write(event_page(e))
     if e['slug'] in INDEXABLE:
         urls.append(f'{SITE}/{e["slug"]}/')
+        if (e['dt'].date() - dt.date.today()).days > 0:
+            for _k in VARIANT_KINDS:
+                _vd = os.path.join(OUT, e['slug'], _k)
+                os.makedirs(_vd, exist_ok=True)
+                open(os.path.join(_vd, 'index.html'), 'w').write(_variant_body(_k, e, e['dt'], '../..'))
+                urls.append(f'{SITE}/{e["slug"]}/{_k}/')
+            _wd = os.path.join(OUT, 'when-is', e['slug'])
+            os.makedirs(_wd, exist_ok=True)
+            open(os.path.join(_wd, 'index.html'), 'w').write(when_is_page(e))
+            urls.append(f'{SITE}/when-is/{e["slug"]}/')
     og_image(os.path.join(OUT, 'og', e['slug'] + '.png'), e['title'],
              e['dt'].strftime('%b %-d, %Y') + (' · %d UTC' % e['dt'].hour if e['kind'] == 'datetime' else ''), e['category'])
 
