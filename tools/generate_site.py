@@ -8,7 +8,7 @@ DATA = os.path.join(ROOT, 'data')
 OUT = os.path.join(ROOT, 'docs')
 SITE = 'https://daysuntil.bond'
 BRAND = 'daysuntil.bond'
-BUILD_DATE = dt.date(2026, 10, 2)
+BUILD_DATE = dt.date.today()   # sitemap <lastmod>: the day this build ran (was hard-coded to 2026-10-02)
 INDEXNOW_KEY = 'd91f4c7b2a8e6350f1c9d8a4b7e2f6c3'
 
 CATS = {
@@ -71,6 +71,10 @@ PRIORITY_SLUGS = {
     'avengers-doomsday', 'dune-part-three', 'black-friday-2026', 'halloween-2026',
     'gta-6-release', '1111-portal-2026', 'christmas-day-2026', 'cyber-monday-2026',
     'us-thanksgiving-2026', 'new-year-2027', 'ramadan-2027',
+    # 2027 cultural/high-search events that the duplicate-consolidation rule would
+    # otherwise bury under their 2026 counterparts - give each its own indexable URL.
+    'world-kindness-day-2027', 'diwali-2027', 'day-of-the-dead-2027',
+    'guy-fawkes-night-2027', 'veterans-day-2027',
 }
 def _base(slug):
     return _re.sub(r'-(\d{4})$', '', slug)
@@ -95,8 +99,15 @@ def esc(s):
     return s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;')
 
 # ---------------------------------------------------------------- OG image maker
-FONT_B = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
-FONT_R = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
+FONT_B = '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf'
+FONT_R = '/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf'
+
+def _font(path, size):
+    """Use the bundled system font when available, otherwise keep builds portable."""
+    try:
+        return ImageFont.truetype(path, size)
+    except OSError:
+        return ImageFont.load_default()
 
 def og_image(path, title, chip, cat_key, salt=''):
     W, H = 1200, 630
@@ -113,8 +124,8 @@ def og_image(path, title, chip, cat_key, salt=''):
         b = rnd.randint(120, 255)
         dr.ellipse([x - r, y - r, x + r, y + r], fill=(b, b, min(255, b + 20)))
     icon = CATS[cat_key]['icon']
-    dr.text((70, 66), icon + '  ' + CATS[cat_key]['name'].upper(), font=ImageFont.truetype(FONT_R, 30), fill=(235, 235, 245))
-    fb = ImageFont.truetype(FONT_B, 74)
+    dr.text((70, 66), icon + '  ' + CATS[cat_key]['name'].upper(), font=_font(FONT_R, 30), fill=(235, 235, 245))
+    fb = _font(FONT_B, 74)
     words, lines, cur = title.split(), [], ''
     for w in words:
         t2 = (cur + ' ' + w).strip()
@@ -129,11 +140,11 @@ def og_image(path, title, chip, cat_key, salt=''):
     for ln in lines:
         dr.text((70, y), ln, font=fb, fill=(255, 255, 255))
         y += 96
-    fr = ImageFont.truetype(FONT_B, 40)
+    fr = _font(FONT_B, 40)
     tw = fr.getbbox(chip)[2]
     dr.rounded_rectangle([70, y + 26, 70 + tw + 56, y + 104], radius=18, fill=(255, 255, 255))
     dr.text((98, y + 36), chip, font=fr, fill=(18, 18, 28))
-    fs = ImageFont.truetype(FONT_R, 30)
+    fs = _font(FONT_R, 30)
     dr.text((70, H - 74), BRAND + '  ·  live countdowns to the events the world is waiting for', font=fs, fill=(215, 215, 230))
     img.save(path, 'PNG', optimize=True)
 
@@ -427,16 +438,15 @@ def _month_stats(y, m, start, end):
 def _variant_nav(e, pp):
     """cross-links between the four ways of asking the same question"""
     s = e['slug']
+    prefix = pp if pp.endswith('/') else pp + '/'
     items = [('weeks/', 'How many weeks?'), ('weekdays/', 'How many weekdays?'),
              ('sleeps/', 'How many sleeps?')]
-    links = ''.join(f'<a href="{u}">{lbl}</a>' for u, lbl in items)
-    links += f'<a href="{pp}when-is/{s}/">When is it?</a>'
     return (f'<nav class="varnav" style="display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0">'
-            f'<a href="{pp}{s}/" style="padding:.4rem .8rem;border:1px solid #ccc;border-radius:99px;'
+            f'<a href="{prefix}{s}/" style="padding:.4rem .8rem;border:1px solid #ccc;border-radius:99px;'
             f'text-decoration:none;font-size:.9rem">← Main countdown</a>'
             + ''.join(f'<a href="{u}" style="padding:.4rem .8rem;border:1px solid #ccc;border-radius:99px;'
                       f'text-decoration:none;font-size:.9rem">{lbl}</a>' for u, lbl in items)
-            + f'<a href="{pp}when-is/{s}/" style="padding:.4rem .8rem;border:1px solid #ccc;border-radius:99px;'
+            + f'<a href="{prefix}when-is/{s}/" style="padding:.4rem .8rem;border:1px solid #ccc;border-radius:99px;'
               f'text-decoration:none;font-size:.9rem">When is it?</a></nav>')
 
 
@@ -463,7 +473,7 @@ def _variant_title_desc(kind, e, d):
                 f'days and how many fall on a weekend, broken down month by month.')
     elif kind == 'sleeps':
         cand = [f'How Many Sleeps Until {t}?', f'Sleeps Until {t}', f'Sleeps Until {t} — Count']
-        body = (f'{t} falls on {nice}, which is {_pl(dd, 'sleep')} away. A sleep countdown is one more '
+        body = (f"{t} falls on {nice}, which is {_pl(dd, 'sleep')} away. A sleep countdown is one more "
                 f'than the number of full nights left. Live count, updated every second.')
     else:
         cand = [f'When Is {t}?', f'When Is {t} — Date', f'When is {t}?']
@@ -494,7 +504,7 @@ def _variant_faq(kind, e, d):
                 (f'Why count weekdays instead of days?', 'Because it is the number that maps onto real working time. A 60-day countdown sounds generous until you realise 16 of those days are a weekend.'),
                 (f'What date is {t}?', f'{nice} — a {dow}.')]
     if kind == 'sleeps':
-        return [(f'How many sleeps until {t}?', f'{_pl(dd, 'sleep')}. {t} falls on {nice}.'),
+        return [(f'How many sleeps until {t}?', f"{_pl(dd, 'sleep')}. {t} falls on {nice}."),
                 (f'How is a sleep counted?', 'One sleep equals one night still to go. On the morning of the day before, the answer is one; on the morning of the day itself, it is zero.'),
                 (f'Is the number of sleeps the same as the number of days?', f'Almost. A sleep count is the number of nights remaining, which is one more than the number of whole days left when the event lands mid-morning.'),
                 (f'What date is {t}?', f'{nice} — a {dow}.')]
@@ -643,7 +653,7 @@ def when_is_page(e):
     title, desc = _variant_title_desc('when', e, d)
     cfg = json.dumps({'kind': e['kind'], 'y': d.year, 'm': d.month, 'd': d.day,
                       'utc': e.get('utc'), 'title': t, 'dateNice': nice})
-    pp = '..'
+    pp = '../../'
     rel = related_events(e, 6)
     cards = ''.join(f'''<a class="card" href="{pp}/{r['slug']}/"><span class="card-cat">{CATS[r['category']]['icon']} {CATS[r['category']]['name']}</span>
       <b>{esc(r['title'])}</b><span class="card-date">{date_nice(r['dt'])}</span></a>''' for r in rel)
@@ -1037,6 +1047,8 @@ def home_page():
     trend = ''.join(card_html(by_slug[s]) for s in TRENDING if s in by_slug and by_slug[s]['ms'] > dt.datetime.now(dt.timezone.utc).timestamp() * 1000)
     upcoming = [e for e in events if e['slug'] in INDEXABLE and e['ms'] > dt.datetime.now(dt.timezone.utc).timestamp() * 1000][:12]
     cards = ''.join(card_html(e) for e in upcoming)
+    guides = ''.join(f'<a class="card" href="{sl}/"><span class="card-cat">📚 Guide</span><b>{esc(t)}</b><span class="card-date">{esc(d)}</span></a>'
+                     for sl, t, d in GENERATED_ARTICLES + STATIC_ARTICLES)
     cats = ''.join(f'''<a class="cat-tile" href="{c}/" style="--c1:rgb{CATS[c]['c1']}"><span class="big">{CATS[c]['icon']}</span><b>{CATS[c]['name']}</b><span class="count">{sum(1 for e in events if e["category"]==c)} countdowns</span></a>''' for c in CATS)
     idx = json.dumps([{'s': e['slug'], 't': e['title'], 'c': e['category'], 'n': date_nice(e['dt']), 'm': e['ms']} for e in events])
     ld = json.dumps({'@context': 'https://schema.org', '@type': 'WebSite', 'name': BRAND, 'url': SITE,
@@ -1072,6 +1084,8 @@ def home_page():
 <section class="cards">{trend}</section>
 <h2>⏳ Counting down right now</h2>
 <section class="cards">{cards}</section>
+<h2>📚 Guides &amp; explainers</h2>
+<section class="cards">{guides}</section>
 {AD_LB}<h2>🗂 Browse by category</h2>
 <section class="cat-grid">{cats}</section>
 {AD_LOADER}</main>
@@ -1151,6 +1165,25 @@ def page404():
 
 FAVICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#101426"/><circle cx="32" cy="36" r="17" fill="none" stroke="#e8b64c" stroke-width="5"/><path d="M32 6l4 9h-8z" fill="#e8b64c"/><rect x="8" y="10" width="10" height="5" rx="2.5" fill="#5c6bc0"/><rect x="46" y="10" width="10" height="5" rx="2.5" fill="#5c6bc0"/></svg>'
 
+# ---------------------------------------------------------------- stand-alone articles
+import articles as _articles
+# Written by hand, no generator code: only listed here so the sitemap and the home page reach them.
+STATIC_ARTICLES = [
+    ('days-in-2027', 'How many days are in 2027?', 'The full year breakdown: weekdays, weekends, every month'),
+    ('why-daysuntil-beats-every-other-site', 'Why our counts differ from other countdown sites', 'Days, sleeps, weekdays and weeks explained'),
+    ('countdown-time-zone-guide', 'Why countdowns differ by one day', 'Time zones, counting conventions and the reliable way to check a date'),
+    ('how-many-days-until-2027', 'How many days until 2027?', 'Calendar days, weekdays and the counting rule explained'),
+    ('how-many-days-until-thanksgiving-2026', 'How many days until Thanksgiving 2026?', 'The date, counting rule and practical planning guide'),
+    ('how-many-days-until-christmas-2026', 'How many days until Christmas 2026?', 'The exact date, time-zone rule and planning checklist'),
+    ('how-many-days-until-black-friday-2026', 'How many days until Black Friday 2026?', 'The date, time-zone rule and Cyber Monday planning guide'),
+    ('how-many-days-until-cyber-monday-2026', 'How many days until Cyber Monday 2026?', 'The exact date, time-zone rule and online shopping checklist'),
+    ('how-many-days-until-new-years-eve-2026', "How many days until New Year's Eve 2026?", 'The exact date, time-zone rule and year-end planning checklist'),
+]
+GENERATED_ARTICLES = [
+    ('days-left-in-2026', 'How many days are left in 2026?', 'Workdays after federal holidays, plus every sky event still ahead'),
+]
+_ART_HELPERS = dict(head=head, nav_links=nav_links, footer=footer, esc=esc, SITE=SITE, BRAND=BRAND, breadcrumb_ld=breadcrumb_ld)
+
 # ---------------------------------------------------------------- write everything
 os.makedirs(os.path.join(OUT, 'assets'), exist_ok=True)
 os.makedirs(os.path.join(OUT, 'og'), exist_ok=True)
@@ -1194,6 +1227,14 @@ for e in events:
 
 open(os.path.join(OUT, 'index.html'), 'w').write(home_page())
 og_image(os.path.join(OUT, 'og', 'home.png'), 'How Many Days Until…?', f'{len(events)} live countdowns', 'planets', salt='home')
+
+# Generated article: days left in 2026 (see tools/articles.py)
+os.makedirs(os.path.join(OUT, 'days-left-in-2026'), exist_ok=True)
+open(os.path.join(OUT, 'days-left-in-2026', 'index.html'), 'w').write(_articles.days_left_in_2026(_ART_HELPERS, dt.date.today()))
+og_image(os.path.join(OUT, 'og', 'days-left-in-2026.png'), 'Days Left in 2026', 'Workdays · holidays · sky events', 'seasons', salt='dl2026')
+for _slug, _t, _d in GENERATED_ARTICLES + STATIC_ARTICLES:
+    if os.path.exists(os.path.join(OUT, _slug, 'index.html')):
+        urls.append(f'{SITE}/{_slug}/')
 
 today = BUILD_DATE.isoformat()
 sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
