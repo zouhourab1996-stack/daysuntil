@@ -439,8 +439,8 @@ def _variant_nav(e, pp):
     """cross-links between the four ways of asking the same question"""
     s = e['slug']
     prefix = pp if pp.endswith('/') else pp + '/'
-    items = [('weeks/', 'How many weeks?'), ('weekdays/', 'How many weekdays?'),
-             ('sleeps/', 'How many sleeps?')]
+    items = [(f'{prefix}{s}/weeks/', 'How many weeks?'), (f'{prefix}{s}/weekdays/', 'How many weekdays?'),
+             (f'{prefix}{s}/sleeps/', 'How many sleeps?')]
     return (f'<nav class="varnav" style="display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0">'
             f'<a href="{prefix}{s}/" style="padding:.4rem .8rem;border:1px solid #ccc;border-radius:99px;'
             f'text-decoration:none;font-size:.9rem">← Main countdown</a>'
@@ -1252,3 +1252,4 @@ _legacy.write_stubs(OUT)
 html_files = sum(len(files) for _, _, files in os.walk(OUT) if files and files[0].endswith('.html'))
 print(f'DONE: {html_files} HTML pages, {len(urls)} sitemap URLs, {len(events)} event OG images')
 print(f'output: {OUT} ({sum(os.path.getsize(os.path.join(dp, f)) for dp, _, fs in os.walk(OUT) for f in fs) // 1024 // 1024} MB)')
+import subprocess as _sp; _sp.run([sys.executable if 'sys' in dir() else 'python3', os.path.join(os.path.dirname(os.path.abspath(__file__)),'fix_links.py'), OUT])
