@@ -21,5 +21,12 @@ for root,_,files in os.walk(OUT):
                 if exists(root,up+h): return f'href="{up}{h}"'
             broken+=1; return m.group(0)
         t2=re.sub(r'href="([^"]*)"',rep,t2)
+        # unwrap anchors that still point nowhere (avoid crawlable internal 404s)
+        def unwrap(m):
+            global broken
+            h=m.group(1)
+            if re.match(r'(https?:|mailto:|#|/|data:|javascript:)',h) or exists(root,h): return m.group(0)
+            return m.group(2)
+        t2=re.sub(r'<a\b[^>]*?href="([^"]*)"[^>]*>(.*?)</a>',unwrap,t2,flags=re.S)
         if t2!=t: open(fp,'w',encoding='utf8').write(t2); fixed+=1
 print(f'fix_links: {fixed} files repaired, {broken} links still unresolved')
