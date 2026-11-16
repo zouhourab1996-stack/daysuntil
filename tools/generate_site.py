@@ -204,8 +204,7 @@ def footer(pp='..'):
     <div><div class="logo small"><span class="logo-dot"></span> daysuntil<b>.bond</b></div>
       <p>Live countdowns to the dates the world is waiting for — holidays, eclipses, moon phases, planetary stations, game launches, movies and sport. Astronomy events are computed with our own Keplerian ephemeris; verified dates are checked against primary sources.</p></div>
     <div><b>Categories</b>{cats}</div>
-    <div><b>Our network</b>{net}</div>
-    <div><b>Site</b><a href="{pp}/about/">About</a><a href="{pp}/privacy/">Privacy policy</a><a href="{pp}/disclosure/">Advertising &amp; affiliate disclosure</a></div>
+    <div><b>Site</b><a href="{pp}/about/">About</a><a href="{pp}/privacy/">Privacy policy</a><a href="{pp}/contact/">Contact</a><a href="{pp}/terms/">Terms of use</a><a href="{pp}/disclosure/">Advertising disclosure</a></div>
   </div>
   <p class="tiny">© 2026 {BRAND}. Countdowns run in your local time zone. Dates marked "expected" depend on moon sighting and may shift by a day.</p>
 </footer>
@@ -589,7 +588,7 @@ def _variant_body(kind, e, d, pp):
     cards = ''.join(f'''<a class="card" href="{pp}{r['slug']}/"><span class="card-cat">{CATS[r['category']]['icon']} {CATS[r['category']]['name']}</span>
       <b>{esc(r['title'])}</b><span class="card-date">{date_nice(r['dt'])}</span></a>''' for r in rel)
 
-    return head(title, desc, f'{SITE}/{slug}/{kind}/', f'/og/{slug}.png', ldb, pp, True) + nav_links(pp) + f'''</nav>
+    return head(title, desc, f'{SITE}/{slug}/', f'/og/{slug}.png', ldb, pp, False) + nav_links(pp) + f'''</nav>
 </header>
 <main id="main">
 <nav class="crumbs"><a href="{pp}">Home</a> › <a href="{pp}{e['category']}/">{CATS[e['category']]['name']}</a> › <a href="{pp}{slug}/">{esc(t)}</a> › <span>{kind.capitalize()}</span></nav>
@@ -657,7 +656,7 @@ def when_is_page(e):
     rel = related_events(e, 6)
     cards = ''.join(f'''<a class="card" href="{pp}/{r['slug']}/"><span class="card-cat">{CATS[r['category']]['icon']} {CATS[r['category']]['name']}</span>
       <b>{esc(r['title'])}</b><span class="card-date">{date_nice(r['dt'])}</span></a>''' for r in rel)
-    return head(title, desc, f'{SITE}/when-is/{e["slug"]}/', f'/og/{e["slug"]}.png', ldb, pp, True) + nav_links(pp) + f'''</nav>
+    return head(title, desc, f'{SITE}/{e["slug"]}/', f'/og/{e["slug"]}.png', ldb, pp, False) + nav_links(pp) + f'''</nav>
 </header>
 <main id="main">
 <nav class="crumbs"><a href="{pp}/">Home</a> › <a href="{pp}/{e['category']}/">{CATS[e['category']]['name']}</a> › <span>When is {esc(t)}?</span></nav>
@@ -1103,7 +1102,7 @@ INFO = {
 <h2>Why the countdowns are per-event rather than one big clock</h2>
 <p>Search behaviour decides this. Someone wanting to know how long until Halloween does not want a widget they have to configure — they want the number, and they want it to be right for where they are. So every event gets its own page, its own date table and its own set of ways to count it: days, weeks, weekdays, sleeps and the exact date. The number is computed in your browser against your own clock, which is why it changes when your day does rather than when ours does.</p>
 <h2>What we get wrong, and how it gets fixed</h2>
-<p>Dates slip. A game moves six months, a studio shifts a release, a lunar observance lands a day either side of a prediction. Where a date depends on a sighting or an announcement we mark it rather than presenting it as settled, and when something moves we correct the page. If you spot a date that is wrong, the footer links to other sites in our network and any of them reaches us — corrections are the one kind of email we answer fastest.</p>
+<p>Dates slip. A game moves six months, a studio shifts a release, a lunar observance lands a day either side of a prediction. Where a date depends on a sighting or an announcement we mark it rather than presenting it as settled, and when something moves we correct the page. If you spot a date that is wrong, write to us through the <a href="/contact/">contact page</a> — corrections are the one kind of email we answer fastest.</p>
 <h2>What this site is not</h2>
 <p>It is not an astrology service, and the planetary station dates here are astronomical rather than interpretive: they say when Mercury's apparent motion turns, not what that means for your week. There is no horoscope, no reading and nothing to sign up for. The countdowns are the product.</p>'''),
  'privacy': ('Privacy Policy', '''<h1>Privacy Policy</h1>
@@ -1111,14 +1110,16 @@ INFO = {
 <h2>Cookies &amp; analytics</h2>
 <p>We may use privacy-respecting analytics and advertising partners (such as Google AdSense) that use cookies or similar technologies to serve and measure ads. You can control personalized advertising through your Google settings. No countdown data or searches you type on this site are stored by us.</p>
 <h2>Third-party links</h2>
-<p>Our pages link to third-party sites (including sites in our network). We are not responsible for their privacy practices.</p>
+<p>Some pages link to third-party sources such as NASA or official event pages. We are not responsible for their privacy practices.</p>
 <h2>Contact</h2>
-<p>Questions? Reach us via any site in our network footer.</p>
+<p>Questions about this policy? Email <a href="mailto:anistouati74@gmail.com">anistouati74@gmail.com</a> or use our <a href="/contact/">contact page</a>.</p>
 <h2>Advertising in more detail</h2>
-<p>We serve advertising through Google AdSense. Google and its partners use cookies to build a profile of interests across the sites you visit, which is how interest-based advertising works generally on the web. None of it sees anything you do on a countdown page, because there is nothing to see: the countdowns are calculated on your device and no input is ever sent anywhere.</p>
+<p>Advertising on this site is served by Google (Google AdSense and Google Ad Manager) and by our authorised advertising partner Advergic, as listed in our <a href="/ads.txt">ads.txt</a> file. Third-party vendors, including Google, use cookies to serve ads based on your prior visits to this website or other websites. Google's use of advertising cookies enables it and its partners to serve ads to you based on your visit to this site and/or other sites on the Internet. You can read <a href="https://policies.google.com/technologies/partner-sites" rel="noopener">how Google uses information from sites that use its services</a>.</p>
+<p>Visitors in the European Economic Area, the UK and Switzerland are asked for consent through a Google-certified consent message before personalised ads or advertising cookies are used, and can change that choice at any time.</p>
+<p>Google and its partners use cookies to build a profile of interests across the sites you visit, which is how interest-based advertising works generally on the web. None of it sees anything you do on a countdown page, because there is nothing to see: the countdowns are calculated on your device and no input is ever sent anywhere.</p>
 <p>You can opt out of personalised advertising through Google's ad settings, or industry-wide through the Network Advertising Initiative and the Digital Advertising Alliance. Blocking third-party cookies in your browser achieves much the same, and every page here works without them.</p>
 <h2>Your rights</h2>
-<p>Because we hold no accounts and collect no personal information, there is normally nothing for us to produce, correct or delete — and we will tell you that plainly rather than going quiet. If you are in a jurisdiction with access or erasure rights and you want them exercised, reach us through any site in the network footer. If our answer does not satisfy you, your local data protection authority is the escalation route.</p>
+<p>Because we hold no accounts and collect no personal information, there is normally nothing for us to produce, correct or delete — and we will tell you that plainly rather than going quiet. If you are in a jurisdiction with access or erasure rights and you want them exercised, email <a href="mailto:anistouati74@gmail.com">anistouati74@gmail.com</a>. If our answer does not satisfy you, your local data protection authority is the escalation route.</p>
 <h2>What the countdowns do with your device</h2>
 <p>Nothing beyond arithmetic. When a page loads, your browser works out the remaining time from the event date and the clock on your own machine. That is why the countdown stays accurate offline once the page has loaded, and why two people in different time zones see different numbers for the same event. No input is uploaded, no preference is stored beyond what your browser keeps for any web page, and closing the tab discards everything.</p>
 <h2>Changes to this policy</h2>
@@ -1126,18 +1127,34 @@ INFO = {
 <h2>Children</h2>
 <p>The site is general-audience and not directed at children. Since nothing is collected in the first place, there is nothing to collect from a child either.</p>'''),
  'disclosure': ('Advertising & Affiliate Disclosure', '''<h1>Advertising & Affiliate Disclosure</h1>
-<p>daysuntil.bond is reader-supported. The site may display advertising (including Google AdSense) and may contain affiliate links — links to products or services from which we may earn a commission if you make a purchase, at no additional cost to you.</p>
-<p>Astronomical data and countdown dates are never influenced by advertisers. Sponsored or affiliate content, where it appears, will be identifiable.</p>
-<h2>How the commission actually works</h2>
-<p>When you follow one of our links and then buy something, the seller's network records that the visit came from us and pays us a share. That share comes out of the seller's margin, not out of your price — you pay the same using our link as going directly, and occasionally less, because some links carry a discount the public listing does not.</p>
-<p>If you would rather we earned nothing, type the seller's address in directly. The price is identical and we lose the commission, which is a perfectly reasonable preference.</p>
-<h2>What commission cannot buy here</h2>
-<p>Three things, stated plainly because they are the ones that matter. It cannot move a date: every countdown on this site is computed from the event's own data, and an advertiser has no mechanism and no route to change it. It cannot add or remove an event: the calendar is built from what we can verify. And it cannot change which countdown appears where — ordering follows the date.</p>
+<p>daysuntil.bond is free to use and supported by advertising served by Google and our authorised advertising partner Advergic. The site does not carry affiliate links or sponsored posts.</p>
+<p>Astronomical data and countdown dates are never influenced by advertisers. Sponsored content, if it ever appears, will be clearly labelled.</p>
+<h2>What advertising cannot buy here</h2>
+<p>Three things, stated plainly because they are the ones that matter. Advertising cannot move a date: every countdown on this site is computed from the event's own data, and an advertiser has no mechanism and no route to change it. It cannot add or remove an event: the calendar is built from what we can verify. And it cannot change which countdown appears where — ordering follows the date.</p>
 <p>Advertising pays for the site to exist. It does not get a vote on what it says.</p>
 <h2>Who pays, and where</h2>
-<p>Advertising on the site is served by Google AdSense, which fills the ad slots and pays us for the impressions. Separately, some pages carry affiliate links — mostly to products reviewed by sites in our network. Both are the same arrangement any ad-supported publisher has, and neither is hidden: the ad slots are labelled, and affiliate links on review pages carry a disclosure above them rather than in the footer where nobody reads it.</p>
+<p>Advertising on the site is served by Google and by Advergic, our authorised sales partner, which fill the labelled ad slots and pay us for the impressions. Every authorised seller is listed in our public <a href="/ads.txt">ads.txt</a> file.</p>
 <h2>Editorial independence, stated plainly</h2>
 <p>No advertiser has reviewed or approved anything on this site, and none has been shown it in advance. Dates come from the event data, text is written by us, and the two do not meet. If a page ever carries sponsored placement, it will say so on the page itself rather than relying on you to infer it.</p>'''),
+ 'contact': ('Contact', '''<h1>Contact daysuntil.bond</h1>
+<p>daysuntil.bond is run by a small independent team. We read every message and answer corrections first.</p>
+<h2>Email</h2>
+<p><a href="mailto:anistouati74@gmail.com">anistouati74@gmail.com</a></p>
+<h2>What to write to us about</h2>
+<p>A date that is wrong or has moved, an event you would like a countdown for, a privacy request, or an advertising question. For a correction, include the page address and a link to the official source, and we will fix the page and say so.</p>
+<p>We usually reply within two working days.</p>'''),
+ 'terms': ('Terms of Use', '''<h1>Terms of Use</h1>
+<p>By using daysuntil.bond you agree to these terms. If you do not agree, please do not use the site.</p>
+<h2>Information only</h2>
+<p>Countdowns, dates and astronomical times are provided for general information. We check them against primary sources, but dates can change (a release can slip, a lunar observance can move by a day), so confirm anything important with the official organiser.</p>
+<h2>Use of the site</h2>
+<p>You may view, link to and share any page for personal or non-commercial use. You may not copy the site in bulk, scrape it automatically, or republish its pages as your own.</p>
+<h2>Advertising</h2>
+<p>The site is supported by advertising from Google and our authorised partner Advergic. See our <a href="/privacy/">privacy policy</a> and <a href="/disclosure/">advertising disclosure</a>. Do not click ads to support the site: invalid clicks are against the advertisers' rules.</p>
+<h2>No warranty</h2>
+<p>The site is provided as is, without warranties of any kind. We are not liable for any loss arising from reliance on a date shown here.</p>
+<h2>Changes and contact</h2>
+<p>We may update these terms; the current version is always on this page. Questions: <a href="mailto:anistouati74@gmail.com">anistouati74@gmail.com</a>.</p>'''),
 }
 
 def info_page(key):
@@ -1195,8 +1212,8 @@ open(os.path.join(OUT, '.nojekyll'), 'w').write('')
 open(os.path.join(OUT, INDEXNOW_KEY + '.txt'), 'w').write(INDEXNOW_KEY)
 open(os.path.join(OUT, 'robots.txt'), 'w').write(f'User-agent: *\nAllow: /\nSitemap: {SITE}/sitemap.xml\n')
 
-urls = [SITE + '/', SITE + '/about/', SITE + '/privacy/', SITE + '/disclosure/']
-for key in ('about', 'privacy', 'disclosure'):
+urls = [SITE + '/', SITE + '/about/', SITE + '/contact/', SITE + '/privacy/', SITE + '/terms/', SITE + '/disclosure/']
+for key in ('about', 'contact', 'privacy', 'terms', 'disclosure'):
     os.makedirs(os.path.join(OUT, key), exist_ok=True)
     open(os.path.join(OUT, key, 'index.html'), 'w').write(info_page(key))
 open(os.path.join(OUT, '404.html'), 'w').write(page404())
@@ -1217,11 +1234,9 @@ for e in events:
                 _vd = os.path.join(OUT, e['slug'], _k)
                 os.makedirs(_vd, exist_ok=True)
                 open(os.path.join(_vd, 'index.html'), 'w').write(_variant_body(_k, e, e['dt'], '../..'))
-                urls.append(f'{SITE}/{e["slug"]}/{_k}/')
             _wd = os.path.join(OUT, 'when-is', e['slug'])
             os.makedirs(_wd, exist_ok=True)
             open(os.path.join(_wd, 'index.html'), 'w').write(when_is_page(e))
-            urls.append(f'{SITE}/when-is/{e["slug"]}/')
     og_image(os.path.join(OUT, 'og', e['slug'] + '.png'), e['title'],
              e['dt'].strftime('%b %-d, %Y') + (' · %d UTC' % e['dt'].hour if e['kind'] == 'datetime' else ''), e['category'])
 
