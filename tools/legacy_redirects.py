@@ -105,5 +105,42 @@ def write_stubs(out=OUT):
     return n
 
 
+VARIANT_KINDS = ('weeks', 'weekdays', 'sleeps')
+
+
+def write_stale_variant_stubs(out=OUT):
+    """Passed events keep their old /<slug>/{weeks,weekdays,sleeps}/ and
+    /when-is/<slug>/ folders from earlier builds (the generator only writes
+    variants for upcoming events and never deletes). Those stale pages showed
+    wrong counts, were indexable and sat outside the sitemap. Turn each one into
+    a redirect stub to the same variant of the next occurrence (or its main page)."""
+    events = []
+    for f in ('astro_events.json', 'fixed_events.json'):
+        events += json.load(open(os.path.join(DATA, f)))
+    now = dt.datetime.now(dt.timezone.utc)
+    nxt = next_of()
+    n = 0
+    for e in events:
+        if _event_dt(e) >= now:
+            continue
+        slug = e['slug']
+        target_slug = nxt.get(_base(slug), slug)
+        paths = [(os.path.join(out, slug, k), k, f'{target_slug}/{k}') for k in VARIANT_KINDS]
+        paths.append((os.path.join(out, 'when-is', slug), 'when', f'when-is/{target_slug}'))
+        for d, k, tgt in paths:
+            idx = os.path.join(d, 'index.html')
+            if not os.path.exists(idx):
+                continue
+            if target_slug != slug and os.path.exists(os.path.join(out, tgt, 'index.html')):
+                url = f'{SITE}/{tgt}/'
+            else:
+                url = f'{SITE}/{target_slug}/'
+            open(idx, 'w').write(stub(url))
+            n += 1
+    print(f'stale variant redirects: {n} stub pages written')
+    return n
+
+
 if __name__ == '__main__':
     write_stubs()
+    write_stale_variant_stubs()

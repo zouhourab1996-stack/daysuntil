@@ -1248,6 +1248,7 @@ open(os.path.join(OUT, 'sitemap.xml'), 'w').write(sitemap)
 # Redirect stubs for legacy/guessable URLs GSC reported as 404 (not in sitemap)
 import legacy_redirects as _legacy
 _legacy.write_stubs(OUT)
+_legacy.write_stale_variant_stubs(OUT)
 
 html_files = sum(len(files) for _, _, files in os.walk(OUT) if files and files[0].endswith('.html'))
 print(f'DONE: {html_files} HTML pages, {len(urls)} sitemap URLs, {len(events)} event OG images')
