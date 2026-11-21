@@ -69,7 +69,7 @@ if DEEP:
 import re as _re
 PRIORITY_SLUGS = {
     'avengers-doomsday', 'dune-part-three', 'black-friday-2026', 'halloween-2026',
-    'gta-6-release', '1111-portal-2026', 'christmas-day-2026', 'cyber-monday-2026',
+    'gta-6-release', 'christmas-day-2026', 'cyber-monday-2026',
     'us-thanksgiving-2026', 'new-year-2027', 'ramadan-2027',
     # 2027 cultural/high-search events that the duplicate-consolidation rule would
     # otherwise bury under their 2026 counterparts - give each its own indexable URL.
