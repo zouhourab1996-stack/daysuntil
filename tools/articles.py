@@ -324,6 +324,7 @@ def meteor_shower_schedule_2026_2027(h, today):
   <p class="eyebrow">Astronomy calendar · Updated __ASOF__</p>
   <h1>Meteor Shower Schedule 2026–2027: Peak Dates &amp; Viewing Guide</h1>
   <p class="lead">The next major peak is the <b>Geminids on December 13–14, 2026</b>. This calendar covers the main showers through October 2027, including peak nights, active dates, Moon conditions and the best way to watch.</p>
+  <figure><img src="/og/meteor-shower-schedule-2026-2027.png" alt="Meteor shower calendar illustration for the 2026–2027 peak dates and viewing season" width="1200" height="630" loading="eager"><figcaption>Plan the next peak by checking the date, Moonlight and local sky conditions.</figcaption></figure>
   <p class="note">Peak dates are predictions, not guarantees. Local visibility depends on your time zone, latitude, weather, light pollution and the height of the radiant.</p>
 </section>
 <h2>2026–2027 meteor shower calendar</h2>
