@@ -170,9 +170,12 @@ JS = open(os.path.join(ROOT, 'tools', 'site.js')).read()
 
 def head(title, desc, canonical, ogimg, ld_extra='', path_prefix='..', indexable=True):
     robots = 'index,follow,max-snippet:-1,max-image-preview:large' if indexable else 'noindex,follow'
+    legal_paths = ('/about/', '/contact/', '/privacy/', '/terms/', '/disclosure/')
+    ads_enabled = indexable and not any(canonical.rstrip('/') == SITE + path.rstrip('/') for path in legal_paths)
+    ads_script = ('<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3898992716389443" crossorigin="anonymous"></script>' if ads_enabled else '')
     return f'''<!doctype html>
 <html lang="en">
-<head><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3898992716389443" crossorigin="anonymous"></script>
+<head>{ads_script}
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(title)}</title>
@@ -1175,7 +1178,7 @@ def info_page(key):
 
 def page404():
     cards = ''.join(card_html(e, '/') for e in events[:6])
-    return head(f'Page not found | {BRAND}', 'This countdown does not exist — browse {len(events)} live countdowns instead.', SITE + '/404.html', '/og/home.png', path_prefix='') + nav_links('') + f'''</nav>
+    return head(f'Page not found | {BRAND}', 'This countdown does not exist — browse {len(events)} live countdowns instead.', SITE + '/404.html', '/og/home.png', path_prefix='', indexable=False) + nav_links('') + f'''</nav>
 </header>
 <main id="main">
 <h1>404 — this countdown doesn't exist (yet)</h1>
