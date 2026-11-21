@@ -312,7 +312,7 @@ def meteor_shower_schedule_2026_2027(h, today):
     rows = ''.join('<tr>' + ''.join('<td>' + ('<b>' + esc(v) + '</b>' if i == 0 else esc(v)) + '</td>' for i, v in enumerate(r)) + '</tr>' for r in shower_rows)
     faq_ld = {'@context':'https://schema.org','@type':'FAQPage','mainEntity':[
         {'@type':'Question','name':q,'acceptedAnswer':{'@type':'Answer','text':a}} for q,a in faq]}
-    publisher = {'@type':'Organization','name':h['BRAND'],'url':SITE+'/'}
+    publisher = {'@type':'Organization','name':h['BRAND'],'url':SITE+'/','logo':{'@type':'ImageObject','url':SITE+'/favicon.svg'}}
     art_ld = {'@context':'https://schema.org','@type':'Article','headline':title,'description':desc,
         'image':[SITE+'/og/meteor-shower-schedule-2026-2027.png'],'mainEntityOfPage':url,
         'datePublished':today.isoformat(),'dateModified':today.isoformat(),'author':publisher,'publisher':publisher}
