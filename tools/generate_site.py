@@ -1172,7 +1172,8 @@ def info_page(key):
     title, body = INFO[key]
     ld = breadcrumb_ld([('Home', SITE + '/'), (title, f'{SITE}/{key}/')])
     return head(f'{title} | {BRAND}', f'{title} — {BRAND}: live countdowns to the events the world is waiting for.',
-                f'{SITE}/{key}/', '/og/home.png', '<script type="application/ld+json">' + ld + '</script>') + nav_links('..') + f'''</nav>
+                f'{SITE}/{key}/', '/og/home.png', '<script type="application/ld+json">' + ld + '</script>',
+                indexable=key not in ('contact', 'terms')) + nav_links('..') + f'''</nav>
 </header>
 <main id="main"><article class="prose">
 {body}
@@ -1223,7 +1224,9 @@ open(os.path.join(OUT, '.nojekyll'), 'w').write('')
 open(os.path.join(OUT, INDEXNOW_KEY + '.txt'), 'w').write(INDEXNOW_KEY)
 open(os.path.join(OUT, 'robots.txt'), 'w').write(f'User-agent: *\nAllow: /\nSitemap: {SITE}/sitemap.xml\n')
 
-urls = [SITE + '/', SITE + '/about/', SITE + '/contact/', SITE + '/privacy/', SITE + '/terms/', SITE + '/disclosure/']
+# Contact and terms remain accessible in the footer but are noindex utility/legal pages,
+# so they are deliberately omitted from the indexable sitemap.
+urls = [SITE + '/', SITE + '/about/', SITE + '/privacy/', SITE + '/disclosure/']
 for key in ('about', 'contact', 'privacy', 'terms', 'disclosure'):
     os.makedirs(os.path.join(OUT, key), exist_ok=True)
     open(os.path.join(OUT, key, 'index.html'), 'w').write(info_page(key))
