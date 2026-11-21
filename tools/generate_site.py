@@ -88,7 +88,11 @@ for _b, _items in _groups.items():
     _future = sorted([x for x in _items if x['dt'] >= _today], key=lambda x: x['dt'])
     _pick = _future[0] if _future else max(_items, key=lambda x: x['dt'])
     NEXT_OF[_b] = _pick['slug']
-INDEXABLE = set(NEXT_OF.values()) | PRIORITY_SLUGS
+# Only event pages with substantive, individually researched editorial content are
+# eligible for indexing. Thin event pages remain accessible to users, but are
+# excluded from the sitemap and receive noindex + a canonical to the selected
+# primary occurrence. Add a slug here only after adding its own DEEP entry.
+INDEXABLE = (set(NEXT_OF.values()) | PRIORITY_SLUGS) & set(DEEP)
 
 def date_nice(d, with_year=True):
     s = d.strftime('%A, %B ') + str(d.day)
