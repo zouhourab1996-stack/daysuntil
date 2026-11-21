@@ -176,10 +176,16 @@ def days_left_in_2026(h, today):
     ]
     faq_ld = {'@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': [
         {'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': a}} for q, a in faq]}
+    publisher = {
+        '@type': 'Organization',
+        'name': h['BRAND'],
+        'url': SITE + '/',
+        'logo': {'@type': 'ImageObject', 'url': SITE + '/favicon.svg'},
+    }
     art_ld = {'@context': 'https://schema.org', '@type': 'Article', 'headline': title, 'description': desc,
+              'image': [SITE + '/og/days-left-in-2026.png'],
               'mainEntityOfPage': url, 'datePublished': today.isoformat(), 'dateModified': today.isoformat(),
-              'author': {'@type': 'Organization', 'name': h['BRAND'], 'url': SITE + '/'},
-              'publisher': {'@type': 'Organization', 'name': h['BRAND'], 'url': SITE + '/'}}
+              'author': publisher, 'publisher': publisher}
     bc_ld = h['breadcrumb_ld']([('Home', SITE + '/'), ('Days left in 2026', url)])
     ld = ''.join(f'<script type="application/ld+json">{x if isinstance(x, str) else json.dumps(x)}</script>'
                  for x in (art_ld, faq_ld, bc_ld))
