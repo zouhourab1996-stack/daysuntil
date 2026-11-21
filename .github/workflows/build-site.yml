@@ -36,8 +36,11 @@ jobs:
       - name: Install build dependency
         run: python -m pip install -r requirements.txt
 
-      - name: Generate the complete static site
-        run: python tools/generate_site.py
+      - name: Sync to latest source and generate the complete static site
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
+          python tools/generate_site.py
 
       - name: Validate generated output
         run: |
@@ -71,9 +74,6 @@ jobs:
       - name: Publish generated pages to GitHub Pages source
         run: |
           if [[ -n "$(git status --porcelain docs)" ]]; then
-            git fetch origin main
-            git reset --hard origin/main
-            python tools/generate_site.py
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add docs
