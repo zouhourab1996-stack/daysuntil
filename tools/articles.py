@@ -283,7 +283,7 @@ def meteor_shower_schedule_2026_2027(h, today):
     esc, SITE = h['esc'], h['SITE']
     slug = 'meteor-shower-schedule-2026-2027'
     url = f'{SITE}/{slug}/'
-    title = 'Meteor Shower Schedule 2026–2027: Peak Dates & Viewing Guide'
+    title = 'Meteor Shower Schedule 2026–2027: Peak Dates & Viewing'
     desc = ('Meteor shower schedule for 2026–2027: Geminids, Ursids, Quadrantids, Lyrids, Perseids and more, '
             'with peak nights, Moon conditions and practical viewing tips.')
     faq = [
