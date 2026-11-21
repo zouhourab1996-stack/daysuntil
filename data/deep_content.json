@@ -734,6 +734,14 @@
       [
         "Is New Year's Day the same as New Year's Eve?",
         "No. New Year's Eve is December 31 and New Year's Day is January 1. The countdown on this page runs to your local midnight between the two."
+      ],
+      [
+        "How many days until 2027?",
+        "The countdown runs to local midnight on January 1, 2027. It excludes today and counts whole days remaining, with hours, minutes and seconds shown as well."
+      ],
+      [
+        "How many weeks until New Year's Day 2027?",
+        "The live timer converts the remaining time into weeks and days automatically. The result updates as the date approaches and uses your local time zone."
       ]
     ]
   },
