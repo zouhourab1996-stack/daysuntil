@@ -92,7 +92,10 @@ for _b, _items in _groups.items():
 # eligible for indexing. Thin event pages remain accessible to users, but are
 # excluded from the sitemap and receive noindex + a canonical to the selected
 # primary occurrence. Add a slug here only after adding its own DEEP entry.
-INDEXABLE = (set(NEXT_OF.values()) | PRIORITY_SLUGS) & set(DEEP)
+# Exclude pages that are not strong enough to justify search indexing,
+# even if they are the next occurrence of a one-off event.
+EXCLUDED_SLUGS = {'1111-portal-2026'}
+INDEXABLE = ((set(NEXT_OF.values()) | PRIORITY_SLUGS) & set(DEEP)) - EXCLUDED_SLUGS
 
 def date_nice(d, with_year=True):
     s = d.strftime('%A, %B ') + str(d.day)
