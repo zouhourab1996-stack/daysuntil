@@ -71,12 +71,13 @@ jobs:
       - name: Publish generated pages to GitHub Pages source
         run: |
           if [[ -n "$(git status --porcelain docs)" ]]; then
+            git fetch origin main
+            git reset --hard origin/main
+            python tools/generate_site.py
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add docs
             git commit -m "Build and publish generated site"
-            git fetch origin main
-            git rebase origin/main
             git push
           else
             echo "Generated site is already up to date."
