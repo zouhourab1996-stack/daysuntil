@@ -3657,21 +3657,24 @@
     "kind": "date",
     "date": "2026-12-18",
     "desc": [
-      "Denis Villeneuve's adaptation of Dune Messiah concludes the trilogy, in theaters and IMAX Friday, December 18, 2026 — with a three-week IMAX exclusivity window over Avengers: Doomsday.",
-      "Same day as Avengers: Doomsday. One weekend, two event films, one very full cinema. The live counter above runs to the release/event date worldwide (local time zones may shift availability by hours).",
-      "Dune: Part Three opens head-to-head with Avengers: Doomsday on the same day — the showdown fans already call 'Dunesday'. Two premieres, one counter: which side of December 18 are you on?"
+      "Dune: Part Three — also called Dune 3 — opens in North America on December 18, 2026; the international rollout begins December 16, 2026.",
+      "This countdown uses the North American release date. Local cinema listings may show an earlier or later opening depending on territory."
     ],
     "facts": [
       [
-        "Date",
+        "North American release",
         "Friday, December 18, 2026"
       ],
       [
-        "Days away",
-        "Live counter above"
+        "International rollout",
+        "Begins December 16, 2026"
+      ],
+      [
+        "Based on",
+        "Dune Messiah by Frank Herbert"
       ]
     ],
-    "tagline": "Friday, December 18, 2026",
+    "tagline": "North America: Friday, December 18, 2026",
     "faq": [
       [
         "How many days until Dune: Part Three?",
@@ -3739,20 +3742,24 @@
     "kind": "date",
     "date": "2027-12-17",
     "desc": [
-      "The finale of the Multiverse Saga and the film Avengers: Doomsday builds toward — in theaters December 17, 2027.",
-      "The MCU's endgame for this era, one year after Doomsday. The live counter above runs to the release/event date worldwide (local time zones may shift availability by hours)."
+      "Marvel Studios currently lists Avengers: Secret Wars for December 2027. The exact December 17 date used by this countdown appears in public release listings but should be treated as expected until the studio confirms the day.",
+      "This page counts down to the currently listed date; release timing can vary by market and the schedule may change."
     ],
     "facts": [
       [
-        "Date",
-        "Friday, December 17, 2027"
+        "Official release window",
+        "December 2027 (Marvel/Disney)"
       ],
       [
-        "Days away",
-        "Live counter above"
+        "Currently listed date",
+        "Friday, December 17, 2027 — expected"
+      ],
+      [
+        "Story position",
+        "Follows Avengers: Doomsday"
       ]
     ],
-    "tagline": "Friday, December 17, 2027"
+    "tagline": "Expected Friday, December 17, 2027"
   },
   {
     "slug": "avatar-4",
