@@ -339,7 +339,10 @@ def event_page(e):
 
     evdeep = event_deep_html(e, '..')
     indexable = slug in INDEXABLE
-    canonical = f'{SITE}/{slug}/' if indexable else f'{SITE}/{NEXT_OF.get(_base(slug), slug)}/'
+    canonical_target = NEXT_OF.get(_base(slug), slug)
+    if canonical_target not in INDEXABLE:
+        canonical_target = slug
+    canonical = f'{SITE}/{slug}/' if indexable else f'{SITE}/{canonical_target}/'
     return head(title_tag, desc, canonical, f'/og/{slug}.png', ld_block, '..', indexable) + nav_links('..') + f'''</nav>
 </header>
 <main id="main">
