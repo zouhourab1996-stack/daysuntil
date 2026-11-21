@@ -277,6 +277,7 @@ def days_left_in_2026(h, today):
             '</nav>\n</header>\n<main id="main">' + body + h['footer']('..'))
 
 
+
 def meteor_shower_schedule_2026_2027(h, today):
     """Research-led 2026–2027 meteor shower calendar with moonlight and observing context."""
     esc, SITE = h['esc'], h['SITE']
@@ -296,8 +297,8 @@ def meteor_shower_schedule_2026_2027(h, today):
          'Yes. Meteor showers are best watched with the naked eye because meteors can appear across a wide area of sky. Choose a dark location, let your eyes adapt, and avoid looking only at the radiant.'),
         ('Does a full Moon ruin a meteor shower?',
          'Moonlight makes faint meteors harder to see, but it does not stop the shower. During a bright Moon, observe after moonset if possible, keep the Moon behind you, and focus on the brightest meteors.')
-    ];
-    const_rows = [
+    ]
+    shower_rows = [
         ('Geminids', '13–14 Dec 2026', '4–17 Dec 2026', '15% · favorable', 'Usually the strongest annual shower; good activity can begin before midnight.'),
         ('Ursids', '21–22 Dec 2026', '17–26 Dec 2026', '89% · bright Moon', 'A modest northern-hemisphere shower; moonlight will hide many faint meteors.'),
         ('Quadrantids', '3–4 Jan 2027', '28 Dec 2026–12 Jan 2027', '18% · favorable', 'Short, sharp maximum; predicted near 03:30 UT on 4 January.'),
@@ -307,42 +308,38 @@ def meteor_shower_schedule_2026_2027(h, today):
         ('Alpha Capricornids', '30–31 Jul 2027', '3 Jul–15 Aug 2027', '14% · favorable', 'Low rates, but known for occasional bright fireballs.'),
         ('Perseids', '12–13 Aug 2027', '17 Jul–24 Aug 2027', '79% · bright Moon', 'Popular northern-summer shower; moonlight will reduce the visible count.'),
         ('Orionids', '21–22 Oct 2027', '2 Oct–7 Nov 2027', '67% · bright Moon', 'Medium-strength shower associated with Halley’s Comet; expect Moon interference.')
-    ];
-    const rows = const_rows.map(r => '<tr>' + r.map((v,i) => '<td>' + (i===0?'<b>'+esc(v)+'</b>':esc(v)) + '</td>').join('') + '</tr>').join('');
-    const faq_ld = {'@context':'https://schema.org','@type':'FAQPage','mainEntity':faq.map(([q,a])=>({'@type':'Question','name':q,'acceptedAnswer':{'@type':'Answer','text':a}}))};
-    const publisher = {'@type':'Organization','name':h['BRAND'],'url':SITE+'/'};
-    const art_ld = {'@context':'https://schema.org','@type':'Article','headline':title,'description':desc,
+    ]
+    rows = ''.join('<tr>' + ''.join('<td>' + ('<b>' + esc(v) + '</b>' if i == 0 else esc(v)) + '</td>' for i, v in enumerate(r)) + '</tr>' for r in shower_rows)
+    faq_ld = {'@context':'https://schema.org','@type':'FAQPage','mainEntity':[
+        {'@type':'Question','name':q,'acceptedAnswer':{'@type':'Answer','text':a}} for q,a in faq]}
+    publisher = {'@type':'Organization','name':h['BRAND'],'url':SITE+'/'}
+    art_ld = {'@context':'https://schema.org','@type':'Article','headline':title,'description':desc,
         'image':[SITE+'/og/meteor-shower-schedule-2026-2027.png'],'mainEntityOfPage':url,
-        'datePublished':today.isoformat(),'dateModified':today.isoformat(),'author':publisher,'publisher':publisher};
-    const bc_ld = h['breadcrumb_ld']([('Home',SITE+'/'),('Meteor showers',SITE+'/meteor-showers/'),('2026–2027 schedule',url)]);
-    const ld = ''.join('<script type="application/ld+json">'+json.dumps(x)+'</script>' for x in (art_ld,faq_ld,bc_ld));
-    const faq_html = faq.map(([q,a])=>'<details><summary>'+esc(q)+'</summary><p>'+esc(a)+'</p></details>').join('');
-    const body = `
-<section class="home-hero">
-  <p class="eyebrow">Astronomy calendar · Updated ${today.strftime('%B ')}${today.day}, ${today.year}</p>
+        'datePublished':today.isoformat(),'dateModified':today.isoformat(),'author':publisher,'publisher':publisher}
+    bc_ld = h['breadcrumb_ld']([('Home',SITE+'/'),('Meteor showers',SITE+'/meteor-showers/'),('2026–2027 schedule',url)])
+    ld = ''.join('<script type="application/ld+json">'+json.dumps(x)+'</script>' for x in (art_ld,faq_ld,bc_ld))
+    faq_html = ''.join('<details><summary>'+esc(q)+'</summary><p>'+esc(a)+'</p></details>' for q,a in faq)
+    asof = today.strftime('%B ') + str(today.day) + ', ' + str(today.year)
+    body = """<section class="home-hero">
+  <p class="eyebrow">Astronomy calendar · Updated __ASOF__</p>
   <h1>Meteor Shower Schedule 2026–2027: Peak Dates &amp; Viewing Guide</h1>
   <p class="lead">The next major peak is the <b>Geminids on December 13–14, 2026</b>. This calendar covers the main showers through October 2027, including peak nights, active dates, Moon conditions and the best way to watch.</p>
   <p class="note">Peak dates are predictions, not guarantees. Local visibility depends on your time zone, latitude, weather, light pollution and the height of the radiant.</p>
 </section>
-
 <h2>2026–2027 meteor shower calendar</h2>
 <p>The Moon column is especially useful: a dark sky can make a modest shower worthwhile, while a bright Moon can wash out the faint members of even a strong display. Moon illumination and peak dates below follow the <a href="https://www.imo.net/calendar/" rel="noopener">International Meteor Organization (IMO) 2026/2027 calendar</a>.</p>
 <div class="tablewrap"><table>
 <tr><th>Shower</th><th>Peak night</th><th>Active dates</th><th>Moon at peak</th><th>What to expect</th></tr>
-${rows}
+__ROWS__
 </table></div>
-
 <h2>The next three peaks to plan for</h2>
 <h3>Geminids — December 13–14, 2026</h3>
 <p>The Geminids are normally the year's most productive major shower. The IMO lists an ideal-sky ZHR of about 150 and a thin crescent Moon around 15% illuminated for the 2026 peak, making the lunar conditions favorable. Unlike many showers, Geminid activity can be useful before midnight once Gemini is well placed, around 22:00 local time. The radiant rises earlier than for many other showers, so observers do not have to wait until the small hours to begin.</p>
 <p>For the live countdown and the event-specific date, see <a href="/geminids-2026/">Geminids 2026</a>.</p>
-
 <h3>Ursids — December 21–22, 2026</h3>
 <p>The Ursids are a smaller northern-hemisphere shower, usually producing around 5–10 meteors per hour under favorable conditions. The 2026 peak coincides with a bright waxing gibbous Moon near 89% illumination. That does not cancel the shower, but it will make faint meteors difficult to see. If you try, choose a location with a clear northern sky and observe when the Moon is below the horizon if the timing allows. See <a href="/ursids-2026/">Ursids 2026</a>.</p>
-
 <h3>Quadrantids — January 3–4, 2027</h3>
 <p>The Quadrantids can be very strong, but their sharp maximum lasts only a few hours. The IMO predicts the 2027 peak near 03:30 UT on January 4. A thin waning crescent Moon, about 18% illuminated, should leave the sky comparatively dark. The radiant is far north, so the shower favors northern latitudes; observers in the southern hemisphere see fewer members. Our <a href="/quadrantids-2027/">Quadrantids 2027 countdown</a> tracks the date.</p>
-
 <h2>How to watch a meteor shower properly</h2>
 <ol>
 <li><b>Get away from artificial light.</b> A dark rural site usually makes a bigger difference than buying equipment. Avoid direct streetlights and bright screens.</li>
@@ -352,27 +349,20 @@ ${rows}
 <li><b>Check the Moon and weather.</b> A clear, moonless sky is ideal. If the Moon is bright, try after moonset or keep it behind you.</li>
 <li><b>Be patient and dress for the night.</b> Activity comes in bursts. Bring warm layers, water and a comfortable seat, and give yourself at least an hour if conditions are good.</li>
 </ol>
-
 <h2>What the meteor rate actually means</h2>
 <p>Calendar figures often quote the <b>zenithal hourly rate (ZHR)</b>. It is a standardized estimate of the number of shower meteors an experienced observer might see in an hour under ideal dark-sky conditions, with the radiant at the zenith. It is not a guaranteed local count. A low radiant, clouds, city glow, a bright Moon or an inexperienced observer can reduce the number you actually see substantially.</p>
 <p>That is why a ZHR of 150 for the Geminids does not mean every backyard observer will see 150 meteors per hour. Treat it as a way to compare showers, not a promise.</p>
-
 <h2>Which 2027 showers are best from each hemisphere?</h2>
 <p><b>Northern Hemisphere:</b> the Quadrantids and Perseids are particularly well placed, while the Geminids and Ursids are also useful northern-sky targets. The Quadrantids' short peak makes timing important.</p>
 <p><b>Southern Hemisphere:</b> the Eta Aquariids and Southern Delta Aquariids are strong choices. The Eta Aquariids are especially favorable from southern tropical latitudes; north of the equator their radiant is lower and the best window is usually before dawn.</p>
 <p><b>Both hemispheres:</b> the Geminids can be seen from both, though southern observers generally see fewer. The Alpha Capricornids are also visible on either side of the equator and are worth watching for occasional bright fireballs.</p>
-
 <h2>Why Moonlight matters in this calendar</h2>
 <p>The 2027 Lyrid maximum occurs around a full Moon, and the Perseids and Orionids also face substantial lunar interference. You can still see the brighter meteors, but do not expect the same faint-star background or meteor counts as a dark-sky year. In contrast, the Eta Aquariids, Southern Delta Aquariids and Quadrantids have favorable lunar conditions in this calendar.</p>
 <p>Moonrise and moonset depend on your location. Check the local Moon times for your observing site rather than relying only on a global peak date.</p>
-
 <h2>How these dates are chosen</h2>
 <p>This page uses the IMO's annual meteor shower calendar for peak nights, activity windows and Moon conditions. NASA's <a href="https://science.nasa.gov/solar-system/meteors-meteorites/meteor-showers/" rel="noopener">meteor shower explainer</a> describes why showers occur and how their parent comets relate to the streams. Peak predictions can be refined as observations and models improve, so re-check the IMO calendar close to each event.</p>
 <p>For the full list of live counters, visit our <a href="/meteor-showers/">meteor shower countdowns</a>. Individual pages include their own countdown and event-specific viewing notes.</p>
-
 <h2>Frequently asked questions</h2>
-<div class="faq">${faq_html}</div>
-`;
-    return h['head'](title,desc,url,'/og/meteor-shower-schedule-2026-2027.png',ld,'..') +
-        h['nav_links']('..') + '</nav>\\n</header>\\n<main id="main">' + body + h['footer']('..');
-}
+<div class="faq">__FAQ__</div>
+""".replace('__ASOF__', asof).replace('__ROWS__', rows).replace('__FAQ__', faq_html)
+    return h['head'](title,desc,url,'/og/meteor-shower-schedule-2026-2027.png',ld,'..') + h['nav_links']('..') + '</nav>\n</header>\n<main id="main">' + body + h['footer']('..')
