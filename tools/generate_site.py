@@ -69,7 +69,7 @@ if DEEP:
 import re as _re
 PRIORITY_SLUGS = {
     'avengers-doomsday', 'dune-part-three', 'black-friday-2026', 'halloween-2026',
-    'gta-6-release', 'christmas-day-2026', 'cyber-monday-2026',
+    'gta-6-release', 'christmas-day-2026', 'cyber-monday-2026', 'avengers-secret-wars',
     'us-thanksgiving-2026', 'new-year-2027', 'ramadan-2027',
     # 2027 cultural/high-search events that the duplicate-consolidation rule would
     # otherwise bury under their 2026 counterparts - give each its own indexable URL.
@@ -890,7 +890,6 @@ def _cat_table(cat):
     rows, shown = [], 0
     for e in events:
         if e['category'] != cat: continue
-        if e['slug'] not in INDEXABLE: continue
         d = e['dt'].date()
         if d < today: continue
         if shown >= 18: break
@@ -1018,8 +1017,9 @@ CAT_EXTRA = {'meteor-showers': '<h2>Full meteor shower schedule for 2026–2027<
 
 def category_page(cat):
     c = CATS[cat]
-    evs = [e for e in events if e['category'] == cat and e['slug'] in INDEXABLE]
-    cards = ''.join(card_html(e, '../') for e in evs)
+    today_ms = dt.datetime.now(dt.timezone.utc).timestamp() * 1000
+    evs = [e for e in events if e['category'] == cat and e['ms'] > today_ms]
+    cards = ''.join(card_html(e, '../') for e in evs[:18])
     ld = breadcrumb_ld([('Home', SITE + '/'), (c['name'], f'{SITE}/{cat}/')])
     _d = CAT_DEEP.get(cat, {})
     cat_how = _d.get('how', '')
