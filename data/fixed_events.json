@@ -2460,19 +2460,26 @@
     "tagline": "The original countdown",
     "faq": [
       [
+        "How many days until 2027?",
+        "The live counter at the top of this page shows the days, hours, minutes and seconds until 2027 begins at midnight on January 1 in your local time zone."
+      ],
+      [
         "How many days until New Year 2027?",
-        "New Year 2027 falls on The original countdown — the live counter above shows the exact remaining days, hours, minutes and seconds."
+        "New Year 2027 begins on Friday, January 1, 2027. The live counter shows the exact time remaining to your own local midnight."
       ],
       [
-        "What date is New Year 2027?",
-        "The original countdown"
+        "What day of the week is New Year's Day 2027?",
+        "Friday. New Year's Day 2027 falls on Friday, January 1."
       ],
       [
-        "When is New Year 2027 exactly?",
-        "Midnight of Friday, January 1, 2027 — this page counts down to it in your local time zone."
+        "Does the countdown include today?",
+        "No. We count whole days remaining: 1 means tomorrow and 0 means today. The timer also shows hours, minutes and seconds."
+      ],
+      [
+        "How many time zones celebrate New Year first?",
+        "The planet crosses into January 1 across about 26 hours, from UTC+14 in Kiribati to UTC−11 in American Samoa."
       ]
-    ],
-    "meta_desc": "How many days until New Year 2027? As of today, <b>64 days to go</b> until Friday, January 1, 2027. Live countdown in days, hours, minutes and seconds"
+    ]
   },
   {
     "slug": "new-year-2028",
