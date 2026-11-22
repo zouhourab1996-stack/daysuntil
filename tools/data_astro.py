@@ -69,6 +69,9 @@ for year in (2026, 2027, 2028):
         if ts is None or ts.year != year or ts < NOW:
             continue
         slug = f"{season}-{year}"
+        # Align the 2026 December solstice with the published 20:50 UTC instant.
+        if slug == 'winter-2026':
+            ts = U(2026, 12, 21, 20, 50)
         nice = {'spring': 'First Day of Spring', 'summer': 'First Day of Summer (Northern Hemisphere)',
                 'fall': 'First Day of Fall', 'winter': 'First Day of Winter (Northern Hemisphere)'}[season]
         title = f"{nice} {ts.year}"
