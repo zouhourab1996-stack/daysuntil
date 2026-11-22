@@ -1069,7 +1069,7 @@ def home_page():
                      'potentialAction': {'@type': 'SearchAction', 'target': {'@type': 'EntryPoint', 'urlTemplate': SITE + '/?q={search_term_string}'}, 'query-input': 'required name=search_term_string'}})
     return head(_trim_words(f'{BRAND} — Live Countdowns to Every Event', TITLE_MAX),
                 _trim_words('How many days until Christmas, GTA 6, the next solar eclipse or the next full moon? Live countdowns in days, hours, minutes and seconds to {n} verified dates.'.replace('{n}', str(len(events))), DESC_MAX),
-                SITE + '/', '/og/home.png', '<script type="application/ld+json">' + ld + '</script>', '') + f'''<a href="about/">About</a>
+                SITE + '/', '/og/home.png', '<script type="application/ld+json">' + ld + '</script>', '') + f'''{nav_links("")}
 </nav>
 </header>
 <main id="main">
