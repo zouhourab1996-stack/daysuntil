@@ -176,7 +176,7 @@ def head(title, desc, canonical, ogimg, ld_extra='', path_prefix='..', indexable
     legal_paths = ('/about/', '/contact/', '/privacy/', '/terms/', '/disclosure/')
     ads_enabled = indexable and not any(canonical.rstrip('/') == SITE + path.rstrip('/') for path in legal_paths)
     ads_script = ('<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3898992716389443" crossorigin="anonymous"></script>' if ads_enabled else '')
-    org_ld = json.dumps({'@context': 'https://schema.org', '@type': 'Organization', '@id': SITE + '/#organization', 'name': BRAND, 'url': SITE + '/'})
+    org_ld = json.dumps({'@context': 'https://schema.org', '@type': 'Organization', '@id': SITE + '/#organization', 'name': BRAND, 'url': SITE + '/', 'logo': {'@type': 'ImageObject', 'url': SITE + '/og/home.png'}})
     org_tag = '<script type="application/ld+json">' + org_ld + '</script>'
     return f'''<!doctype html>
 <html lang="en">
@@ -347,8 +347,7 @@ def event_page(e):
     indexable = slug in INDEXABLE
     canonical_target = NEXT_OF.get(_base(slug), slug)
     if canonical_target not in INDEXABLE:
-        canonical_target = slug
-    canonical = f'{SITE}/{slug}/' if indexable else f'{SITE}/{canonical_target}/'
+        canonical_target = slug    canonical = f'{SITE}/{slug}/' if indexable else f'{SITE}/{canonical_target}/'
     return head(title_tag, desc, canonical, f'/og/{slug}.png', ld_block, '..', indexable) + nav_links('..') + f'''</nav>
 </header>
 <main id="main">
@@ -697,8 +696,7 @@ def when_is_page(e):
 {about}
 <section class="grid2">
   <div><h2>Quick facts</h2><table class="facts">{''.join(f'<tr><th>{esc(k)}</th><td>{esc(v)}</td></tr>' for k, v in e['facts'])}</table></div>
-  <aside><h2>FAQ</h2><div class="faq">{faq_html}</div></aside>
-</section>
+  <aside><h2>FAQ</h2><div class="faq">{faq_html}</div></aside></section>
 <h2>Related countdowns</h2>
 <section class="cards">{cards}</section>
 </main>
@@ -1047,8 +1045,7 @@ def category_page(cat):
 <p class="lead">{c['blurb']}</p>
 <h2>Coming up next</h2>
 {cat_tbl}
-<h2>How these dates are worked out</h2>
-<p>{cat_how}</p>
+<h2>How these dates are worked out</h2><p>{cat_how}</p>
 {cat_extra}
 {AD_LB}<section class="cards">{cards}</section>
 {cat_faq}
