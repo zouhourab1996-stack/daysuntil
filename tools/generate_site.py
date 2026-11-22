@@ -176,6 +176,8 @@ def head(title, desc, canonical, ogimg, ld_extra='', path_prefix='..', indexable
     legal_paths = ('/about/', '/contact/', '/privacy/', '/terms/', '/disclosure/')
     ads_enabled = indexable and not any(canonical.rstrip('/') == SITE + path.rstrip('/') for path in legal_paths)
     ads_script = ('<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3898992716389443" crossorigin="anonymous"></script>' if ads_enabled else '')
+    org_ld = json.dumps({'@context': 'https://schema.org', '@type': 'Organization', '@id': SITE + '/#organization', 'name': BRAND, 'url': SITE + '/'})
+    org_tag = '<script type="application/ld+json">' + org_ld + '</script>'
     return f'''<!doctype html>
 <html lang="en">
 <head>{ads_script}
@@ -194,6 +196,7 @@ def head(title, desc, canonical, ogimg, ld_extra='', path_prefix='..', indexable
 <link rel="icon" href="{path_prefix}/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="{path_prefix}/assets/style.css">
 {GA_TAGS}
+{org_tag}
 {ld_extra}</head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -1064,6 +1067,7 @@ def home_page():
     idx = json.dumps([{'s': e['slug'], 't': e['title'], 'c': e['category'], 'n': date_nice(e['dt']), 'm': e['ms']} for e in events])
     ld = json.dumps({'@context': 'https://schema.org', '@type': 'WebSite', 'name': BRAND, 'url': SITE,
                      'description': 'Live countdowns to holidays, eclipses, moon phases, planetary stations, game launches, movies and sporting events.',
+                     'publisher': {'@id': SITE + '/#organization'},
                      'potentialAction': {'@type': 'SearchAction', 'target': {'@type': 'EntryPoint', 'urlTemplate': SITE + '/?q={search_term_string}'}, 'query-input': 'required name=search_term_string'}})
     return head(_trim_words(f'{BRAND} — Live Countdowns to Every Event', TITLE_MAX),
                 _trim_words('How many days until Christmas, GTA 6, the next solar eclipse or the next full moon? Live countdowns in days, hours, minutes and seconds to {n} verified dates.'.replace('{n}', str(len(events))), DESC_MAX),
