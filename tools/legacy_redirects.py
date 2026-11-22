@@ -65,12 +65,14 @@ def next_of():
 def stub(target_url):
     return f'''<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Redirecting…</title>
+<title>Countdown moved | DaysUntil</title>
+<meta name="description" content="This countdown has moved to its current canonical page. Follow the link for the live countdown and event details.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="canonical" href="{target_url}">
 <meta name="robots" content="noindex,follow">
 <meta http-equiv="refresh" content="0; url={target_url}">
 <script>location.replace("{target_url}")</script>
-</head><body><p>This countdown moved to <a href="{target_url}">{target_url}</a>.</p></body></html>
+</head><body><main><h1>This countdown has moved</h1><p>The current live countdown is available at <a href="{target_url}">this page</a>.</p><p>This legacy address is kept only to forward visitors and search engines to the current canonical event page.</p></main></body></html>
 '''
 
 
