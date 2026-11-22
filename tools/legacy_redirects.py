@@ -32,6 +32,7 @@ EXTRA_ALIASES = {
     'olympics': 'la28-olympics-opening',
     'mothers-day': 'mothers-day',
     'fathers-day': 'fathers-day',
+    'dune-3': 'dune-part-three',
 }
 
 
@@ -66,6 +67,7 @@ def stub(target_url):
 <html lang="en"><head><meta charset="utf-8">
 <title>Redirecting…</title>
 <link rel="canonical" href="{target_url}">
+<meta name="robots" content="noindex,follow">
 <meta http-equiv="refresh" content="0; url={target_url}">
 <script>location.replace("{target_url}")</script>
 </head><body><p>This countdown moved to <a href="{target_url}">{target_url}</a>.</p></body></html>
