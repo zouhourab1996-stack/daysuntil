@@ -201,7 +201,7 @@ def head(title, desc, canonical, ogimg, ld_extra='', path_prefix='..', indexable
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <header class="top">
-  <a class="logo" href="{path_prefix}/"><svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="17" r="10.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M16 10v7l5 3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M16 2v3M4.5 6.5l2 2M27.5 6.5l-2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> daysuntil<b>.bond</b></a>
+  <a class="logo" href="{path_prefix}/"><svg class="logo-mark" width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="17" r="10.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M16 10v7l5 3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M16 2v3M4.5 6.5l2 2M27.5 6.5l-2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> daysuntil<b>.bond</b></a>
   <nav class="nav">'''
 
 def nav_links(pp):
@@ -1197,7 +1197,7 @@ def page404():
 <script src="/assets/site.js" defer></script>
 ''' + footer('')
 
-FAVICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#101426"/><circle cx="32" cy="36" r="17" fill="none" stroke="#e8b64c" stroke-width="5"/><path d="M32 6l4 9h-8z" fill="#e8b64c"/><rect x="8" y="10" width="10" height="5" rx="2.5" fill="#5c6bc0"/><rect x="46" y="10" width="10" height="5" rx="2.5" fill="#5c6bc0"/></svg>'
+FAVICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#101426"/><circle cx="32" cy="35" r="19" fill="none" stroke="#e8b64c" stroke-width="5"/><path d="M32 23v13l9 6" fill="none" stroke="#e8b64c" stroke-width="5" stroke-linecap="round"/><path d="M32 5v7M10 13l5 5M54 13l-5 5" stroke="#5c6bc0" stroke-width="4" stroke-linecap="round"/></svg>'
 
 # ---------------------------------------------------------------- stand-alone articles
 import articles as _articles
