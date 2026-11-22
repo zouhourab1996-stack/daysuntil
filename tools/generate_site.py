@@ -201,7 +201,7 @@ def head(title, desc, canonical, ogimg, ld_extra='', path_prefix='..', indexable
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <header class="top">
-  <a class="logo" href="{path_prefix}/"><span class="logo-dot"></span> daysuntil<b>.bond</b></a>
+  <a class="logo" href="{path_prefix}/"><svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="17" r="10.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M16 10v7l5 3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M16 2v3M4.5 6.5l2 2M27.5 6.5l-2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> daysuntil<b>.bond</b></a>
   <nav class="nav">'''
 
 def nav_links(pp):
@@ -213,7 +213,7 @@ def footer(pp='..'):
     cats = ''.join(f'<a href="{pp}/{c}/">{CATS[c]["icon"]} {CATS[c]["name"]}</a>' for c in CATS)
     return f'''<footer class="foot">
   <div class="foot-grid">
-    <div><div class="logo small"><span class="logo-dot"></span> daysuntil<b>.bond</b></div>
+    <div><div class="logo small"><svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="17" r="10.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M16 10v7l5 3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M16 2v3M4.5 6.5l2 2M27.5 6.5l-2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> daysuntil<b>.bond</b></div>
       <p>Live countdowns to the dates the world is waiting for — holidays, eclipses, moon phases, planetary stations, game launches, movies and sport. Astronomy events are computed with our own Keplerian ephemeris; verified dates are checked against primary sources.</p></div>
     <div><b>Categories</b>{cats}</div>
     <div><b>Site</b><a href="{pp}/about/">About</a><a href="{pp}/privacy/">Privacy policy</a><a href="{pp}/contact/">Contact</a><a href="{pp}/terms/">Terms of use</a><a href="{pp}/disclosure/">Advertising disclosure</a></div>
