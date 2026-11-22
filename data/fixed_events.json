@@ -2713,22 +2713,29 @@
     "title": "Eid al-Fitr 2027 (expected)",
     "category": "holidays",
     "kind": "date",
-    "date": "2027-03-10",
+    "date": "2027-03-09",
     "desc": [
-      "Eid al-Fitr 2027 (expected) falls on Wednesday, March 10, 2027. The festival of breaking the fast: three days of feasts, gifts and prayers marking the end of Ramadan — one of the two biggest holidays in Islam. Exact date depends on moon sighting.",
-      "The live counter above ticks down to the day in your time zone."
+      "Eid al-Fitr 2027 is tentatively expected on Tuesday, March 9, 2027 (1 Shawwal 1448) in the Tunisia and Umm al-Qura calendars. Local moon sighting can move the observance by one day.",
+      "The countdown uses March 9 as the current planning date. Check the announcement from your local religious authority closer to the festival."
     ],
     "facts": [
       [
-        "Date",
-        "Wednesday, March 10, 2027"
+        "Expected date",
+        "Tuesday, March 9, 2027"
       ],
       [
-        "Category",
-        "Cultural observance"
+        "Hijri date",
+        "1 Shawwal 1448"
+      ],
+      [
+        "Date status",
+        "Tentative; local moon sighting may shift by one day"
       ]
     ],
-    "tagline": "March 10, 2027"
+    "tagline": "Tuesday, March 9, 2027 · 1 Shawwal 1448",
+    "seo_title": "Eid al-Fitr 2027: Date & Countdown",
+    "seo_h1": "When Is Eid al-Fitr 2027?",
+    "meta_desc": "Eid al-Fitr 2027 is tentatively expected on Tuesday, March 9 in Tunisia's calendar. See the countdown and why local moon sighting may shift the date."
   },
   {
     "slug": "eid-al-adha-2027",
