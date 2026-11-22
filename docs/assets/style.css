@@ -6,7 +6,10 @@ a{color:#a9b7ff;text-decoration:none}a:hover{text-decoration:underline}
 .top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:12px 22px;background:rgba(11,16,32,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .logo{font-size:20px;font-weight:300;color:var(--tx)}.logo b{font-weight:800;color:var(--acc)}
 .logo.small{font-size:16px}
-.logo-dot{display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--acc);box-shadow:0 0 12px var(--acc);margin-right:4px}
+.logo-mark{width:25px;height:25px;flex:0 0 25px;color:var(--acc);vertical-align:middle;margin-right:5px;filter:drop-shadow(0 0 5px rgba(232,182,76,.22))}
+.logo{display:inline-flex;align-items:center;gap:2px;text-decoration:none;min-height:40px}
+.logo:focus-visible,.nav a:focus-visible,a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:3px;border-radius:5px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 .nav{display:flex;gap:14px;flex-wrap:wrap;font-size:14px}
 .nav a{color:var(--mut)}.nav a:hover{color:var(--tx);text-decoration:none}
 main{max-width:1060px;margin:0 auto;padding:26px 20px 60px}
