@@ -16,7 +16,7 @@ CATS = {
  'moon':           dict(name='Moon Phases',            icon='🌕', c1=(96,125,139), c2=(25,42,64),   blurb='Every full moon and new moon through 2028, with exact peak times computed from lunar theory — plus the rare blue moons and black moons.'),
  'eclipses':       dict(name='Eclipses',               icon='🌘', c1=(230,81,0),   c2=(20,20,26),   blurb='Every solar and lunar eclipse from late 2026 through 2028 — including the eclipse of the century on August 2, 2027, whose shadow crosses Spain, North Africa and Egypt.'),
  'planets':        dict(name='Planetary Stations',     icon='🪐', c1=(81,45,168),  c2=(16,14,40),   blurb='Every retrograde and direct station of Mercury, Venus, Mars, Jupiter, Saturn, Uranus, Neptune and Pluto through 2028 — computed to the minute with our own Keplerian ephemeris.'),
- 'meteor-showers': dict(name='Meteor Showers',         icon='☄️', c1=(0,105,92),   c2=(6,26,34),    blurb='All the major annual meteor showers — Perseids, Geminids, Quadrantids and more — with peak nights and viewing tips.'),
+ 'meteor-showers': dict(name='Meteor Showers',         icon='☄️', c1=(0,105,92),   c2=(6,26,34),    blurb='All the major annual meteor showers — Perseids, Geminids, Quadrantids and more — with peak nights and viewing tips.', seo_title='Meteor Shower Schedule 2026–2027 | Peak Dates & Countdown', seo_desc='See the 2026–2027 meteor shower schedule with peak dates, best viewing nights and live countdowns for Perseids, Geminids, Quadrantids and more.', seo_h1='Meteor Shower Schedule 2026–2027'),
  'seasons':        dict(name='Solstices & Equinoxes',  icon='🍂', c1=(85,139,47),  c2=(28,42,51),   blurb='The exact moments spring, summer, fall and winter begin in 2026, 2027 and 2028 — down to the minute, UTC.'),
  'gaming':         dict(name='Games',                  icon='🎮', c1=(124,77,255), c2=(12,10,36),   blurb='The biggest game launches on the calendar — headlined by the most anticipated release in entertainment history.'),
  'movies':         dict(name='Movies',                 icon='🎬', c1=(183,28,28),  c2=(24,10,14),   blurb='Major theatrical release dates, from the Dunesday showdown of December 2026 to the far horizon of Pandora.'),
@@ -294,7 +294,7 @@ def event_page(e):
     # Title/description are fitted to Google's display limits — the live number
     # still goes in the title for close events (the pattern every top-ranking
     # countdown competitor uses), but only when it fits inside 60 characters.
-    title_tag = fit_title(e, dd)
+    title_tag = e.get('seo_title') or fit_title(e, dd)
     # Custom meta description for high-impression pages (GSC data-driven)
     if e.get("meta_desc"):
         desc = e["meta_desc"]
@@ -1036,13 +1036,13 @@ def category_page(cat):
                            'mainEntity': [{'@type': 'Question', 'name': q,
                                            'acceptedAnswer': {'@type': 'Answer', 'text': a}} for q, a in _fq]})
         ld_faq = '\n<script type="application/ld+json">' + _ld2 + '</script>'
-    t = _trim_words(f'{c["name"]} — Live Countdowns ({len(evs)} events)', TITLE_MAX)
-    desc = _trim_words(f'Live countdowns to {len(evs)} {c["name"].lower()} — days, hours, minutes and seconds, updated every second in your time zone.', DESC_MAX)
+    t = c.get('seo_title') or _trim_words(f'{c["name"]} — Live Countdowns ({len(evs)} events)', TITLE_MAX)
+    desc = c.get('seo_desc') or _trim_words(f'Live countdowns to {len(evs)} {c["name"].lower()} — days, hours, minutes and seconds, updated every second in your time zone.', DESC_MAX)
     return head(t, desc, f'{SITE}/{cat}/', f'/og/cat-{cat}.png', '<script type="application/ld+json">' + ld + '</script>' + ld_faq) + nav_links('..') + f'''</nav>
 </header>
 <main id="main">
 <nav class="crumbs"><a href="../">Home</a> › <span>{c['name']}</span></nav>
-<h1>{c['icon']} {c['name']}</h1>
+<h1>{c['icon']} {c.get('seo_h1', c['name'])}</h1>
 <p class="lead">{c['blurb']}</p>
 <h2>Coming up next</h2>
 {cat_tbl}
