@@ -193,8 +193,8 @@ def head(title, desc, canonical, ogimg, ld_extra='', path_prefix='..', indexable
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:site" content="@daysuntilbond">
 <meta name="twitter:title" content="{esc(title)}"><meta name="twitter:description" content="{esc(desc)}">
 <meta name="twitter:image" content="{SITE}{ogimg}">
-<link rel="icon" href="{path_prefix}/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="{path_prefix}/assets/style.css">
+<link rel="icon" href="{path_prefix}/favicon.svg?v=20261122-brand" type="image/svg+xml">
+<link rel="stylesheet" href="{path_prefix}/assets/style.css?v=20261122-brand">
 {GA_TAGS}
 {org_tag}
 {ld_extra}</head>
