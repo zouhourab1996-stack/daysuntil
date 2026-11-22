@@ -353,7 +353,7 @@ def event_page(e):
 </header>
 <main id="main">
 <nav class="crumbs"><a href="../">Home</a> › <a href="../{cat}/">{CATS[cat]['name']}</a> › <span>{esc(e['title'])}</span></nav>
-<h1>How Many Days Until {esc(e['title'])}?</h1>
+<h1>{esc(e.get('seo_h1') or f"How Many Days Until {e['title']}?")}</h1>
 <section class="hero" data-cat="{cat}">
   <div class="cd">
     <div class="cd-days"><span id="cd-d">–</span><small>days</small></div>

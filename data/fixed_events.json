@@ -2460,6 +2460,10 @@
     "tagline": "The original countdown",
     "faq": [
       [
+        "How many days until next year?",
+        "New Year's Day 2027 begins on January 1, 2027 at midnight in your local time zone. The live counter shows the exact time remaining, including days, hours, minutes and seconds."
+      ],
+      [
         "How many days until 2027?",
         "The live counter at the top of this page shows the days, hours, minutes and seconds until 2027 begins at midnight on January 1 in your local time zone."
       ],
@@ -2479,7 +2483,10 @@
         "How many time zones celebrate New Year first?",
         "The planet crosses into January 1 across about 26 hours, from UTC+14 in Kiribati to UTC−11 in American Samoa."
       ]
-    ]
+    ],
+    "seo_title": "How Many Days Until 2027? Next Year Countdown",
+    "seo_h1": "How Many Days Until 2027? Next Year Countdown",
+    "meta_desc": "See how many days until next year begins on January 1, 2027. Live countdown with weeks, months, weekdays and hours to your local midnight."
   },
   {
     "slug": "new-year-2028",
