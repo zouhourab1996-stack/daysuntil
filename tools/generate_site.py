@@ -347,7 +347,8 @@ def event_page(e):
     indexable = slug in INDEXABLE
     canonical_target = NEXT_OF.get(_base(slug), slug)
     if canonical_target not in INDEXABLE:
-        canonical_target = slug    canonical = f'{SITE}/{slug}/' if indexable else f'{SITE}/{canonical_target}/'
+        canonical_target = slug
+    canonical = f'{SITE}/{slug}/' if indexable else f'{SITE}/{canonical_target}/'
     return head(title_tag, desc, canonical, f'/og/{slug}.png', ld_block, '..', indexable) + nav_links('..') + f'''</nav>
 </header>
 <main id="main">
