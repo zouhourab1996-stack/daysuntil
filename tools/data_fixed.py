@@ -264,6 +264,9 @@ for e in EV:
         e['utc'] = '2028-07-31T01:00:00Z'
         e['facts'] = [["Date", "Sunday, July 30, 2028"], ["Start time", "6:00 p.m. Pacific / 9:00 p.m. Eastern"], ["Venue", "LA Memorial Coliseum, Los Angeles"], ["Schedule status", "Officially published; subject to change"]]
         e['tagline'] = "Sunday, July 30, 2028 · 6:00 p.m. Pacific"
+        e['seo_title'] = "LA28 Olympic Closing Ceremony 2028: Date & Time"
+        e['seo_h1'] = "When Is the LA28 Olympic Closing Ceremony?"
+        e['meta_desc'] = "The LA28 Olympic Closing Ceremony is scheduled for Sunday, July 30, 2028 at 6 p.m. Pacific at the LA Memorial Coliseum. Live countdown; schedule may change."
 
 os.makedirs(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data'), exist_ok=True)
 json.dump(EV, open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'fixed_events.json'), 'w'), indent=1)
