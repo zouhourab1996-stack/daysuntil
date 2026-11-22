@@ -95,9 +95,3 @@ img,video,iframe{max-width:100%;height:auto}
 .tablewrap { overflow-x: auto; margin: 1rem 0 1.5rem; }
 .tablewrap table { min-width: 100%; }
 .tablewrap th { text-align: left; white-space: nowrap; }
-
-
-/* DaysUntil visible brand mark: explicit size prevents the SVG's 300x150 default. */
-.logo{display:inline-flex;align-items:center;gap:8px;min-height:42px;white-space:nowrap}
-.logo-mark{display:inline-block;width:30px;height:30px;flex:0 0 30px;vertical-align:middle;color:var(--acc);overflow:visible}
-@media(max-width:640px){.logo-mark{width:27px;height:27px;flex-basis:27px}}
