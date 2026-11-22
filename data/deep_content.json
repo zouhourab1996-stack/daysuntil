@@ -2803,5 +2803,66 @@
         "Not necessarily. Local cinema release schedules can vary by country, so check a local distributor or cinema closer to the date."
       ]
     ]
+  },
+  "la28-olympics-closing": {
+    "sections": [
+      {
+        "h2": "When is the LA28 Olympic Closing Ceremony?",
+        "p": [
+          "The LA28 Olympic Closing Ceremony is scheduled for <b>Sunday, July 30, 2028</b>. The official LA28 competition schedule lists the ceremony for <b>6:00 p.m. Pacific Time</b> at the <b>LA Memorial Coliseum</b> (9:00 p.m. Eastern).",
+          "The <a href=\"https://la28.org/en/newsroom/la28-reveals-comprehensive-olympic-competition-schedule.html\">official LA28 competition schedule</a> identifies the ceremony as Day 16 of the Games. LA28 notes that the schedule can change, so check the official site again closer to the event."
+        ]
+      },
+      {
+        "h2": "What happens at the Olympic Closing Ceremony?",
+        "p": [
+          "The Closing Ceremony marks the end of the Olympic Games. Athletes gather for the final celebration, the Olympic flag is handed to the next host city, and the Olympic Flame is extinguished. It is the formal closing moment after the final competition sessions.",
+          "The LA28 ceremony is planned for the LA Memorial Coliseum, a venue with a long Olympic history. The official schedule places the final day of competition and the Closing Ceremony on July 30."
+        ]
+      },
+      {
+        "h2": "Do not confuse the Olympic and Paralympic closing ceremonies",
+        "p": [
+          "LA28 hosts both the Olympic and Paralympic Games, and their closing dates are different. The Olympic Closing Ceremony is scheduled for July 30, 2028. The Paralympic Games run from August 15 to August 27, with their own Closing Ceremony on August 27.",
+          "The <a href=\"https://la28.org/en/newsroom/LA28_Announces_Games_Dates.html\">official LA28 Games dates announcement</a> lists the two event periods separately. This countdown is specifically for the Olympic Closing Ceremony, not the Paralympic finale."
+        ]
+      },
+      {
+        "h2": "What time is 6 p.m. Pacific in other time zones?",
+        "p": [
+          "The published start time is 6:00 p.m. Pacific Daylight Time in Los Angeles on July 30, 2028. That is 9:00 p.m. Eastern on July 30 and 01:00 UTC on July 31. In many European and African time zones, the local calendar date will therefore be July 31.",
+          "The countdown uses the official Pacific start instant and converts it for your device's time zone. This avoids treating the ceremony as if it began at midnight in every country."
+        ]
+      },
+      {
+        "h2": "How to follow schedule changes",
+        "p": [
+          "Competition timetables and ceremony details can be revised as the Games approach. Use the <a href=\"https://la28.org/en/newsroom/la28-reveals-comprehensive-olympic-competition-schedule.html\">LA28 schedule announcement</a> as the primary reference and check local broadcasters for coverage times.",
+          "This page is a countdown to the currently published start time. It does not provide ticket availability, broadcast rights or a guarantee that every broadcast begins at the same local time."
+        ]
+      }
+    ],
+    "faq": [
+      [
+        "When is the LA28 Olympic Closing Ceremony?",
+        "It is scheduled for Sunday, July 30, 2028 at 6:00 p.m. Pacific at the LA Memorial Coliseum."
+      ],
+      [
+        "What time is the LA28 Closing Ceremony in Eastern Time?",
+        "The published 6:00 p.m. Pacific start corresponds to 9:00 p.m. Eastern on July 30, 2028."
+      ],
+      [
+        "Where will the LA28 Olympic Closing Ceremony take place?",
+        "The official LA28 schedule lists the LA Memorial Coliseum in Los Angeles."
+      ],
+      [
+        "Is the Paralympic Closing Ceremony on the same date?",
+        "No. The Paralympic Closing Ceremony is scheduled for August 27, 2028; the Olympic Closing Ceremony is July 30."
+      ],
+      [
+        "Can the LA28 Closing Ceremony date or time change?",
+        "Yes. LA28 states that the competition schedule is subject to change. Check the official schedule closer to the Games."
+      ]
+    ]
   }
 }

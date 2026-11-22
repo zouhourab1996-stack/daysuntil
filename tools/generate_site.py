@@ -74,7 +74,7 @@ PRIORITY_SLUGS = {
     # 2027 cultural/high-search events that the duplicate-consolidation rule would
     # otherwise bury under their 2026 counterparts - give each its own indexable URL.
     'world-kindness-day-2027', 'diwali-2027', 'day-of-the-dead-2027',
-    'guy-fawkes-night-2027', 'veterans-day-2027', 'winter-2026', 'avatar-4',
+    'guy-fawkes-night-2027', 'veterans-day-2027', 'winter-2026', 'avatar-4', 'la28-olympics-closing',
 }
 def _base(slug):
     return _re.sub(r'-(\d{4})$', '', slug)

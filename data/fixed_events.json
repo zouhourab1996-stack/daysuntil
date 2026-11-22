@@ -3854,11 +3854,11 @@
     "slug": "la28-olympics-closing",
     "title": "LA28 Olympics Closing Ceremony",
     "category": "sports",
-    "kind": "date",
+    "kind": "datetime",
     "date": "2028-07-30",
     "desc": [
-      "Seventeen days of competition end July 30, 2028 with the closing ceremony — the handover to Brisbane 2032, and the end of the last countdown of the Games.",
-      "The final day of LA28. The live counter above runs to the release/event date worldwide (local time zones may shift availability by hours)."
+      "The LA28 Olympic Closing Ceremony is scheduled for Sunday, July 30, 2028 at 6:00 p.m. Pacific (9:00 p.m. Eastern) at the LA Memorial Coliseum. The official schedule is subject to change.",
+      "The timer counts to the published ceremony start time, converted from Pacific Time to UTC. Your local clock may show July 31 in time zones east of the Americas."
     ],
     "facts": [
       [
@@ -3866,10 +3866,22 @@
         "Sunday, July 30, 2028"
       ],
       [
-        "Days away",
-        "Live counter above"
+        "Start time",
+        "6:00 p.m. Pacific / 9:00 p.m. Eastern"
+      ],
+      [
+        "Venue",
+        "LA Memorial Coliseum, Los Angeles"
+      ],
+      [
+        "Schedule status",
+        "Officially published; subject to change"
       ]
     ],
-    "tagline": "Sunday, July 30, 2028"
+    "tagline": "Sunday, July 30, 2028 · 6:00 p.m. Pacific",
+    "utc": "2028-07-31T01:00:00Z",
+    "seo_title": "LA28 Olympic Closing Ceremony 2028: Date & Time",
+    "seo_h1": "When Is the LA28 Olympic Closing Ceremony?",
+    "meta_desc": "The LA28 Olympic Closing Ceremony is scheduled for Sunday, July 30, 2028 at 6 p.m. Pacific at the LA Memorial Coliseum. Live countdown; schedule may change."
   }
 ]

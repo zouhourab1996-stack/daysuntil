@@ -251,13 +251,19 @@ MEDIA = [
   "The Summer Games return to Los Angeles for the first time since 1984, opening July 14, 2028 — with competitions spread across LA's most iconic venues, flag football making its Olympic debut, and SoFi Stadium hosting the opening ceremony.",
   "LA hosts the world: first Summer Games in the US since Atlanta 1996."),
  ("la28-olympics-closing", "LA28 Olympics Closing Ceremony", D(2028, 7, 30), 'sports',
-  "Seventeen days of competition end July 30, 2028 with the closing ceremony — the handover to Brisbane 2032, and the end of the last countdown of the Games.",
-  "The final day of LA28."),
+  "The LA28 Olympic Closing Ceremony is scheduled for July 30, 2028 at 6:00 p.m. Pacific at the LA Memorial Coliseum, according to the official competition schedule.",
+  "The final day of the Olympic Games; ceremony times remain subject to change."),
 ]
 for slug, title, date, cat, blurb, hook in MEDIA:
     add(slug, title, cat, date, [blurb, hook + " The live counter above runs to the release/event date worldwide (local time zones may shift availability by hours)."],
         facts=[["Date", date.strftime('%A, %B %-d, %Y')], ["Days away", "Live counter above"]],
         tagline=date.strftime('%A, %B %-d, %Y'))
+for e in EV:
+    if e['slug'] == 'la28-olympics-closing':
+        e['kind'] = 'datetime'
+        e['utc'] = '2028-07-31T01:00:00Z'
+        e['facts'] = [["Date", "Sunday, July 30, 2028"], ["Start time", "6:00 p.m. Pacific / 9:00 p.m. Eastern"], ["Venue", "LA Memorial Coliseum, Los Angeles"], ["Schedule status", "Officially published; subject to change"]]
+        e['tagline'] = "Sunday, July 30, 2028 · 6:00 p.m. Pacific"
 
 os.makedirs(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data'), exist_ok=True)
 json.dump(EV, open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'fixed_events.json'), 'w'), indent=1)
