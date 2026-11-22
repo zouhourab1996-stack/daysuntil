@@ -143,7 +143,7 @@ CULT = [
  ("diwali-2027", "Diwali 2027", D(2027, 10, 29), "The festival of lights returns: New Delhi's 2027 Lakshmi Puja calendar lists Friday, October 29. Regional panchangs and observance may vary."),
  ("ramadan-2027", "Ramadan 2027 (expected)", D(2027, 2, 8), "The month of fasting, prayer and community for the world's ~2 billion Muslims — from dawn to sunset without food or water, broken daily with the iftar meal. Dates follow the lunar calendar and moon sighting, so the start may shift by a day."),
  ("eid-al-fitr-2027", "Eid al-Fitr 2027 (expected)", D(2027, 3, 10), "The festival of breaking the fast: three days of feasts, gifts and prayers marking the end of Ramadan — one of the two biggest holidays in Islam. Exact date depends on moon sighting."),
- ("eid-al-adha-2027", "Eid al-Adha 2027 (expected)", D(2027, 5, 17), "The festival of sacrifice, honoring Abraham's willingness to sacrifice his son: Qurbani (animal sacrifice), charity to the poor, and family gatherings. Exact date depends on moon sighting."),
+ ("eid-al-adha-2027", "Eid al-Adha 2027 (expected)", D(2027, 5, 16), "Eid al-Adha is tentatively expected on Sunday, May 16, 2027 (10 Dhu al-Hijjah 1448) in the Umm al-Qura and Tunisia calendars. Local moon sighting may shift the date by one day."),
  ("1111-portal-2026", "The 11/11 Portal 2026", D(2026, 11, 11), "November 11 — 11/11 — is the internet's favorite manifestation day: a numerological 'gateway' beloved by angel-number communities, and in 2026 it opens with both Venus and Mercury retrograde, stationing direct within 48 hours after it. Full analysis on <a href=\"https://prophetic.pw/blog/1111-portal-2026/\" target=\"_blank\" rel=\"noopener\">Prophetic's 11/11 portal guide</a>."),
  ("leap-day-2028", "Leap Day 2028", D(2028, 2, 29), "February 29 — the day that only exists every four years. Leap years keep the calendar aligned with Earth's 365.2422-day orbit. Leaplings (people born on Feb 29) get a real birthday at last; everyone else gets an extra day of Q1."),
 ]
@@ -267,6 +267,12 @@ for e in EV:
         e['seo_title'] = "LA28 Olympic Closing Ceremony 2028: Date & Time"
         e['seo_h1'] = "When Is the LA28 Olympic Closing Ceremony?"
         e['meta_desc'] = "The LA28 Olympic Closing Ceremony is scheduled for Sunday, July 30, 2028 at 6 p.m. Pacific at the LA Memorial Coliseum. Live countdown; schedule may change."
+    elif e['slug'] == 'eid-al-adha-2027':
+        e['facts'] = [["Expected date", "Sunday, May 16, 2027"], ["Hijri date", "10 Dhu al-Hijjah 1448"], ["Day of Arafah", "Saturday, May 15, 2027"], ["Date status", "Tentative; local moon sighting may shift by one day"]]
+        e['tagline'] = "Sunday, May 16, 2027 · 10 Dhu al-Hijjah 1448"
+        e['seo_title'] = "Eid al-Adha 2027: Date, Day & Countdown"
+        e['seo_h1'] = "When Is Eid al-Adha 2027?"
+        e['meta_desc'] = "Eid al-Adha 2027 is tentatively expected on Sunday, May 16. See the countdown, Day of Arafah and why local moon sighting can shift the date."
 
 os.makedirs(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data'), exist_ok=True)
 json.dump(EV, open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'fixed_events.json'), 'w'), indent=1)

@@ -2735,22 +2735,33 @@
     "title": "Eid al-Adha 2027 (expected)",
     "category": "holidays",
     "kind": "date",
-    "date": "2027-05-17",
+    "date": "2027-05-16",
     "desc": [
-      "Eid al-Adha 2027 (expected) falls on Monday, May 17, 2027. The festival of sacrifice, honoring Abraham's willingness to sacrifice his son: Qurbani (animal sacrifice), charity to the poor, and family gatherings. Exact date depends on moon sighting.",
-      "The live counter above ticks down to the day in your time zone."
+      "Eid al-Adha 2027 is tentatively expected on Sunday, May 16, 2027 (10 Dhu al-Hijjah 1448) in the Umm al-Qura and Tunisia calendars. Local moon sighting can move the observance by one day.",
+      "The countdown uses May 16 as the current planning date. Check the official announcement in your country closer to the festival."
     ],
     "facts": [
       [
-        "Date",
-        "Monday, May 17, 2027"
+        "Expected date",
+        "Sunday, May 16, 2027"
       ],
       [
-        "Category",
-        "Cultural observance"
+        "Hijri date",
+        "10 Dhu al-Hijjah 1448"
+      ],
+      [
+        "Day of Arafah",
+        "Saturday, May 15, 2027"
+      ],
+      [
+        "Date status",
+        "Tentative; local moon sighting may shift by one day"
       ]
     ],
-    "tagline": "May 17, 2027"
+    "tagline": "Sunday, May 16, 2027 · 10 Dhu al-Hijjah 1448",
+    "seo_title": "Eid al-Adha 2027: Date, Day & Countdown",
+    "seo_h1": "When Is Eid al-Adha 2027?",
+    "meta_desc": "Eid al-Adha 2027 is tentatively expected on Sunday, May 16. See the countdown, Day of Arafah and why local moon sighting can shift the date."
   },
   {
     "slug": "1111-portal-2026",
