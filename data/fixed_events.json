@@ -2650,22 +2650,26 @@
     "title": "Diwali 2027",
     "category": "holidays",
     "kind": "date",
-    "date": "2027-10-28",
+    "date": "2027-10-29",
     "desc": [
-      "Diwali 2027 falls on Thursday, October 28, 2027. The festival of lights returns: five days of diyas, rangoli and family feasts marking the triumph of light over darkness.",
-      "The live counter above ticks down to the day in your time zone."
+      "Diwali 2027 is listed for Friday, October 29, 2027 in the New Delhi Lakshmi Puja calendar. Regional observance can vary with local panchang and tradition.",
+      "The live counter above ticks down to the selected calendar date in your time zone."
     ],
     "facts": [
       [
         "Date",
-        "Thursday, October 28, 2027"
+        "Friday, October 29, 2027"
       ],
       [
         "Category",
         "Cultural observance"
+      ],
+      [
+        "Date note",
+        "Check your local panchang for regional observance"
       ]
     ],
-    "tagline": "October 28, 2027"
+    "tagline": "Friday, October 29, 2027"
   },
   {
     "slug": "ramadan-2027",
@@ -3783,8 +3787,8 @@
     "kind": "date",
     "date": "2029-12-21",
     "desc": [
-      "James Cameron's next chapter of Pandora, currently scheduled for December 21, 2029 — because Cameron plans in decades, not release windows.",
-      "The longest-range countdown on this site. The live counter above runs to the release/event date worldwide (local time zones may shift availability by hours)."
+      "Avatar 4 is currently listed for December 21, 2029 on the official Avatar franchise site. Studio release dates can change, so treat this as the latest published schedule rather than a guarantee.",
+      "Check official announcements for production and trailer updates; this page counts down to the currently listed date."
     ],
     "facts": [
       [
@@ -3792,8 +3796,12 @@
         "Friday, December 21, 2029"
       ],
       [
-        "Days away",
-        "Live counter above"
+        "Source",
+        "Official Avatar franchise release schedule"
+      ],
+      [
+        "Status",
+        "Scheduled; subject to change"
       ]
     ],
     "tagline": "Friday, December 21, 2029"
