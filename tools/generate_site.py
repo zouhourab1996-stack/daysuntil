@@ -318,9 +318,10 @@ def event_page(e):
     ld = json.dumps({'@context': 'https://schema.org', '@type': 'FAQPage',
                      'mainEntity': [{'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': a}} for q, a in faq]})
     ld_crumb = breadcrumb_ld([('Home', SITE + '/'), (CATS[cat]['name'], f'{SITE}/{cat}/'), (e['title'], f'{SITE}/{slug}/')])
-    event_ld = json.dumps({'@context': 'https://schema.org', '@type': 'Event', 'name': e['title'], 'startDate': e.get('utc') or e.get('date') or d.strftime('%Y-%m-%d'), 'description': ' '.join(e.get('desc') or [])[:900], 'url': SITE + '/' + slug + '/', 'mainEntityOfPage': SITE + '/' + slug + '/', 'organizer': {'@type': 'Organization', 'name': BRAND, 'url': SITE + '/'}})
-    ld_block = ('<script type="application/ld+json">' + event_ld + '</script>\n'
-                '<script type="application/ld+json">' + ld + '</script>\n'
+    # FAQ and breadcrumb markup match the visible page content. These are evergreen
+    # countdown/reference pages, not venue-based event listings, so avoid incomplete
+    # Event rich-result markup that would require a real event location.
+    ld_block = ('<script type="application/ld+json">' + ld + '</script>\n'
                 '<script type="application/ld+json">' + ld_crumb + '</script>')
 
     cfg = json.dumps({'kind': e['kind'], 'y': d.year, 'm': d.month, 'd': d.day,
