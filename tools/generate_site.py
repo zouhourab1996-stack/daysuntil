@@ -247,18 +247,14 @@ def _trim_words(s, limit):
 
 def fit_title(ev, dd):
     base = ev['title']
-    if dd == 0:
-        cands = [f"How Many Days Until {base}? It's Today",
-                 f"{base}: It's Today", f"Days Until {base}"]
-    elif dd > 0:
-        cands = [f"How Many Days Until {base}? {dd} Day{'' if dd == 1 else 's'} Left",
-                 f"How Many Days Until {base}?",
-                 f"Days Until {base} — {dd} Days",
-                 f"Days Until {base}"]
-    else:
+    if dd >= 0:
         cands = [f"How Many Days Until {base}? Live Countdown",
-                 f"How Many Days Until {base}?",
-                 f"Days Until {base}"]
+                 f"Days Until {base} | Live Countdown",
+                 f"Countdown to {base}"]
+    else:
+        cands = [f"When Was {base}? Date & Details",
+                 f"{base}: Date & Details",
+                 f"{base} — Exact Date"]
     for c in cands:
         if len(c) <= TITLE_MAX: return c
     return _trim_words(cands[-1], TITLE_MAX)
@@ -267,22 +263,18 @@ def fit_desc(ev, d, dd):
     nice = date_nice(d)
     if dd > 0:
         cands = [
-            f"Live countdown to {ev['title']} on {nice} — {_pl(dd, 'day')} to go, with weeks, weekdays and hours remaining.",
-            f"{_pl(dd, 'day')} to {ev['title']}, on {nice}. Live countdown in days, hours, minutes and seconds.",
-            f"{_pl(dd, 'day')} until {ev['title']} ({nice}). Live countdown, updated every second.",
-            f"{_pl(dd, 'day')} until {ev['title']} on {nice}. Live countdown, updated every second.",
+            f"Live countdown to {ev['title']} on {nice}. See the exact days, hours, minutes and seconds remaining in your local time zone.",
+            f"How many days until {ev['title']}? Follow the live countdown to {nice}, with the weekday and time remaining.",
         ]
     elif dd == 0:
         cands = [
-            f"{ev['title']} is today, {nice}. Live countdown with the hours, minutes and seconds remaining.",
-            f"{ev['title']} is today ({nice}). Live countdown in hours, minutes and seconds.",
-            f"{ev['title']} is today. Live countdown.",
+            f"{ev['title']} is today, {nice}. Follow the live hours, minutes and seconds countdown in your local time zone.",
+            f"{ev['title']} is today. See the exact time remaining in hours, minutes and seconds.",
         ]
     else:
         cands = [
-            f"{ev['title']} fell on {nice}. See the exact date, the weekday, and how long ago it was.",
-            f"{ev['title']} was on {nice}. Exact date, weekday and time since.",
-            f"{ev['title']} was on {nice} — a {d.strftime('%A')}. Exact date and weekday.",
+            f"{ev['title']} took place on {nice}. Check the exact date, weekday and event details.",
+            f"See when {ev['title']} took place, including its exact date and weekday.",
         ]
     for c in cands:
         if len(c) <= DESC_MAX: return c
@@ -293,9 +285,8 @@ def event_page(e):
     d = e['dt']
     today = dt.date.today()
     dd = (d.date() - today).days
-    # Title/description are fitted to Google's display limits — the live number
-    # still goes in the title for close events (the pattern every top-ranking
-    # countdown competitor uses), but only when it fits inside 60 characters.
+    # Keep title and description evergreen: live day-count snapshots become stale
+    # between deployments. The on-page counter provides the changing number.
     title_tag = e.get('seo_title') or fit_title(e, dd)
     # Custom meta description for high-impression pages (GSC data-driven)
     if e.get("meta_desc"):
