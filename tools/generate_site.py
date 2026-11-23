@@ -206,7 +206,7 @@ def head(title, desc, canonical, ogimg, ld_extra='', path_prefix='..', indexable
 
 def nav_links(pp):
     return ''.join(f'<a href="{pp}/{c}/">{CATS[c]["icon"]} {CATS[c]["name"].split(" &")[0].split(" (")[0]}</a>' for c in
-                   ('holidays', 'eclipses', 'moon', 'planets', 'gaming', 'movies')) + f'<a href="{pp}/about/">ℹ️ About</a>'
+                   ('holidays', 'eclipses', 'moon', 'planets', 'gaming', 'movies')) + f'<a href="{pp}/create-countdown/">⏱ Create countdown</a><a href="{pp}/about/">ℹ️ About</a>'
 
 def footer(pp='..'):
     net = ''.join(f'<a href="{u}" target="_blank" rel="noopener">{n}</a>' for n, u in NETWORK)
@@ -1053,14 +1053,85 @@ def category_page(cat):
 {NATIVE_AD}{AD_LOADER}</main>
 ''' + footer()
 
+def custom_countdown_widget():
+    return '''<section class="custom-tool" aria-labelledby="custom-tool-title">
+  <div class="tool-heading"><span class="tool-kicker">YOUR DATE · YOUR TIME ZONE</span>
+    <h2 id="custom-tool-title">Create your own countdown</h2>
+    <p>Choose any date and time — a birthday, trip, exam, launch or personal milestone. Your countdown runs privately in this browser and can be shared with a link.</p>
+  </div>
+  <form id="custom-countdown-form" class="custom-form">
+    <label>What are you counting down to?
+      <input id="custom-event-name" type="text" maxlength="80" placeholder="e.g. My next holiday" required>
+    </label>
+    <div class="custom-fields">
+      <label>Target date<input id="custom-event-date" type="date" required></label>
+      <label>Time (optional)<input id="custom-event-time" type="time"></label>
+    </div>
+    <p class="tool-hint">Leave the time empty to count to midnight at the start of that date in your local time zone.</p>
+    <div class="tool-actions"><button class="tool-primary" type="submit">Start countdown</button><button class="tool-secondary" id="custom-reset" type="reset">Clear</button></div>
+    <p id="custom-error" class="tool-error" role="alert" hidden></p>
+  </form>
+  <div id="custom-countdown-result" class="custom-result" aria-live="polite" hidden>
+    <h3 id="custom-result-title"></h3><p id="custom-result-status" class="cd-status"></p>
+    <div class="custom-clock" aria-label="Live countdown">
+      <div><b id="custom-days">0</b><span>Days</span></div><div><b id="custom-hours">00</b><span>Hours</span></div>
+      <div><b id="custom-minutes">00</b><span>Minutes</span></div><div><b id="custom-seconds">00</b><span>Seconds</span></div>
+    </div>
+    <div class="custom-stats"><span>Total hours <b id="custom-total-hours">0</b></span><span>Weeks <b id="custom-weeks">0</b></span><span>Weekdays <b id="custom-weekdays">0</b></span><span>Weekend days <b id="custom-weekends">0</b></span></div>
+    <p id="custom-timezone" class="tool-hint"></p>
+    <div class="tool-actions"><button type="button" class="tool-primary" id="custom-share">Copy share link</button><button type="button" class="tool-secondary" id="custom-new">Create another</button></div>
+    <p id="custom-share-status" class="tool-hint" role="status"></p>
+  </div>
+</section>'''
+
+
+def custom_countdown_page():
+    ld = json.dumps({'@context': 'https://schema.org', '@type': 'SoftwareApplication',
+                     'name': 'DaysUntil Custom Countdown', 'applicationCategory': 'UtilitiesApplication',
+                     'operatingSystem': 'Any device with a modern web browser',
+                     'url': SITE + '/create-countdown/',
+                     'description': 'A free, private countdown calculator for any date and time. Calculations run locally in the browser.'})
+    return head('Create a Custom Countdown | daysuntil.bond',
+                'Create a free live countdown to any date or time. Calculate days, hours, minutes, weekdays and weeks in your local time zone.',
+                SITE + '/create-countdown/', '/og/home.png',
+                '<script type="application/ld+json">' + ld + '</script>') + nav_links('..') + '''</nav>
+</header>
+<main id="main">
+<nav class="crumbs"><a href="../">Home</a> › <span>Create a countdown</span></nav>
+<h1>Create a countdown to any date</h1>
+<p class="lead">A practical date calculator for the moments that matter to you. No account, no installation and no event database required.</p>
+''' + custom_countdown_widget() + '''
+<article class="prose tool-explainer">
+<h2>How this countdown calculator works</h2>
+<p>Enter a name and target date. If you provide a time, the calculator counts to that exact local date and time. If you leave the time blank, it uses midnight at the beginning of the selected date in your device's time zone. The live display updates once per second.</p>
+<h2>What the numbers mean</h2>
+<ul><li><b>Days, hours, minutes and seconds:</b> the remaining duration, broken into familiar units.</li>
+<li><b>Total hours:</b> the complete duration expressed as hours, including partial days.</li>
+<li><b>Weeks:</b> the remaining duration divided into seven-day periods.</li>
+<li><b>Weekdays and weekend days:</b> calendar dates crossed between now and the target. These are not business days and do not exclude public holidays.</li></ul>
+<h2>Time zones and accuracy</h2>
+<p>The calculator uses the clock and time-zone rules provided by your browser. It does not send the date, event name or calculation to our server. The share link contains the event name, date and optional time in its URL so another person can open the same countdown; the recipient's browser displays it using that device's local time zone. For an event tied to a specific global instant, agree on the intended time zone before sharing.</p>
+<h2>Privacy by design</h2>
+<p>Your custom event is not saved to an account or uploaded to daysuntil.bond. It exists in the page while you use it. Copying a share link is an explicit action, and that link includes only the name and target date/time you entered. Anyone with the link can read those details, so do not include private or sensitive information in an event name.</p>
+<h2>Common questions</h2>
+<div class="faq">
+<details><summary>Can I count down to a past date?</summary><p>Yes. The display changes to an elapsed-time counter and shows how long has passed since the selected date.</p></details>
+<details><summary>Why can two people see different hours?</summary><p>If you choose a local date and time, each browser interprets that time in its own time zone. To coordinate across locations, include the time zone in the event name or agree on a shared reference time.</p></details>
+<details><summary>Does it count public holidays as weekdays?</summary><p>Yes. The weekday figure means Monday through Friday only. It does not know which public holidays apply in your country or workplace.</p></details>
+<details><summary>Is my countdown stored?</summary><p>No. The calculator runs in your browser. A share link can recreate the countdown, but the site does not keep a copy of your custom event.</p></details>
+</div>
+<p>For public dates already in our calendar, browse the <a href="../holidays/">holiday countdowns</a>, <a href="../eclipses/">eclipse dates</a> or <a href="../meteor-showers/">meteor shower schedule</a>.</p>
+</article>
+</main>
+''' + footer('..')
+
+
 def home_page():
     TRENDING = ['avengers-doomsday', 'halloween-2026', 'new-year-2027', 'gta-6-release', 'black-friday-2026', '1111-portal-2026']
     by_slug = {e['slug']: e for e in events}
     trend = ''.join(card_html(by_slug[s]) for s in TRENDING if s in by_slug and by_slug[s]['ms'] > dt.datetime.now(dt.timezone.utc).timestamp() * 1000)
     upcoming = [e for e in events if e['slug'] in INDEXABLE and e['ms'] > dt.datetime.now(dt.timezone.utc).timestamp() * 1000][:12]
     cards = ''.join(card_html(e) for e in upcoming)
-    guides = ''.join(f'<a class="card" href="{sl}/"><span class="card-cat">📚 Guide</span><b>{esc(t)}</b><span class="card-date">{esc(d)}</span></a>'
-                     for sl, t, d in GENERATED_ARTICLES + STATIC_ARTICLES)
     cats = ''.join(f'''<a class="cat-tile" href="{c}/" style="--c1:rgb{CATS[c]['c1']}"><span class="big">{CATS[c]['icon']}</span><b>{CATS[c]['name']}</b><span class="count">{sum(1 for e in events if e["category"]==c)} countdowns</span></a>''' for c in CATS)
     idx = json.dumps([{'s': e['slug'], 't': e['title'], 'c': e['category'], 'n': date_nice(e['dt']), 'm': e['ms']} for e in events])
     ld = json.dumps({'@context': 'https://schema.org', '@type': 'WebSite', 'name': BRAND, 'url': SITE,
@@ -1078,6 +1149,7 @@ def home_page():
   <p class="lead">{len(events)} live countdowns — every tick computed in your time zone, from Christmas and GTA 6 to the eclipse of the century.</p>
   <div class="searchbox"><input id="q" type="search" placeholder="Search an event — try “eclipse”, “Christmas”, “GTA”, “full moon”…" autocomplete="off"><div id="q-results" class="q-results" hidden></div></div>
 </section>
+{custom_countdown_widget()}
 <section class="grid2">
   <div>
     <h2>How our countdowns work</h2>
@@ -1097,8 +1169,6 @@ def home_page():
 <section class="cards">{trend}</section>
 <h2>⏳ Counting down right now</h2>
 <section class="cards">{cards}</section>
-<h2>📚 Guides &amp; explainers</h2>
-<section class="cards">{guides}</section>
 {AD_LB}<h2>🗂 Browse by category</h2>
 <section class="cat-grid">{cats}</section>
 {AD_LOADER}</main>
@@ -1243,6 +1313,7 @@ for cat in CATS:
     open(os.path.join(OUT, cat, 'index.html'), 'w').write(category_page(cat))
     og_image(os.path.join(OUT, 'og', f'cat-{cat}.png'), CATS[cat]['name'], f'{sum(1 for e in events if e["category"]==cat)} live countdowns', cat)
     urls.append(f'{SITE}/{cat}/')
+urls.append(f'{SITE}/create-countdown/')
 
 for e in events:
     os.makedirs(os.path.join(OUT, e['slug']), exist_ok=True)
@@ -1261,6 +1332,8 @@ for e in events:
              e['dt'].strftime('%b %-d, %Y') + (' · %d UTC' % e['dt'].hour if e['kind'] == 'datetime' else ''), e['category'])
 
 open(os.path.join(OUT, 'index.html'), 'w').write(home_page())
+os.makedirs(os.path.join(OUT, 'create-countdown'), exist_ok=True)
+open(os.path.join(OUT, 'create-countdown', 'index.html'), 'w').write(custom_countdown_page())
 og_image(os.path.join(OUT, 'og', 'home.png'), 'How Many Days Until…?', f'{len(events)} live countdowns', 'planets', salt='home')
 
 # Generated article: days left in 2026 (see tools/articles.py)
