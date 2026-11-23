@@ -303,11 +303,9 @@ def event_page(e):
     else:
         desc = fit_desc(e, d, dd)
     if dd >= 0:
-        wk, rd = divmod(dd, 7)
-        wdays = sum(1 for i in range(1, dd + 1) if (today + dt.timedelta(days=i)).weekday() < 5)
-        glance = (f'As of {today.strftime("%B")} {today.day}, {today.year}: <b>{dd} days</b> to go — '
-                  f'{wk} weeks and {rd} days, {wdays} weekdays ({dd - wdays} weekend days), about {dd * 24:,} hours.')
-        glance_html = f'<p class="cd-status">{glance}</p>'
+        # The live countdown already exposes days, weeks and weekdays. Avoid embedding a
+        # build-date snapshot here: it becomes stale between deployments.
+        glance_html = '<p class="cd-status">The live counter above updates every second in your local time zone. The date and weekday are shown in the event details.</p>'
     else:
         glance_html = ''
     faq = e.get('faq') or [
