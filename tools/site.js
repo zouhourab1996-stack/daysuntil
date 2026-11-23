@@ -112,7 +112,8 @@
       byId('custom-total-hours').textContent = fmtInt(Math.floor(abs / 3600000));
       byId('custom-weeks').textContent = (abs / DAY / 7).toFixed(1);
       var weekdays = customWeekdays(now, customTarget);
-      var calendarDays = Math.ceil(abs / DAY);
+      var fromDate = new Date(now), toDate = new Date(customTarget);
+      var calendarDays = Math.abs(Math.round((Date.UTC(toDate.getFullYear(), toDate.getMonth(), toDate.getDate()) - Date.UTC(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate())) / DAY));
       byId('custom-weekdays').textContent = fmtInt(weekdays);
       byId('custom-weekends').textContent = fmtInt(Math.max(0, calendarDays - weekdays));
       var title = nameInput.value.trim() || 'Your event';
