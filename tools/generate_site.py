@@ -1122,6 +1122,7 @@ def custom_countdown_page():
 </div>
 <p>For public dates already in our calendar, browse the <a href="../holidays/">holiday countdowns</a>, <a href="../eclipses/">eclipse dates</a> or <a href="../meteor-showers/">meteor shower schedule</a>.</p>
 </article>
+<script src="../assets/site.js" defer></script>
 </main>
 ''' + footer('..')
 
