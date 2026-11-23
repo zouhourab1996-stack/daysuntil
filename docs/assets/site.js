@@ -147,19 +147,12 @@
     customForm.addEventListener('submit', function (event) {
       event.preventDefault();
       if (!startCustomCountdown()) return;
-      var url = new URL(location.href);
-      url.searchParams.set('event', nameInput.value.trim());
-      url.searchParams.set('date', dateInput.value);
-      if (timeInput.value) url.searchParams.set('time', timeInput.value);
-      else url.searchParams.delete('time');
-      history.replaceState({}, '', url.pathname + url.search + url.hash);
     });
     byId('custom-share').addEventListener('click', function () {
       var url = new URL(location.href);
-      url.searchParams.set('event', nameInput.value.trim());
-      url.searchParams.set('date', dateInput.value);
-      if (timeInput.value) url.searchParams.set('time', timeInput.value);
-      else url.searchParams.delete('time');
+      var shareData = new URLSearchParams({event:nameInput.value.trim(), date:dateInput.value});
+      if (timeInput.value) shareData.set('time', timeInput.value);
+      url.hash = shareData.toString();
       var text = url.toString(), button = byId('custom-share'), status = byId('custom-share-status');
       function done() { button.textContent = 'Link copied'; status.textContent = 'Anyone with this link can open the same countdown.'; setTimeout(function(){button.textContent='Copy share link';},1800); }
       if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -170,9 +163,7 @@
       if (customTimer) clearInterval(customTimer);
       customTimer = null; customTarget = null; resultBox.hidden = true;
       byId('custom-error').hidden = true; byId('custom-share-status').textContent = '';
-      var url = new URL(location.href);
-      ['event','date','time'].forEach(function(k){url.searchParams.delete(k);});
-      history.replaceState({}, '', url.pathname + url.search + url.hash);
+      history.replaceState({}, '', location.pathname + location.search);
     }
     byId('custom-new').addEventListener('click', function () {
       customForm.reset(); resetCustom(); nameInput.focus();
@@ -181,7 +172,7 @@
       setTimeout(function(){ resetCustom(); }, 0);
     });
     // A shared URL restores the event locally; no account or server storage is used.
-    var params = new URLSearchParams(location.search);
+    var params = new URLSearchParams(location.hash.slice(1));
     if (params.has('event') && params.has('date')) {
       nameInput.value = params.get('event') || '';
       dateInput.value = params.get('date') || '';
