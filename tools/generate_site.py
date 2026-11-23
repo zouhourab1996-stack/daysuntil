@@ -1110,9 +1110,9 @@ def custom_countdown_page():
 <li><b>Weeks:</b> the remaining duration divided into seven-day periods.</li>
 <li><b>Weekdays and weekend days:</b> calendar dates crossed between now and the target. These are not business days and do not exclude public holidays.</li></ul>
 <h2>Time zones and accuracy</h2>
-<p>The calculator uses the clock and time-zone rules provided by your browser. It does not send the date, event name or calculation to our server. The share link contains the event name, date and optional time in its URL so another person can open the same countdown; the recipient's browser displays it using that device's local time zone. For an event tied to a specific global instant, agree on the intended time zone before sharing.</p>
+<p>The calculator uses the clock and time-zone rules provided by your browser. The calculation runs locally and no form submission or account is involved. When you choose to share, the event name, date and optional time are placed after the # in the link. Browsers do not send that fragment in the page request; the receiving browser reads it locally and recreates the countdown. For an event tied to a specific global instant, agree on the intended time zone before sharing.</p>
 <h2>Privacy by design</h2>
-<p>Your custom event is not saved to an account or uploaded to daysuntil.bond. It exists in the page while you use it. Copying a share link is an explicit action, and that link includes only the name and target date/time you entered. Anyone with the link can read those details, so do not include private or sensitive information in an event name.</p>
+<p>Your custom event is not stored in an account or sent to a countdown API. A share link includes the name and target date/time you entered, and anyone with the link can read those details. Do not include private or sensitive information in an event name. Hosting and analytics providers may still process ordinary visit information as described in our <a href="../privacy/">Privacy Policy</a>.</p>
 <h2>Common questions</h2>
 <div class="faq">
 <details><summary>Can I count down to a past date?</summary><p>Yes. The display changes to an elapsed-time counter and shows how long has passed since the selected date.</p></details>
