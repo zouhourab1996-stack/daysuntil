@@ -183,6 +183,8 @@ def head(title, desc, canonical, ogimg, ld_extra='', path_prefix='..', indexable
 <head>{ads_script}
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b1020">
+<meta name="color-scheme" content="dark">
 <title>{esc(title)}</title>
 <meta name="description" content="{esc(desc)}">
 <link rel="canonical" href="{canonical}">
@@ -316,7 +318,9 @@ def event_page(e):
     ld = json.dumps({'@context': 'https://schema.org', '@type': 'FAQPage',
                      'mainEntity': [{'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': a}} for q, a in faq]})
     ld_crumb = breadcrumb_ld([('Home', SITE + '/'), (CATS[cat]['name'], f'{SITE}/{cat}/'), (e['title'], f'{SITE}/{slug}/')])
-    ld_block = ('<script type="application/ld+json">' + ld + '</script>\n'
+    event_ld = json.dumps({'@context': 'https://schema.org', '@type': 'Event', 'name': e['title'], 'startDate': e.get('utc') or e.get('date') or d.strftime('%Y-%m-%d'), 'description': ' '.join(e.get('desc') or [])[:900], 'url': SITE + '/' + slug + '/', 'mainEntityOfPage': SITE + '/' + slug + '/', 'organizer': {'@type': 'Organization', 'name': BRAND, 'url': SITE + '/'}})
+    ld_block = ('<script type="application/ld+json">' + event_ld + '</script>\n'
+                '<script type="application/ld+json">' + ld + '</script>\n'
                 '<script type="application/ld+json">' + ld_crumb + '</script>')
 
     cfg = json.dumps({'kind': e['kind'], 'y': d.year, 'm': d.month, 'd': d.day,
@@ -372,7 +376,7 @@ def event_page(e):
     <span class="chip">🗓️ <b id="ch-months">–</b> months (approx)</span>
   </div>
 </section>
-{AD_LB}<figure class="hero-img"><img src="../og/{slug}.png" alt="{esc(e['title'])} — countdown card" loading="lazy" width="1200" height="630"></figure>
+{AD_LB}<figure class="hero-img"><img src="../og/{slug}.png" alt="{esc(e['title'])} countdown preview" loading="eager" fetchpriority="high" decoding="async" width="1200" height="630"></figure>
 {NATIVE_AD}
 <section class="grid2">
   <div>
@@ -1128,26 +1132,31 @@ def custom_countdown_page():
 
 
 def home_page():
-    TRENDING = ['avengers-doomsday', 'halloween-2026', 'new-year-2027', 'gta-6-release', 'black-friday-2026', '1111-portal-2026']
+    TRENDING = ['black-friday-2026', 'christmas-day-2026', 'avengers-doomsday', 'dune-part-three', 'new-year-2027', 'ramadan-2027']
     by_slug = {e['slug']: e for e in events}
     trend = ''.join(card_html(by_slug[s]) for s in TRENDING if s in by_slug and by_slug[s]['ms'] > dt.datetime.now(dt.timezone.utc).timestamp() * 1000)
     upcoming = [e for e in events if e['slug'] in INDEXABLE and e['ms'] > dt.datetime.now(dt.timezone.utc).timestamp() * 1000][:12]
     cards = ''.join(card_html(e) for e in upcoming)
     cats = ''.join(f'''<a class="cat-tile" href="{c}/" style="--c1:rgb{CATS[c]['c1']}"><span class="big">{CATS[c]['icon']}</span><b>{CATS[c]['name']}</b><span class="count">{sum(1 for e in events if e["category"]==c)} countdowns</span></a>''' for c in CATS)
     idx = json.dumps([{'s': e['slug'], 't': e['title'], 'c': e['category'], 'n': date_nice(e['dt']), 'm': e['ms']} for e in events])
-    ld = json.dumps({'@context': 'https://schema.org', '@type': 'WebSite', 'name': BRAND, 'url': SITE,
-                     'description': 'Live countdowns to holidays, eclipses, moon phases, planetary stations, game launches, movies and sporting events.',
-                     'publisher': {'@id': SITE + '/#organization'},
-                     'potentialAction': {'@type': 'SearchAction', 'target': {'@type': 'EntryPoint', 'urlTemplate': SITE + '/?q={search_term_string}'}, 'query-input': 'required name=search_term_string'}})
-    return head(_trim_words(f'{BRAND} — Live Countdowns to Every Event', TITLE_MAX),
-                _trim_words('How many days until Christmas, GTA 6, the next solar eclipse or the next full moon? Live countdowns in days, hours, minutes and seconds to {n} verified dates.'.replace('{n}', str(len(events))), DESC_MAX),
+    ld = json.dumps({'@context': 'https://schema.org', '@graph': [
+        {'@type': 'WebSite', '@id': SITE + '/#website', 'name': BRAND, 'url': SITE + '/',
+         'description': 'Free live countdowns to holidays, astronomical events, launches and important dates, calculated in your local time zone.',
+         'publisher': {'@id': SITE + '/#organization'}},
+        {'@type': 'WebApplication', '@id': SITE + '/#countdown-tool', 'name': 'DaysUntil Live Countdown',
+         'applicationCategory': 'UtilitiesApplication', 'operatingSystem': 'Any device with a modern web browser',
+         'url': SITE + '/', 'isAccessibleForFree': True, 'browserRequirements': 'JavaScript enabled',
+         'description': 'Search public event countdowns or create a private custom countdown in your browser.'}
+    ]})
+    return head(_trim_words('Days Until | Live Countdown to Holidays, Events & Dates', TITLE_MAX),
+                _trim_words(f'Find how many days until holidays, movie and game releases, eclipses, moon phases and more. Free live countdowns update every second in your local time zone across {len(events)} event dates.', DESC_MAX),
                 SITE + '/', '/og/home.png', '<script type="application/ld+json">' + ld + '</script>', '') + f'''{nav_links("")}
 </nav>
 </header>
 <main id="main">
 <section class="home-hero">
   <h1>How many days until…?</h1>
-  <p class="lead">{len(events)} live countdowns — every tick computed in your time zone, from Christmas and GTA 6 to the eclipse of the century.</p>
+  <p class="lead">Free, accurate countdowns to holidays, movie and game releases, eclipses, moon phases and major dates — updated every second in your local time zone.</p>
   <div class="searchbox"><input id="q" type="search" placeholder="Search an event — try “eclipse”, “Christmas”, “GTA”, “full moon”…" autocomplete="off"><div id="q-results" class="q-results" hidden></div></div>
 </section>
 {custom_countdown_widget()}
@@ -1161,7 +1170,7 @@ def home_page():
   </div>
   <aside>
     <h2>What's on the calendar</h2>
-    <p><b>267 dates</b> across nine categories. Holidays and observances through 2028; every full and new moon with its peak time; every solar and lunar eclipse from late 2026 through 2028 — including the eclipse of the century on August 2, 2027; every retrograde and direct station of all eight planets; the major annual meteor showers; solstices and equinoxes to the minute; and the big game launches, film releases and sporting dates.</p>
+    <p><b>{len(events)} dates</b> across nine categories. Holidays and observances through 2028; every full and new moon with its peak time; every solar and lunar eclipse from late 2026 through 2028 — including the eclipse of the century on August 2, 2027; every retrograde and direct station of all eight planets; the major annual meteor showers; solstices and equinoxes to the minute; and the big game launches, film releases and sporting dates.</p>
     <p>The astronomy is computed with our own Keplerian ephemeris rather than copied from another site, which is why our times occasionally differ from theirs by a few minutes. Where a date depends on observation rather than calculation — a moon sighting, an announced release date — the page says so explicitly instead of presenting an estimate as fact.</p>
     <p><a class="cta" href="about/">How we compute the dates →</a></p>
   </aside>
@@ -1249,7 +1258,7 @@ def info_page(key):
     ld = breadcrumb_ld([('Home', SITE + '/'), (title, f'{SITE}/{key}/')])
     return head(f'{title} | {BRAND}', f'{title} — {BRAND}: live countdowns to the events the world is waiting for.',
                 f'{SITE}/{key}/', '/og/home.png', '<script type="application/ld+json">' + ld + '</script>',
-                indexable=key not in ('contact', 'terms')) + nav_links('..') + f'''</nav>
+                indexable=(key == 'about')) + nav_links('..') + f'''</nav>
 </header>
 <main id="main"><article class="prose">
 {body}
@@ -1301,9 +1310,9 @@ open(os.path.join(OUT, '.nojekyll'), 'w').write('')
 open(os.path.join(OUT, INDEXNOW_KEY + '.txt'), 'w').write(INDEXNOW_KEY)
 open(os.path.join(OUT, 'robots.txt'), 'w').write(f'User-agent: *\nAllow: /\nSitemap: {SITE}/sitemap.xml\n')
 
-# Contact and terms remain accessible in the footer but are noindex utility/legal pages,
-# so they are deliberately omitted from the indexable sitemap.
-urls = [SITE + '/', SITE + '/about/', SITE + '/privacy/', SITE + '/disclosure/']
+# Keep the genuinely useful About page indexable. Privacy, disclosure, contact and terms
+# remain accessible from the footer but are noindex utility/legal pages.
+urls = [SITE + '/', SITE + '/about/']
 for key in ('about', 'contact', 'privacy', 'terms', 'disclosure'):
     os.makedirs(os.path.join(OUT, key), exist_ok=True)
     open(os.path.join(OUT, key, 'index.html'), 'w').write(info_page(key))
@@ -1357,7 +1366,8 @@ sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sit
 seen = set()
 urls = [u for u in urls if not (u in seen or seen.add(u))]
 for u in urls:
-    sitemap += f'<url><loc>{u}</loc><lastmod>{today}</lastmod><changefreq>daily</changefreq><priority>{"1.0" if u.endswith("/") and u.count("/") < 4 else "0.8"}</priority></url>\n'
+    priority = '1.0' if u == SITE + '/' else ('0.8' if u.endswith('/create-countdown/') else ('0.7' if u.count('/') == 4 else '0.5'))
+    sitemap += f'<url><loc>{u}</loc><lastmod>{today}</lastmod><priority>{priority}</priority></url>\n'
 sitemap += '</urlset>\n'
 open(os.path.join(OUT, 'sitemap.xml'), 'w').write(sitemap)
 
