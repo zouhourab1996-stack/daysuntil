@@ -204,11 +204,11 @@ def head(title, desc, canonical, ogimg, ld_extra='', path_prefix='..', indexable
 <a class="skip" href="#main">Skip to content</a>
 <header class="top">
   <a class="logo" href="{path_prefix}/"><svg class="logo-mark" width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="17" r="10.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M16 10v7l5 3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M16 2v3M4.5 6.5l2 2M27.5 6.5l-2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> daysuntil<b>.bond</b></a>
-  <nav class="nav">'''
+  <nav class="nav" aria-label="Primary navigation">'''
 
 def nav_links(pp):
     return ''.join(f'<a href="{pp}/{c}/">{CATS[c]["icon"]} {CATS[c]["name"].split(" &")[0].split(" (")[0]}</a>' for c in
-                   ('holidays', 'eclipses', 'moon', 'planets', 'gaming', 'movies')) + f'<a href="{pp}/create-countdown/">⏱ Create countdown</a><a href="{pp}/about/">ℹ️ About</a>'
+                   ('holidays', 'eclipses', 'moon', 'planets', 'meteor-showers', 'seasons', 'gaming', 'movies', 'sports')) + f'<a href="{pp}/create-countdown/">⏱ Create countdown</a><a href="{pp}/about/">ℹ️ About</a>'
 
 def footer(pp='..'):
     net = ''.join(f'<a href="{u}" target="_blank" rel="noopener">{n}</a>' for n, u in NETWORK)
@@ -1157,7 +1157,7 @@ def home_page():
 <section class="home-hero">
   <h1>How many days until…?</h1>
   <p class="lead">Free, accurate countdowns to holidays, movie and game releases, eclipses, moon phases and major dates — updated every second in your local time zone.</p>
-  <div class="searchbox"><input id="q" type="search" placeholder="Search an event — try “eclipse”, “Christmas”, “GTA”, “full moon”…" autocomplete="off"><div id="q-results" class="q-results" hidden></div></div>
+  <div class="searchbox"><input id="q" type="search" aria-label="Search countdowns by event name or category" placeholder="Search an event — try “eclipse”, “Christmas”, “GTA”, “full moon”…" autocomplete="off"><div id="q-results" class="q-results" hidden></div></div>
 </section>
 {custom_countdown_widget()}
 <section class="grid2">
