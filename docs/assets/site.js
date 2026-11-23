@@ -82,4 +82,112 @@
       run(); setTimeout(function () { res.hidden = false; }, 100);
     }
   }
+  // ---------------- custom, private countdown tool ----------------
+  var customForm = document.getElementById('custom-countdown-form');
+  if (customForm) {
+    var byId = function (id) { return document.getElementById(id); };
+    var customTarget = null, customTimer = null;
+    var nameInput = byId('custom-event-name'), dateInput = byId('custom-event-date'),
+        timeInput = byId('custom-event-time'), resultBox = byId('custom-countdown-result');
+    function customWeekdays(a, b) {
+      var start = new Date(a), end = new Date(b), count = 0;
+      start.setHours(0, 0, 0, 0); end.setHours(0, 0, 0, 0);
+      if (start > end) { var swap = start; start = end; end = swap; }
+      while (start < end) {
+        start.setDate(start.getDate() + 1);
+        var day = start.getDay();
+        if (day !== 0 && day !== 6) count++;
+      }
+      return count;
+    }
+    function updateCustomCountdown() {
+      if (customTarget === null) return;
+      var now = Date.now(), diff = customTarget - now, past = diff < 0, abs = Math.abs(diff);
+      var days = Math.floor(abs / DAY), hours = Math.floor(abs % DAY / 3600000);
+      var minutes = Math.floor(abs % 3600000 / 60000), seconds = Math.floor(abs % 60000 / 1000);
+      byId('custom-days').textContent = fmtInt(days);
+      byId('custom-hours').textContent = String(hours).padStart(2, '0');
+      byId('custom-minutes').textContent = String(minutes).padStart(2, '0');
+      byId('custom-seconds').textContent = String(seconds).padStart(2, '0');
+      byId('custom-total-hours').textContent = fmtInt(Math.floor(abs / 3600000));
+      byId('custom-weeks').textContent = (abs / DAY / 7).toFixed(1);
+      var weekdays = customWeekdays(now, customTarget);
+      var fromDate = new Date(now), toDate = new Date(customTarget);
+      var calendarDays = Math.abs(Math.round((Date.UTC(toDate.getFullYear(), toDate.getMonth(), toDate.getDate()) - Date.UTC(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate())) / DAY));
+      byId('custom-weekdays').textContent = fmtInt(weekdays);
+      byId('custom-weekends').textContent = fmtInt(Math.max(0, calendarDays - weekdays));
+      var title = nameInput.value.trim() || 'Your event';
+      byId('custom-result-title').textContent = title;
+      var dateText = new Date(customTarget).toLocaleString(undefined, {dateStyle:'full', timeStyle:'short'});
+      byId('custom-result-status').textContent = past
+        ? title + ' was set for ' + dateText + '. Time elapsed: ' + fmtInt(days) + ' day(s).'
+        : title + ' is scheduled for ' + dateText + '. Time remaining: ' + fmtInt(days) + ' day(s).';
+      byId('custom-timezone').textContent = 'Displayed in ' + (Intl.DateTimeFormat().resolvedOptions().timeZone || 'your device time zone') + '. Calculated locally in this browser.';
+    }
+    function startCustomCountdown() {
+      var title = nameInput.value.trim(), date = dateInput.value, time = timeInput.value;
+      var error = byId('custom-error');
+      error.hidden = true;
+      if (!title || !date) {
+        error.textContent = 'Enter an event name and choose a target date.';
+        error.hidden = false; return false;
+      }
+      var parsed = new Date(date + 'T' + (time || '00:00'));
+      if (Number.isNaN(parsed.getTime())) {
+        error.textContent = 'That date or time could not be read. Please choose it again.';
+        error.hidden = false; return false;
+      }
+      customTarget = parsed.getTime();
+      resultBox.hidden = false;
+      updateCustomCountdown();
+      if (customTimer) clearInterval(customTimer);
+      customTimer = setInterval(updateCustomCountdown, 1000);
+      return true;
+    }
+    customForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+      if (!startCustomCountdown()) return;
+      var url = new URL(location.href);
+      url.searchParams.set('event', nameInput.value.trim());
+      url.searchParams.set('date', dateInput.value);
+      if (timeInput.value) url.searchParams.set('time', timeInput.value);
+      else url.searchParams.delete('time');
+      history.replaceState({}, '', url.pathname + url.search + url.hash);
+    });
+    byId('custom-share').addEventListener('click', function () {
+      var url = new URL(location.href);
+      url.searchParams.set('event', nameInput.value.trim());
+      url.searchParams.set('date', dateInput.value);
+      if (timeInput.value) url.searchParams.set('time', timeInput.value);
+      else url.searchParams.delete('time');
+      var text = url.toString(), button = byId('custom-share'), status = byId('custom-share-status');
+      function done() { button.textContent = 'Link copied'; status.textContent = 'Anyone with this link can open the same countdown.'; setTimeout(function(){button.textContent='Copy share link';},1800); }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(function(){ window.prompt('Copy this countdown link:', text); });
+      } else { window.prompt('Copy this countdown link:', text); }
+    });
+    function resetCustom() {
+      if (customTimer) clearInterval(customTimer);
+      customTimer = null; customTarget = null; resultBox.hidden = true;
+      byId('custom-error').hidden = true; byId('custom-share-status').textContent = '';
+      var url = new URL(location.href);
+      ['event','date','time'].forEach(function(k){url.searchParams.delete(k);});
+      history.replaceState({}, '', url.pathname + url.search + url.hash);
+    }
+    byId('custom-new').addEventListener('click', function () {
+      customForm.reset(); resetCustom(); nameInput.focus();
+    });
+    customForm.addEventListener('reset', function () {
+      setTimeout(function(){ resetCustom(); }, 0);
+    });
+    // A shared URL restores the event locally; no account or server storage is used.
+    var params = new URLSearchParams(location.search);
+    if (params.has('event') && params.has('date')) {
+      nameInput.value = params.get('event') || '';
+      dateInput.value = params.get('date') || '';
+      timeInput.value = params.get('time') || '';
+      startCustomCountdown();
+    }
+  }
+
 })();

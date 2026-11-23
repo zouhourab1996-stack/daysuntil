@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3898992716389443" crossorigin="anonymous"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create a Custom Countdown | daysuntil.bond</title>
+<meta name="description" content="Create a free live countdown to any date or time. Calculate days, hours, minutes, weekdays and weeks in your local time zone.">
+<link rel="canonical" href="https://daysuntil.bond/create-countdown/">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
+<meta property="og:type" content="website"><meta property="og:site_name" content="daysuntil.bond">
+<meta property="og:title" content="Create a Custom Countdown | daysuntil.bond"><meta property="og:description" content="Create a free live countdown to any date or time. Calculate days, hours, minutes, weekdays and weeks in your local time zone.">
+<meta property="og:url" content="https://daysuntil.bond/create-countdown/"><meta property="og:image" content="https://daysuntil.bond/og/home.png">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:site" content="@daysuntilbond">
+<meta name="twitter:title" content="Create a Custom Countdown | daysuntil.bond"><meta name="twitter:description" content="Create a free live countdown to any date or time. Calculate days, hours, minutes, weekdays and weeks in your local time zone.">
+<meta name="twitter:image" content="https://daysuntil.bond/og/home.png">
+<link rel="icon" href="../favicon.svg?v=20261122-brand" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css?v=20261122-brand">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1W7PC1JDKH"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-1W7PC1JDKH');</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "@id": "https://daysuntil.bond/#organization", "name": "daysuntil.bond", "url": "https://daysuntil.bond/", "logo": {"@type": "ImageObject", "url": "https://daysuntil.bond/og/home.png"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "DaysUntil Custom Countdown", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Any device with a modern web browser", "url": "https://daysuntil.bond/create-countdown/", "description": "A free, private countdown calculator for any date and time. Calculations run locally in the browser."}</script></head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <a class="logo" href="../"><svg class="logo-mark" width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="17" r="10.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M16 10v7l5 3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M16 2v3M4.5 6.5l2 2M27.5 6.5l-2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> daysuntil<b>.bond</b></a>
+  <nav class="nav"><a href="../holidays/">🎉 Holidays</a><a href="../eclipses/">🌘 Eclipses</a><a href="../moon/">🌕 Moon Phases</a><a href="../planets/">🪐 Planetary Stations</a><a href="../gaming/">🎮 Games</a><a href="../movies/">🎬 Movies</a><a href="../create-countdown/">⏱ Create countdown</a><a href="../about/">ℹ️ About</a></nav>
+</header>
+<main id="main">
+<nav class="crumbs"><a href="../">Home</a> › <span>Create a countdown</span></nav>
+<h1>Create a countdown to any date</h1>
+<p class="lead">A practical date calculator for the moments that matter to you. No account, no installation and no event database required.</p>
+<section class="custom-tool" aria-labelledby="custom-tool-title">
+  <div class="tool-heading"><span class="tool-kicker">YOUR DATE · YOUR TIME ZONE</span>
+    <h2 id="custom-tool-title">Create your own countdown</h2>
+    <p>Choose any date and time — a birthday, trip, exam, launch or personal milestone. Your countdown runs privately in this browser and can be shared with a link.</p>
+  </div>
+  <form id="custom-countdown-form" class="custom-form">
+    <label>What are you counting down to?
+      <input id="custom-event-name" type="text" maxlength="80" placeholder="e.g. My next holiday" required>
+    </label>
+    <div class="custom-fields">
+      <label>Target date<input id="custom-event-date" type="date" required></label>
+      <label>Time (optional)<input id="custom-event-time" type="time"></label>
+    </div>
+    <p class="tool-hint">Leave the time empty to count to midnight at the start of that date in your local time zone.</p>
+    <div class="tool-actions"><button class="tool-primary" type="submit">Start countdown</button><button class="tool-secondary" id="custom-reset" type="reset">Clear</button></div>
+    <p id="custom-error" class="tool-error" role="alert" hidden></p>
+  </form>
+  <div id="custom-countdown-result" class="custom-result" aria-live="polite" hidden>
+    <h3 id="custom-result-title"></h3><p id="custom-result-status" class="cd-status"></p>
+    <div class="custom-clock" aria-label="Live countdown">
+      <div><b id="custom-days">0</b><span>Days</span></div><div><b id="custom-hours">00</b><span>Hours</span></div>
+      <div><b id="custom-minutes">00</b><span>Minutes</span></div><div><b id="custom-seconds">00</b><span>Seconds</span></div>
+    </div>
+    <div class="custom-stats"><span>Total hours <b id="custom-total-hours">0</b></span><span>Weeks <b id="custom-weeks">0</b></span><span>Weekdays <b id="custom-weekdays">0</b></span><span>Weekend days <b id="custom-weekends">0</b></span></div>
+    <p id="custom-timezone" class="tool-hint"></p>
+    <div class="tool-actions"><button type="button" class="tool-primary" id="custom-share">Copy share link</button><button type="button" class="tool-secondary" id="custom-new">Create another</button></div>
+    <p id="custom-share-status" class="tool-hint" role="status"></p>
+  </div>
+</section>
+<article class="prose tool-explainer">
+<h2>How this countdown calculator works</h2>
+<p>Enter a name and target date. If you provide a time, the calculator counts to that exact local date and time. If you leave the time blank, it uses midnight at the beginning of the selected date in your device's time zone. The live display updates once per second.</p>
+<h2>What the numbers mean</h2>
+<ul><li><b>Days, hours, minutes and seconds:</b> the remaining duration, broken into familiar units.</li>
+<li><b>Total hours:</b> the complete duration expressed as hours, including partial days.</li>
+<li><b>Weeks:</b> the remaining duration divided into seven-day periods.</li>
+<li><b>Weekdays and weekend days:</b> calendar dates crossed between now and the target. These are not business days and do not exclude public holidays.</li></ul>
+<h2>Time zones and accuracy</h2>
+<p>The calculator uses the clock and time-zone rules provided by your browser. It does not send the date, event name or calculation to our server. The share link contains the event name, date and optional time in its URL so another person can open the same countdown; the recipient's browser displays it using that device's local time zone. For an event tied to a specific global instant, agree on the intended time zone before sharing.</p>
+<h2>Privacy by design</h2>
+<p>Your custom event is not saved to an account or uploaded to daysuntil.bond. It exists in the page while you use it. Copying a share link is an explicit action, and that link includes only the name and target date/time you entered. Anyone with the link can read those details, so do not include private or sensitive information in an event name.</p>
+<h2>Common questions</h2>
+<div class="faq">
+<details><summary>Can I count down to a past date?</summary><p>Yes. The display changes to an elapsed-time counter and shows how long has passed since the selected date.</p></details>
+<details><summary>Why can two people see different hours?</summary><p>If you choose a local date and time, each browser interprets that time in its own time zone. To coordinate across locations, include the time zone in the event name or agree on a shared reference time.</p></details>
+<details><summary>Does it count public holidays as weekdays?</summary><p>Yes. The weekday figure means Monday through Friday only. It does not know which public holidays apply in your country or workplace.</p></details>
+<details><summary>Is my countdown stored?</summary><p>No. The calculator runs in your browser. A share link can recreate the countdown, but the site does not keep a copy of your custom event.</p></details>
+</div>
+<p>For public dates already in our calendar, browse the <a href="../holidays/">holiday countdowns</a>, <a href="../eclipses/">eclipse dates</a> or <a href="../meteor-showers/">meteor shower schedule</a>.</p>
+</article>
+<script src="../assets/site.js" defer></script>
+</main>
+<footer class="foot">
+  <div class="foot-grid">
+    <div><div class="logo small"><svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="17" r="10.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M16 10v7l5 3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M16 2v3M4.5 6.5l2 2M27.5 6.5l-2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> daysuntil<b>.bond</b></div>
+      <p>Live countdowns to the dates the world is waiting for — holidays, eclipses, moon phases, planetary stations, game launches, movies and sport. Astronomy events are computed with our own Keplerian ephemeris; verified dates are checked against primary sources.</p></div>
+    <div><b>Categories</b><a href="../holidays/">🎉 Holidays & Observances</a><a href="../moon/">🌕 Moon Phases</a><a href="../eclipses/">🌘 Eclipses</a><a href="../planets/">🪐 Planetary Stations</a><a href="../meteor-showers/">☄️ Meteor Showers</a><a href="../seasons/">🍂 Solstices & Equinoxes</a><a href="../gaming/">🎮 Games</a><a href="../movies/">🎬 Movies</a><a href="../sports/">🏆 Sports</a></div>
+    <div><b>Site</b><a href="../about/">About</a><a href="../privacy/">Privacy policy</a><a href="../contact/">Contact</a><a href="../terms/">Terms of use</a><a href="../disclosure/">Advertising disclosure</a></div>
+  </div>
+  <p class="tiny">© 2026 daysuntil.bond. Countdowns run in your local time zone. Dates marked "expected" depend on moon sighting and may shift by a day.</p>
+</footer>
+</body></html>

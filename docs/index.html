@@ -23,7 +23,7 @@
 <a class="skip" href="#main">Skip to content</a>
 <header class="top">
   <a class="logo" href="/"><svg class="logo-mark" width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="17" r="10.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M16 10v7l5 3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M16 2v3M4.5 6.5l2 2M27.5 6.5l-2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> daysuntil<b>.bond</b></a>
-  <nav class="nav"><a href="/holidays/">🎉 Holidays</a><a href="/eclipses/">🌘 Eclipses</a><a href="/moon/">🌕 Moon Phases</a><a href="/planets/">🪐 Planetary Stations</a><a href="/gaming/">🎮 Games</a><a href="/movies/">🎬 Movies</a><a href="/about/">ℹ️ About</a>
+  <nav class="nav"><a href="/holidays/">🎉 Holidays</a><a href="/eclipses/">🌘 Eclipses</a><a href="/moon/">🌕 Moon Phases</a><a href="/planets/">🪐 Planetary Stations</a><a href="/gaming/">🎮 Games</a><a href="/movies/">🎬 Movies</a><a href="/create-countdown/">⏱ Create countdown</a><a href="/about/">ℹ️ About</a>
 </nav>
 </header>
 <main id="main">
@@ -31,6 +31,35 @@
   <h1>How many days until…?</h1>
   <p class="lead">267 live countdowns — every tick computed in your time zone, from Christmas and GTA 6 to the eclipse of the century.</p>
   <div class="searchbox"><input id="q" type="search" placeholder="Search an event — try “eclipse”, “Christmas”, “GTA”, “full moon”…" autocomplete="off"><div id="q-results" class="q-results" hidden></div></div>
+</section>
+<section class="custom-tool" aria-labelledby="custom-tool-title">
+  <div class="tool-heading"><span class="tool-kicker">YOUR DATE · YOUR TIME ZONE</span>
+    <h2 id="custom-tool-title">Create your own countdown</h2>
+    <p>Choose any date and time — a birthday, trip, exam, launch or personal milestone. Your countdown runs privately in this browser and can be shared with a link.</p>
+  </div>
+  <form id="custom-countdown-form" class="custom-form">
+    <label>What are you counting down to?
+      <input id="custom-event-name" type="text" maxlength="80" placeholder="e.g. My next holiday" required>
+    </label>
+    <div class="custom-fields">
+      <label>Target date<input id="custom-event-date" type="date" required></label>
+      <label>Time (optional)<input id="custom-event-time" type="time"></label>
+    </div>
+    <p class="tool-hint">Leave the time empty to count to midnight at the start of that date in your local time zone.</p>
+    <div class="tool-actions"><button class="tool-primary" type="submit">Start countdown</button><button class="tool-secondary" id="custom-reset" type="reset">Clear</button></div>
+    <p id="custom-error" class="tool-error" role="alert" hidden></p>
+  </form>
+  <div id="custom-countdown-result" class="custom-result" aria-live="polite" hidden>
+    <h3 id="custom-result-title"></h3><p id="custom-result-status" class="cd-status"></p>
+    <div class="custom-clock" aria-label="Live countdown">
+      <div><b id="custom-days">0</b><span>Days</span></div><div><b id="custom-hours">00</b><span>Hours</span></div>
+      <div><b id="custom-minutes">00</b><span>Minutes</span></div><div><b id="custom-seconds">00</b><span>Seconds</span></div>
+    </div>
+    <div class="custom-stats"><span>Total hours <b id="custom-total-hours">0</b></span><span>Weeks <b id="custom-weeks">0</b></span><span>Weekdays <b id="custom-weekdays">0</b></span><span>Weekend days <b id="custom-weekends">0</b></span></div>
+    <p id="custom-timezone" class="tool-hint"></p>
+    <div class="tool-actions"><button type="button" class="tool-primary" id="custom-share">Copy share link</button><button type="button" class="tool-secondary" id="custom-new">Create another</button></div>
+    <p id="custom-share-status" class="tool-hint" role="status"></p>
+  </div>
 </section>
 <section class="grid2">
   <div>
@@ -66,8 +95,6 @@
       <b>New Year 2027</b><span class="card-date">Friday, January 1, 2027</span><span class="card-days" data-ms="1798761600000.0"></span></a><a class="card" href="ramadan-2027/"><span class="card-cat">🎉 Holidays & Observances</span>
       <b>Ramadan 2027 (expected)</b><span class="card-date">Monday, February 8, 2027</span><span class="card-days" data-ms="1802044800000.0"></span></a><a class="card" href="super-bowl-lxi/"><span class="card-cat">🏆 Sports</span>
       <b>Super Bowl LXI (2027)</b><span class="card-date">Sunday, February 14, 2027</span><span class="card-days" data-ms="1802563200000.0"></span></a></section>
-<h2>📚 Guides &amp; explainers</h2>
-<section class="cards"><a class="card" href="days-left-in-2026/"><span class="card-cat">📚 Guide</span><b>How many days are left in 2026?</b><span class="card-date">Workdays after federal holidays, plus every sky event still ahead</span></a><a class="card" href="meteor-shower-schedule-2026-2027/"><span class="card-cat">📚 Guide</span><b>Meteor Shower Schedule 2026–2027: Peak Dates &amp; Viewing</b><span class="card-date">Peak nights for Geminids, Ursids, Quadrantids, Lyrids and Perseids, with Moon conditions and viewing tips</span></a><a class="card" href="days-in-2027/"><span class="card-cat">📚 Guide</span><b>How many days are in 2027?</b><span class="card-date">The full year breakdown: weekdays, weekends, every month</span></a><a class="card" href="why-daysuntil-beats-every-other-site/"><span class="card-cat">📚 Guide</span><b>Why our counts differ from other countdown sites</b><span class="card-date">Days, sleeps, weekdays and weeks explained</span></a><a class="card" href="countdown-time-zone-guide/"><span class="card-cat">📚 Guide</span><b>Why countdowns differ by one day</b><span class="card-date">Time zones, counting conventions and the reliable way to check a date</span></a><a class="card" href="how-many-days-until-2027/"><span class="card-cat">📚 Guide</span><b>How many days until 2027?</b><span class="card-date">Calendar days, weekdays and the counting rule explained</span></a><a class="card" href="how-many-days-until-thanksgiving-2026/"><span class="card-cat">📚 Guide</span><b>How many days until Thanksgiving 2026?</b><span class="card-date">The date, counting rule and practical planning guide</span></a><a class="card" href="how-many-days-until-christmas-2026/"><span class="card-cat">📚 Guide</span><b>How many days until Christmas 2026?</b><span class="card-date">The exact date, time-zone rule and planning checklist</span></a><a class="card" href="how-many-days-until-black-friday-2026/"><span class="card-cat">📚 Guide</span><b>How many days until Black Friday 2026?</b><span class="card-date">The date, time-zone rule and Cyber Monday planning guide</span></a><a class="card" href="how-many-days-until-cyber-monday-2026/"><span class="card-cat">📚 Guide</span><b>How many days until Cyber Monday 2026?</b><span class="card-date">The exact date, time-zone rule and online shopping checklist</span></a><a class="card" href="how-many-days-until-new-years-eve-2026/"><span class="card-cat">📚 Guide</span><b>How many days until New Year's Eve 2026?</b><span class="card-date">The exact date, time-zone rule and year-end planning checklist</span></a></section>
 <h2>🗂 Browse by category</h2>
 <section class="cat-grid"><a class="cat-tile" href="holidays/" style="--c1:rgb(194, 24, 91)"><span class="big">🎉</span><b>Holidays & Observances</b><span class="count">122 countdowns</span></a><a class="cat-tile" href="moon/" style="--c1:rgb(96, 125, 139)"><span class="big">🌕</span><b>Moon Phases</b><span class="count">55 countdowns</span></a><a class="cat-tile" href="eclipses/" style="--c1:rgb(230, 81, 0)"><span class="big">🌘</span><b>Eclipses</b><span class="count">9 countdowns</span></a><a class="cat-tile" href="planets/" style="--c1:rgb(81, 45, 168)"><span class="big">🪐</span><b>Planetary Stations</b><span class="count">42 countdowns</span></a><a class="cat-tile" href="meteor-showers/" style="--c1:rgb(0, 105, 92)"><span class="big">☄️</span><b>Meteor Showers</b><span class="count">20 countdowns</span></a><a class="cat-tile" href="seasons/" style="--c1:rgb(85, 139, 47)"><span class="big">🍂</span><b>Solstices & Equinoxes</b><span class="count">9 countdowns</span></a><a class="cat-tile" href="gaming/" style="--c1:rgb(124, 77, 255)"><span class="big">🎮</span><b>Games</b><span class="count">1 countdowns</span></a><a class="cat-tile" href="movies/" style="--c1:rgb(183, 28, 28)"><span class="big">🎬</span><b>Movies</b><span class="count">6 countdowns</span></a><a class="cat-tile" href="sports/" style="--c1:rgb(46, 125, 50)"><span class="big">🏆</span><b>Sports</b><span class="count">3 countdowns</span></a></section>
 </main>
