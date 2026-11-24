@@ -158,21 +158,11 @@ def days_left_in_2026(h, today):
 
     faq = [
         ('How many days are left in 2026?',
-         f'As of {asof}, there are {s["left"]} days left in 2026 ({wk}), counting the days after today up to and '
-         f'including December 31. Count today as well and the figure is {s["left"] + 1}. The number on this page '
-         f'recalculates from your device\'s date, so it stays right every day until the year ends.'),
+         'The live counter at the top of this page recalculates the number of full calendar days remaining from your device’s local date. It counts the days after today through December 31; inclusive counting adds one.'),
         ('How many working days are left in 2026 in the US?',
-         f'As of {asof}, there are {s["wd"]} weekdays left, and {s["hol"]} of them are US federal holidays (Veterans Day '
-         f'on Wednesday, November 11; Thanksgiving on Thursday, November 26; Christmas Day on Friday, December 25), which '
-         f'leaves {s["work"]} working days. Your employer may close on other days, such as the Friday after Thanksgiving, '
-         f'so treat the figure as a baseline.'),
-        ('How many full moons are left in 2026?',
-         'Two: Tuesday, November 24 and Thursday, December 24. The December one peaks at about 01:30 UTC on the 24th, '
-         'which is still the evening of Wednesday, December 23 in North America.'),
+         'The working-day figure counts remaining Monday–Friday dates and subtracts US federal holidays that still fall within the period. Private employers may observe additional closures, so check your own calendar.'),
         ('Does the count include today and December 31?',
-         'Not here. "Days left" means the days after today through December 31, so the figure reads 0 on New Year\'s Eve. '
-         'Counting today as a full day adds one. Many counters do the opposite, which is the most common reason two sites '
-         'show different numbers on the same morning.'),
+         'No. This page counts full days after today through December 31. The counter reads 0 on December 31 itself; counting today as a full day adds one.'),
     ]
     faq_ld = {'@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': [
         {'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': a}} for q, a in faq]}
@@ -232,7 +222,7 @@ def days_left_in_2026(h, today):
   <tr><th>Date</th><th>Event</th><th>When</th><th>Good to know</th></tr>
   {ahead_rows}
 </table></div>
-<p>Every row links to its own live countdown. The planetary stations and moon phases were checked against NASA's JPL Horizons system and a second published ephemeris on {asof}.</p>
+<p>Every row links to its own live countdown. The planetary stations and moon phases are checked against NASA's JPL Horizons system and a second published ephemeris.</p>
 
 <section class="grid2">
   <div>
@@ -283,9 +273,9 @@ def meteor_shower_schedule_2026_2027(h, today):
     esc, SITE = h['esc'], h['SITE']
     slug = 'meteor-shower-schedule-2026-2027'
     url = f'{SITE}/{slug}/'
-    title = 'Meteor Shower Schedule 2026–2027: Peak Dates & Viewing'
-    desc = ('Meteor shower schedule for 2026–2027: Geminids, Ursids, Quadrantids, Lyrids, Perseids and more, '
-            'with peak nights, Moon conditions and practical viewing tips.')
+    title = 'Meteor Shower Schedule 2026–2027: Peak Dates & Best Viewing'
+    desc = ('See the next Geminids peak on Dec 13–14, 2026, then browse the 2026–2027 meteor shower calendar, '
+            'Moon conditions and practical viewing tips.')
     faq = [
         ('What is the next major meteor shower in 2026?',
          'The Geminids are the next major shower after November 2026. Their predicted peak is the night of December 13–14, 2026, and the International Meteor Organization lists favorable Moon conditions with about 15% illumination.'),
@@ -316,7 +306,7 @@ def meteor_shower_schedule_2026_2027(h, today):
     art_ld = {'@context':'https://schema.org','@type':'Article','headline':title,'description':desc,
         'image':[SITE+'/og/meteor-shower-schedule-2026-2027.png'],'mainEntityOfPage':url,
         'datePublished':today.isoformat(),'dateModified':today.isoformat(),'author':publisher,'publisher':publisher}
-    bc_ld = h['breadcrumb_ld']([('Home',SITE+'/'),('Meteor showers',SITE+'/meteor-showers/'),('2026–2027 schedule',url)])
+    bc_ld = json.loads(h['breadcrumb_ld']([('Home',SITE+'/'),('Meteor showers',SITE+'/meteor-showers/'),('2026–2027 schedule',url)]))
     ld = ''.join('<script type="application/ld+json">'+json.dumps(x)+'</script>' for x in (art_ld,faq_ld,bc_ld))
     faq_html = ''.join('<details><summary>'+esc(q)+'</summary><p>'+esc(a)+'</p></details>' for q,a in faq)
     asof = today.strftime('%B ') + str(today.day) + ', ' + str(today.year)
