@@ -11,6 +11,7 @@ BRAND = 'daysuntil.bond'
 BUILD_DATE = dt.date.today()   # sitemap <lastmod>: the day this build ran (was hard-coded to 2026-10-02)
 INDEXNOW_KEY = 'd91f4c7b2a8e6350f1c9d8a4b7e2f6c3'
 
+# SEO intent split: category pages serve live countdown navigation; editorial guides target detailed calendar queries.
 CATS = {
  'holidays':       dict(name='Holidays & Observances', icon='🎉', c1=(194,24,91),  c2=(71,20,100),  blurb='Every major holiday and observance on the calendar — Christmas, Halloween, Easter, Thanksgiving, New Year and dozens more — each with a live countdown to the second.'),
  'moon':           dict(name='Moon Phases',            icon='🌕', c1=(96,125,139), c2=(25,42,64),   blurb='Every full moon and new moon through 2028, with exact peak times computed from lunar theory — plus the rare blue moons and black moons.'),
