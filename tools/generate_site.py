@@ -1129,6 +1129,16 @@ def home_page():
     upcoming = [e for e in events if e['slug'] in INDEXABLE and e['ms'] > dt.datetime.now(dt.timezone.utc).timestamp() * 1000][:12]
     cards = ''.join(card_html(e) for e in upcoming)
     cats = ''.join(f'''<a class="cat-tile" href="{c}/" style="--c1:rgb{CATS[c]['c1']}"><span class="big">{CATS[c]['icon']}</span><b>{CATS[c]['name']}</b><span class="count">{sum(1 for e in events if e["category"]==c)} countdowns</span></a>''' for c in CATS)
+    guides = ''.join(
+        f'<a class="card" href="/{slug}/"><span class="card-cat">📚 Planning guide</span><b>{title}</b><span class="card-date">{summary}</span></a>'
+        for slug, title, summary in [
+            ('meteor-shower-schedule-2026-2027', 'Meteor Shower Schedule 2026–2027', 'Peak dates, Moon conditions and practical viewing tips'),
+            ('days-left-in-2026', 'How many days are left in 2026?', 'Calendar days, weekdays and US federal holidays'),
+            ('days-in-2027', 'How many days are in 2027?', 'A month-by-month calendar and weekday breakdown'),
+            ('countdown-time-zone-guide', 'Why countdowns differ by one day', 'Time zones and counting conventions explained'),
+            ('how-many-days-until-2027', 'Why countdown sites disagree on the days until 2027', 'Compare local time, inclusive counting and workday rules'),
+        ]
+    )
     idx = json.dumps([{'s': e['slug'], 't': e['title'], 'c': e['category'], 'n': date_nice(e['dt']), 'm': e['ms']} for e in events])
     ld = json.dumps({'@context': 'https://schema.org', '@graph': [
         {'@type': 'WebSite', '@id': SITE + '/#website', 'name': BRAND, 'url': SITE + '/',
@@ -1172,6 +1182,8 @@ def home_page():
 <section class="cards">{cards}</section>
 {AD_LB}<h2>🗂 Browse by category</h2>
 <section class="cat-grid">{cats}</section>
+<h2>📚 Countdown planning guides</h2>
+<section class="cards">{guides}</section>
 {AD_LOADER}</main>
 <script>window.EVENTS={idx};</script>
 <script src="assets/site.js" defer></script>
