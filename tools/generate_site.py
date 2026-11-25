@@ -789,13 +789,19 @@ CAT_DEEP = {
          'Computed from orbital elements, then checked against published ephemerides. They are the '
          'astronomical station dates, not a symbolic one.')]),
  'meteor-showers': dict(
-   how=("A meteor shower happens when the Earth ploughs through a trail of debris left by a comet or, "
-        "occasionally, an asteroid. The bits burn up in the upper atmosphere, and because they are all "
-        "travelling in parallel they appear to radiate from a single point in the sky — which is why "
-        "each shower is named after the constellation it seems to come from. The peak is the night the "
-        "Earth passes through the densest part of the trail, and it can be sharp or broad depending on "
-        "how old and spread out that trail is. Moonlight is the other variable: a bright Moon washes out "
-        "everything except the brightest meteors."),
+   how=("A meteor shower schedule is a calendar of the nights when Earth crosses known streams of "
+        "comet or asteroid debris. The particles burn up high in the atmosphere and appear to radiate "
+        "from one point in the sky, which is why each shower is named for a constellation. The annual "
+        "calendar has a useful rhythm: the Quadrantids peak in early January, the Lyrids around April "
+        "22, the Eta Aquariids in early May, the Southern Delta Aquariids near the end of July, the "
+        "Perseids around August 12–13, the Orionids around October 21–22, the Leonids around November "
+        "17–18, and the Geminids around December 13–14. These are approximate recurring peak dates, "
+        "not guaranteed local observing times; the exact peak hour and visibility vary by year and "
+        "location. Check each live countdown for the event-specific date and UTC peak where available. "
+        "The peak is when Earth crosses the densest part of a debris stream, and it can be sharp or "
+        "broad depending on the stream. Moonlight, cloud, light pollution and the height of the radiant "
+        "matter just as much as the published zenithal hourly rate. A bright Moon can wash out all but "
+        "the brightest meteors, while a dark rural sky can make an ordinary shower surprisingly good."),
    faq=[('What time of night is best?',
          'After midnight, and best of all in the hour or two before dawn. Before midnight you are on the '
          'trailing side of the Earth and see fewer meteors.'),
