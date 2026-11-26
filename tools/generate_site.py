@@ -8,7 +8,6 @@ DATA = os.path.join(ROOT, 'data')
 OUT = os.path.join(ROOT, 'docs')
 SITE = 'https://daysuntil.bond'
 BRAND = 'daysuntil.bond'
-BUILD_DATE = dt.date.today()   # sitemap <lastmod>: the day this build ran (was hard-coded to 2026-10-02)
 INDEXNOW_KEY = 'd91f4c7b2a8e6350f1c9d8a4b7e2f6c3'
 
 # SEO intent split: category pages serve live countdown navigation; editorial guides target detailed calendar queries.
@@ -1370,14 +1369,20 @@ for _slug, _t, _d in GENERATED_ARTICLES + STATIC_ARTICLES:
     if os.path.exists(os.path.join(OUT, _slug, 'index.html')):
         urls.append(f'{SITE}/{_slug}/')
 
-today = BUILD_DATE.isoformat()
-sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+# Do not emit a build-date lastmod for every URL. The generator rebuilds all static
+# files together, but that does not mean every page's content changed. Omitting an
+# unverifiable lastmod is more accurate than falsely refreshing the entire sitemap.
+sitemap = '<?xml version="1.0" encoding="UTF-8"?>\\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\\n'
 seen = set()
 urls = [u for u in urls if not (u in seen or seen.add(u))]
+if len(urls) != len(set(urls)):
+    raise RuntimeError('Sitemap contains duplicate URLs')
+if any(not u.startswith(SITE + '/') or not u.endswith('/') for u in urls):
+    raise RuntimeError('Sitemap contains a non-canonical host or URL path')
 for u in urls:
     priority = '1.0' if u == SITE + '/' else ('0.8' if u.endswith('/create-countdown/') else ('0.7' if u.count('/') == 4 else '0.5'))
-    sitemap += f'<url><loc>{u}</loc><lastmod>{today}</lastmod><priority>{priority}</priority></url>\n'
-sitemap += '</urlset>\n'
+    sitemap += f'<url><loc>{u}</loc><priority>{priority}</priority></url>\\n'
+sitemap += '</urlset>\\n'
 open(os.path.join(OUT, 'sitemap.xml'), 'w').write(sitemap)
 
 # Redirect stubs for legacy/guessable URLs GSC reported as 404 (not in sitemap)
