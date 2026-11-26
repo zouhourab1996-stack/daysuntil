@@ -1372,17 +1372,15 @@ for _slug, _t, _d in GENERATED_ARTICLES + STATIC_ARTICLES:
 # Do not emit a build-date lastmod for every URL. The generator rebuilds all static
 # files together, but that does not mean every page's content changed. Omitting an
 # unverifiable lastmod is more accurate than falsely refreshing the entire sitemap.
-sitemap = '<?xml version="1.0" encoding="UTF-8"?>\\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\\n'
-seen = set()
-urls = [u for u in urls if not (u in seen or seen.add(u))]
+sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
 if len(urls) != len(set(urls)):
     raise RuntimeError('Sitemap contains duplicate URLs')
 if any(not u.startswith(SITE + '/') or not u.endswith('/') for u in urls):
     raise RuntimeError('Sitemap contains a non-canonical host or URL path')
 for u in urls:
     priority = '1.0' if u == SITE + '/' else ('0.8' if u.endswith('/create-countdown/') else ('0.7' if u.count('/') == 4 else '0.5'))
-    sitemap += f'<url><loc>{u}</loc><priority>{priority}</priority></url>\\n'
-sitemap += '</urlset>\\n'
+    sitemap += f'<url><loc>{u}</loc><priority>{priority}</priority></url>\n'
+sitemap += '</urlset>\n'
 open(os.path.join(OUT, 'sitemap.xml'), 'w').write(sitemap)
 
 # Redirect stubs for legacy/guessable URLs GSC reported as 404 (not in sitemap)
