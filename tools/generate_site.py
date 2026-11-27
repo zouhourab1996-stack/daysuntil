@@ -1369,17 +1369,30 @@ for _slug, _t, _d in GENERATED_ARTICLES + STATIC_ARTICLES:
     if os.path.exists(os.path.join(OUT, _slug, 'index.html')):
         urls.append(f'{SITE}/{_slug}/')
 
-# Do not emit a build-date lastmod for every URL. The generator rebuilds all static
-# files together, but that does not mean every page's content changed. Omitting an
-# unverifiable lastmod is more accurate than falsely refreshing the entire sitemap.
+# Lastmod is opt-in and comes from an editorial source record, never the build date.
+# Pages without a verified content-update date deliberately omit lastmod.
+lastmod_by_url = {}
+for e in events:
+    if e.get('lastmod'):
+        try:
+            lastmod = dt.date.fromisoformat(e['lastmod']).isoformat()
+        except (TypeError, ValueError):
+            raise RuntimeError(f'Invalid sitemap lastmod for {e["slug"]}: {e.get("lastmod")}')
+        if dt.date.fromisoformat(lastmod) > dt.date.today():
+            raise RuntimeError(f'Future sitemap lastmod for {e["slug"]}: {lastmod}')
+        lastmod_by_url[f'{SITE}/{e["slug"]}/'] = lastmod
+
 sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
 if len(urls) != len(set(urls)):
     raise RuntimeError('Sitemap contains duplicate URLs')
 if any(not u.startswith(SITE + '/') or not u.endswith('/') for u in urls):
     raise RuntimeError('Sitemap contains a non-canonical host or URL path')
+if any(u not in urls for u in lastmod_by_url):
+    raise RuntimeError('A lastmod date was supplied for a URL excluded from the sitemap')
 for u in urls:
     priority = '1.0' if u == SITE + '/' else ('0.8' if u.endswith('/create-countdown/') else ('0.7' if u.count('/') == 4 else '0.5'))
-    sitemap += f'<url><loc>{u}</loc><priority>{priority}</priority></url>\n'
+    lastmod_xml = f'<lastmod>{lastmod_by_url[u]}</lastmod>' if u in lastmod_by_url else ''
+    sitemap += f'<url><loc>{u}</loc>{lastmod_xml}<priority>{priority}</priority></url>\n'
 sitemap += '</urlset>\n'
 open(os.path.join(OUT, 'sitemap.xml'), 'w').write(sitemap)
 
