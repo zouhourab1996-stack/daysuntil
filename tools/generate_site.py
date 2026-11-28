@@ -16,7 +16,7 @@ CATS = {
  'moon':           dict(name='Moon Phases',            icon='🌕', c1=(96,125,139), c2=(25,42,64),   blurb='Every full moon and new moon through 2028, with exact peak times computed from lunar theory — plus the rare blue moons and black moons.'),
  'eclipses':       dict(name='Eclipses',               icon='🌘', c1=(230,81,0),   c2=(20,20,26),   blurb='Every solar and lunar eclipse from late 2026 through 2028 — including the eclipse of the century on August 2, 2027, whose shadow crosses Spain, North Africa and Egypt.'),
  'planets':        dict(name='Planetary Stations',     icon='🪐', c1=(81,45,168),  c2=(16,14,40),   blurb='Every retrograde and direct station of Mercury, Venus, Mars, Jupiter, Saturn, Uranus, Neptune and Pluto through 2028 — computed to the minute with our own Keplerian ephemeris.'),
- 'meteor-showers': dict(name='Meteor Showers',         icon='☄️', c1=(0,105,92),   c2=(6,26,34),    blurb='Check the meteor shower schedule for 2026–2027: upcoming peak nights, live countdowns, Moon conditions and practical guides for the Geminids, Ursids, Quadrantids, Lyrids, Eta Aquariids and Perseids.', seo_title='Meteor Shower Schedule 2026–2027: Peak Dates & Times', seo_desc='Meteor shower schedule for 2026–2027: see the next peak dates, active nights, Moon conditions and live countdowns for the Geminids, Ursids, Quadrantids, Lyrids and Perseids.', seo_h1='Meteor Shower Schedule 2026–2027: Peak Dates & Live Countdown'),
+ 'meteor-showers': dict(name='Meteor Showers',         icon='☄️', c1=(0,105,92),   c2=(6,26,34),    blurb='Check the meteor shower schedule for 2026–2027: upcoming peak nights, live countdowns, Moon conditions and practical guides for the Geminids, Ursids, Quadrantids, Lyrids, Eta Aquariids and Perseids.', seo_title='Meteor Shower Schedule 2026–2027: Peak Dates', seo_desc='Meteor shower schedule for 2026–2027: peak dates, active nights, Moon conditions and live countdowns for Geminids, Ursids, Quadrantids, Lyrids and Perseids.', seo_h1='Meteor Shower Schedule 2026–2027: Peak Dates & Live Countdown'),
  'seasons':        dict(name='Solstices & Equinoxes',  icon='🍂', c1=(85,139,47),  c2=(28,42,51),   blurb='The exact moments spring, summer, fall and winter begin in 2026, 2027 and 2028 — down to the minute, UTC.'),
  'gaming':         dict(name='Games',                  icon='🎮', c1=(124,77,255), c2=(12,10,36),   blurb='The biggest game launches on the calendar — headlined by the most anticipated release in entertainment history.'),
  'movies':         dict(name='Movies',                 icon='🎬', c1=(183,28,28),  c2=(24,10,14),   blurb='Major theatrical release dates, from the Dunesday showdown of December 2026 to the far horizon of Pandora.'),
@@ -812,7 +812,13 @@ CAT_DEEP = {
          'radiant overhead. Realistic counts are usually well below it.'),
         ('Does the Moon ruin it?',
          'It can. A full Moon near the radiant cuts the visible count substantially, which is why the '
-         'same shower is excellent one year and disappointing the next.')]),
+         'same shower is excellent one year and disappointing the next.'),
+        ('When is the next meteor shower in 2026?',
+         'The Geminids are expected to peak around December 13–14, 2026, followed by the Ursids around December 22. Check the individual event guides for the listed peak and local observing notes.'),
+        ('What is the meteor shower schedule for 2027?',
+         'The major annual showers include the Quadrantids in January, Lyrids in April, Eta Aquariids in May, Perseids in August, Orionids in October, Leonids in November and Geminids in December. Exact peak hours and local dates vary by year and time zone.'),
+        ('Where should I look to see meteors?',
+         'Look across a wide area of dark sky rather than staring directly at the radiant. Move away from bright lights, allow your eyes to adapt and check cloud and Moon conditions before you go.')]),
  'seasons': dict(
    how=("An equinox or solstice is a single moment, not a day. The March and September equinoxes are "
         "when the Sun crosses the celestial equator and day and night come closest to equal; the June "
