@@ -3436,8 +3436,8 @@
     "kind": "date",
     "date": "2026-12-13",
     "desc": [
-      "The Geminids meteor shower peaks on the night of December 13, 2026 (December 13/14). The best meteor shower of the year, no contest: 120–150 bright, slow, colorful meteors per hour at peak from asteroid 3200 Phaethon — and it happens in December, so dress like it.",
-      "Best practice for any meteor shower: dark sky, no telescope, eyes adjusted for 30 minutes, look halfway up toward the radiant's constellation. The counter above runs to the peak night; meteors are visible several nights either side."
+      "The Geminids are expected to peak on the night of December 13–14, 2026, and remain active from December 4–17. NASA describes them as one of the most reliable annual meteor showers and says observers under dark skies may see about 40–50 meteors per hour; actual counts depend on local conditions.",
+      "The shower is associated with asteroid 3200 Phaethon. Choose a dark location, let your eyes adapt for 20–30 minutes, and watch a wide area of sky. The live countdown marks the expected peak night, not a guaranteed hourly count."
     ],
     "facts": [
       [
@@ -3445,15 +3445,20 @@
         "December 13–14, 2026"
       ],
       [
-        "Best viewing",
-        "After midnight to pre-dawn"
+        "Active dates",
+        "December 4–17, 2026 (NASA)"
+      ],
+      [
+        "Dark-sky expectation",
+        "About 40–50 meteors per hour; conditions vary"
       ],
       [
         "Equipment",
-        "None — naked eye only"
+        "Naked eye; no telescope needed"
       ]
     ],
-    "tagline": "Peak night December 13"
+    "tagline": "Peak night December 13–14",
+    "lastmod": "2026-11-28"
   },
   {
     "slug": "geminids-2027",
@@ -3462,24 +3467,24 @@
     "kind": "date",
     "date": "2027-12-13",
     "desc": [
-      "The Geminids meteor shower peaks on the night of December 13, 2027 (December 13/14). The best meteor shower of the year, no contest: 120–150 bright, slow, colorful meteors per hour at peak from asteroid 3200 Phaethon — and it happens in December, so dress like it.",
-      "Best practice for any meteor shower: dark sky, no telescope, eyes adjusted for 30 minutes, look halfway up toward the radiant's constellation. The counter above runs to the peak night; meteors are visible several nights either side."
+      "The Geminids are expected around the night of December 13–14, 2027. They are associated with asteroid 3200 Phaethon and are generally regarded as one of the strongest reliable annual meteor showers. Check a current forecast closer to the date for that year's predicted maximum and observing conditions.",
+      "Choose a dark location, give your eyes time to adapt, and watch a wide area of sky rather than using a telescope. The live countdown marks the listed peak date; the shower can be active across several nights."
     ],
     "facts": [
       [
-        "Peak night",
-        "December 13–14, 2027"
+        "Expected peak",
+        "Around December 13–14, 2027"
       ],
       [
-        "Best viewing",
-        "After midnight to pre-dawn"
+        "Parent body",
+        "Asteroid 3200 Phaethon"
       ],
       [
         "Equipment",
-        "None — naked eye only"
+        "Naked eye; no telescope needed"
       ]
     ],
-    "tagline": "Peak night December 13"
+    "tagline": "Expected peak December 13–14"
   },
   {
     "slug": "geminids-2028",
@@ -3488,24 +3493,24 @@
     "kind": "date",
     "date": "2028-12-13",
     "desc": [
-      "The Geminids meteor shower peaks on the night of December 13, 2028 (December 13/14). The best meteor shower of the year, no contest: 120–150 bright, slow, colorful meteors per hour at peak from asteroid 3200 Phaethon — and it happens in December, so dress like it.",
-      "Best practice for any meteor shower: dark sky, no telescope, eyes adjusted for 30 minutes, look halfway up toward the radiant's constellation. The counter above runs to the peak night; meteors are visible several nights either side."
+      "The Geminids are expected around the night of December 13–14, 2028. They are associated with asteroid 3200 Phaethon and are generally regarded as one of the strongest reliable annual meteor showers. Check a current forecast closer to the date for that year's predicted maximum and observing conditions.",
+      "Choose a dark location, give your eyes time to adapt, and watch a wide area of sky rather than using a telescope. The live countdown marks the listed peak date; the shower can be active across several nights."
     ],
     "facts": [
       [
-        "Peak night",
-        "December 13–14, 2028"
+        "Expected peak",
+        "Around December 13–14, 2028"
       ],
       [
-        "Best viewing",
-        "After midnight to pre-dawn"
+        "Parent body",
+        "Asteroid 3200 Phaethon"
       ],
       [
         "Equipment",
-        "None — naked eye only"
+        "Naked eye; no telescope needed"
       ]
     ],
-    "tagline": "Peak night December 13"
+    "tagline": "Expected peak December 13–14"
   },
   {
     "slug": "ursids-2026",
